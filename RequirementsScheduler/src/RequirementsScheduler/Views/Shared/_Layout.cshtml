@@ -7,7 +7,7 @@
     <title>@ViewData["Title"] - RequirementsScheduler</title>
 
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/material-design-lite/material.min.css" />
+        <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.min.css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
@@ -22,18 +22,39 @@
 </head>
 <body>
 <div class=".mdl-layout__container">
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; 2016 - RequirementsScheduler</p>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header has-drawer is-upgraded">
+        <div class="requirements-header mdl-layout__header mdl-layout__header--waterfall">
+            <div class="mdl-layout__header-row">
+                <!-- Add spacer, to align navigation to the right in desktop -->
+                <div class="requirements-header-spacer mdl-layout-spacer"></div>
+                <div class="requirements-navigation-container">
+                    <nav class="requirements-navigation mdl-navigation">
+                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href>Главная</a>
+                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href>Эксперимент</a>
+                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href>Отчеты</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="requirements-content mdl-layout__content">
+            @RenderBody()
+        </div>
+        <footer class="requirements-footer mdl-mega-footer">
+            <div class="mdl-mega-footer--top-section">
+                <div class="mdl-mega-footer--right-section">
+                    <a class="mdl-typography--font-light" href="#top">
+                        Back to Top
+                        <i class="material-icons">expand_less</i>
+                    </a>
+                </div>
+            </div>
         </footer>
     </div>
 </div>
 
 <environment names="Development">
     <script src="~/lib/jquery/dist/jquery.js"></script>
-    <script src="~/lib/material-design-lite/material.min.js"></script>
+    <script src="https://code.getmdl.io/1.2.1/material.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 </environment>
 <environment names="Staging,Production">
