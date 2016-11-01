@@ -20,7 +20,7 @@
     </environment>
     @Html.ApplicationInsightsJavaScript(TelemetryConfiguration)
 </head>
-<body>
+<body ng-app>
 <div class=".mdl-layout__container">
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header has-drawer is-upgraded">
         <div class="requirements-header mdl-layout__header mdl-layout__header--waterfall">
@@ -28,10 +28,10 @@
                 <!-- Add spacer, to align navigation to the right in desktop -->
                 <div class="requirements-header-spacer mdl-layout-spacer"></div>
                 <div class="requirements-navigation-container">
-                    <nav class="requirements-navigation mdl-navigation">
-                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href>Главная</a>
-                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href>Эксперимент</a>
-                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href>Отчеты</a>
+                    <nav class="requirements-navigation mdl-navigation {{active}}" ng-click="$event.preventDefault()">
+                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href="#" ng-click="active='home'">Главная</a>
+                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href="#" ng-click="active='experiment'">Эксперимент</a>
+                        <a class="mdl-navigation__link mdl-typography--text-uppercase" href="#">Отчеты</a>
                     </nav>
                 </div>
             </div>
@@ -53,21 +53,19 @@
 </div>
 
 <environment names="Development">
-    <script src="~/lib/jquery/dist/jquery.js"></script>
     <script src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+    <script src="~/lib/angular/angular.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 </environment>
 <environment names="Staging,Production">
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-            asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-            asp-fallback-test="window.jQuery">
-
-    </script>
     <script src="https://code.getmdl.io/1.2.1/material.min.js"
             asp-fallback-src="~/lib/material-design-lite/material.min.js"
             asp-fallback-test="sr-only">
 
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"
+            asp-fallback-src="~/lib/angular/angular.min.js"
+            asp-fallback-test="window.angular"></script>
     <script src="~/js/site.min.js" asp-append-version="true"></script>
 </environment>
 

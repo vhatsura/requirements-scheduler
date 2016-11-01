@@ -8,11 +8,13 @@ namespace RequirementsScheduler.Controllers
 {
     public class HomeController : Controller
     {
+        [Route("")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Route("experiment")]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
@@ -20,6 +22,7 @@ namespace RequirementsScheduler.Controllers
             return View();
         }
 
+        [Route("results")]
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";
