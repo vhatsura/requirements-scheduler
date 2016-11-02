@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html ng-app="requirementsScheduler">
+<head>
+    <meta charset="utf-8" />
+    <title>Reports</title>
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-resource.js"></script>
+    <script src="app.js"></script>
+</head>
+<body ng-cloak>
+<div ng-controller="reportsController">
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="report in reports">
+            <td>{{report.Title}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
