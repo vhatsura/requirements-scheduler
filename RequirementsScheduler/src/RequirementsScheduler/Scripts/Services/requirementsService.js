@@ -1,14 +1,13 @@
 ﻿(function () {
     'use strict';
 
-    var requirementsServices = angular.module('requirementsServices', ['ngResource']);
+    angular
+        .module('requirementsServices', ['ngResource'])
+        .factory('Report', Report);
 
-    requirementsServices.factory('Reports', ['$resource',
-    function($resource) {
-        return $resource('/api/reports/',
-            {},
-            {
-                query: { method: 'GET', params: {}, isArray: true }
-            });
-    }]);
+    Report.$inject = ['$resource'];
+
+    function Report($resource) {
+        return $resource('/api/movies/:id');
+    }
 })();
