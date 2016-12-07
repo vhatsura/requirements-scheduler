@@ -4,27 +4,54 @@ import { UniversalModule } from 'angular2-universal';
 import { AppComponent } from './components/app/app.component'
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
+import { AlertComponent } from './components/alert/alert.component';
 import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { AuthGuard } from './guards/auth.guard';
+import { AlertService } from "./services/alert.service";
+import { AuthenticationService } from './services/authentication.service';
+import { UserService } from './services/user.service';
+
+// used to create fake backend
+import { fakeBackendProvider } from './helpers/fake-backend';
+import { MockBackend, MockConnection } from '@angular/http/testing';
+import { BaseRequestOptions } from '@angular/http';
 
 @NgModule({
     bootstrap: [ AppComponent ],
     declarations: [
         AppComponent,
+        AlertComponent,
         NavMenuComponent,
-        CounterComponent,
+        //CounterComponent,
         FetchDataComponent,
-        HomeComponent
+        HomeComponent,
+        LoginComponent,
+        RegisterComponent
     ],
     imports: [
         UniversalModule, // Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
-            { path: 'home', component: HomeComponent },
+            { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
             //{ path: 'experiment', component: CounterComponent },
             { path: 'reports', component: FetchDataComponent },
+            { path: 'login', component: LoginComponent },
+            { path: 'register', component: RegisterComponent },
             { path: '**', redirectTo: 'home' }
         ])
+    ],
+    providers: [
+        AuthGuard,
+        AlertService,
+        AuthenticationService,
+        UserService,
+
+        fakeBackendProvider,
+        MockBackend,
+        MockConnection
     ]
 })
 export class AppModule {
