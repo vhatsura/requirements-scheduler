@@ -1,3 +1,4 @@
+import './__2.1.1.workaround.ts'; // temporary until 2.1.1 things are patched in Core
 import 'angular2-universal-polyfills/browser';
 import { enableProdMode } from '@angular/core';
 import { platformUniversalDynamic } from 'angular2-universal';

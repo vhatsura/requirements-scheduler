@@ -1,3 +1,4 @@
+import './__2.1.1.workaround.ts'; // temporary until 2.1.1 things are patched in Core
 import 'angular2-universal-polyfills';
 import 'zone.js';
 import { enableProdMode } from '@angular/core';

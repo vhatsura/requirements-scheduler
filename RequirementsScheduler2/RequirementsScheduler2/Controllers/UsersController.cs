@@ -9,7 +9,7 @@ using RequirementsScheduler2.Models;
 namespace RequirementsScheduler2.Controllers
 {
     [Route("api/[controller]")]
-    public class UserController : Controller
+    public class UsersController : Controller
     {
         private static readonly BlockingCollection<User> UsersCollection = new BlockingCollection<User>()
         {

@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { UniversalModule } from 'angular2-universal';
-import { AppComponent } from './components/app/app.component'
+
+import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
 import { AlertComponent } from './components/alert/alert.component';
@@ -13,11 +15,6 @@ import { AuthGuard } from './guards/auth.guard';
 import { AlertService } from "./services/alert.service";
 import { AuthenticationService } from './services/authentication.service';
 import { UserService } from './services/user.service';
-
-// used to create fake backend
-import { fakeBackendProvider } from './helpers/fake-backend';
-import { MockBackend, MockConnection } from '@angular/http/testing';
-import { BaseRequestOptions } from '@angular/http';
 
 @NgModule({
     bootstrap: [ AppComponent ],
@@ -33,6 +30,7 @@ import { BaseRequestOptions } from '@angular/http';
     ],
     imports: [
         UniversalModule, // Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
+        FormsModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
@@ -47,11 +45,7 @@ import { BaseRequestOptions } from '@angular/http';
         AuthGuard,
         AlertService,
         AuthenticationService,
-        UserService,
-
-        fakeBackendProvider,
-        MockBackend,
-        MockConnection
+        UserService
     ]
 })
 export class AppModule {

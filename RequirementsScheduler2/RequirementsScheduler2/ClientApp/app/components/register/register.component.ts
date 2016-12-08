@@ -1,10 +1,10 @@
 ﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import Userservice = require("../../services/user.service");
-import Alertservice = require("../../services/alert.service");
+import { UserService } from '../../services/user.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
-    templateUrl: 'register.component.html'
+    template: require('./register.component.html')
 })
 
 export class RegisterComponent {
@@ -13,8 +13,8 @@ export class RegisterComponent {
 
     constructor(
         private router: Router,
-        private userService: Userservice.UserService,
-        private alertService: Alertservice.AlertService) { }
+        private userService: UserService,
+        private alertService: AlertService) { }
 
     register() {
         this.loading = true;
