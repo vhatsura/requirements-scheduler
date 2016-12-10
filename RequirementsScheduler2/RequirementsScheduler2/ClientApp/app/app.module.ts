@@ -13,9 +13,11 @@ import { CounterComponent } from './components/counter/counter.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthGuard } from './guards/auth.guard';
-import { AlertService } from "./services/alert.service";
-import { AuthenticationService } from './services/authentication.service';
-import { UserService } from './services/user.service';
+import { AlertService, AuthenticationService, UserService } from "./services/index";
+import { TabsComponent } from './components/tabs/tabs.component';
+import { TabComponent } from './components/tab/tab.component';
+
+import { CustomFormsModule } from 'ng2-validation'
 
 @NgModule({
     bootstrap: [ AppComponent ],
@@ -28,11 +30,14 @@ import { UserService } from './services/user.service';
         UsersComponent,
         FetchDataComponent,
         LoginComponent,
-        RegisterComponent
+        RegisterComponent,
+        TabComponent,
+        TabsComponent
     ],
     imports: [
         UniversalModule, // Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
         FormsModule,
+        CustomFormsModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },

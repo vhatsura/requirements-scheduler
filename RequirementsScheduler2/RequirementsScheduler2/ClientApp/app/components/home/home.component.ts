@@ -8,6 +8,7 @@ import { UserService } from "../../services/user.service";
 })
 
 export class HomeComponent {
+    model: any = {};
     currentUser: User;
 
     constructor(private userService: UserService) {
