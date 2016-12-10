@@ -30,6 +30,23 @@ namespace RequirementsScheduler2.Controllers
             return UsersCollection.FirstOrDefault(user => user.Id == id);
         }
 
+        // POST api/authenticate
+        [HttpPost("authenticate")]
+        public ActionResult Authenticate([FromBody]User user)
+        {
+            var loginUser = UsersCollection.FirstOrDefault(u => u.Username == user.Username);
+            if (loginUser == null)
+            {
+                return Ok();
+            }
+            if (loginUser.Password == user.Password)
+            {
+                var tokenResponse = new { Token = "fake-jwt-token" };
+                return Ok(tokenResponse);
+            }
+            return Ok();
+        }
+
         // POST api/values
         [HttpPost]
         public void Post([FromBody]User value)
