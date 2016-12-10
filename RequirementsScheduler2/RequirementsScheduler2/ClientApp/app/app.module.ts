@@ -6,6 +6,7 @@ import { UniversalModule } from 'angular2-universal';
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
+import { UsersComponent } from './components/users/users.component';
 import { AlertComponent } from './components/alert/alert.component';
 import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
@@ -23,8 +24,9 @@ import { UserService } from './services/user.service';
         AlertComponent,
         NavMenuComponent,
         //CounterComponent,
-        FetchDataComponent,
         HomeComponent,
+        UsersComponent,
+        FetchDataComponent,
         LoginComponent,
         RegisterComponent
     ],
@@ -35,9 +37,10 @@ import { UserService } from './services/user.service';
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
             //{ path: 'experiment', component: CounterComponent },
+            { path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
             { path: 'reports', component: FetchDataComponent },
             { path: 'login', component: LoginComponent },
-            { path: 'register', component: RegisterComponent },
+            { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
             { path: '**', redirectTo: 'home' }
         ])
     ],

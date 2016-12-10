@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Subscription } from 'rxjs/Subscription';
+import { isBrowser } from 'angular2-universal';
 
 @Component({
     selector: 'nav-menu',
@@ -8,15 +9,31 @@ import { Subscription } from 'rxjs/Subscription';
     styles: [require('./navmenu.component.css')]
 })
 export class NavMenuComponent implements OnInit, OnDestroy {
-    isLogged : boolean;
+    isLogged: boolean;
+    isAdmin: boolean;
 
     subscription: Subscription;
 
     constructor(private _authenticationService: AuthenticationService) { }
 
     ngOnInit() {
-        this.subscription = this._authenticationService.isLogged
-            .subscribe(item => this.isLogged = item);
+        this.subscription = this._authenticationService.user
+            .subscribe(item => {
+                if (item != null) {
+                    this.isLogged = true;
+                    this.isAdmin = item.isAdmin;
+                } else {
+                    this.isLogged = false;
+                }
+            });
+
+        if (isBrowser) {
+            if (localStorage.getItem('currentUser')) {
+                let user = JSON.parse(localStorage.getItem('currentUser'));
+                this.isLogged = true;
+                this.isAdmin = user.isAdmin;
+            }
+        }
     }
 
     ngOnDestroy() {

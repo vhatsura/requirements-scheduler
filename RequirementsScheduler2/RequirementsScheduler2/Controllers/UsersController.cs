@@ -13,7 +13,7 @@ namespace RequirementsScheduler2.Controllers
     {
         private static readonly BlockingCollection<User> UsersCollection = new BlockingCollection<User>()
         {
-            new User() { Id = 1, Username = "admin", Password = "admin" }
+            new User() { Id = 1, Username = "admin", Password = "admin", IsAdmin = true }
         };
 
         // GET: api/values
@@ -41,7 +41,7 @@ namespace RequirementsScheduler2.Controllers
             }
             if (loginUser.Password == user.Password)
             {
-                var tokenResponse = new { Token = "fake-jwt-token" };
+                var tokenResponse = new { Token = "fake-jwt-token", loginUser.IsAdmin };
                 return Ok(tokenResponse);
             }
             return Ok();
@@ -49,12 +49,17 @@ namespace RequirementsScheduler2.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]User value)
+        public ActionResult Post([FromBody]User value)
         {
-            if (!ModelState.IsValid) return;
+            if (!ModelState.IsValid) return BadRequest();
+
+            var existedUser = UsersCollection.FirstOrDefault(user => user.Username == value.Username);
+            if (existedUser != null) return BadRequest("The user with the same username exists");
 
             value.Id = UsersCollection.Max(user => user.Id) + 1;
             UsersCollection.Add(value);
+
+            return Ok("User added successfully");
         }
 
         //// PUT api/values/5

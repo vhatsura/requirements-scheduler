@@ -22,6 +22,11 @@
                         <span class='glyphicon glyphicon-th-list'></span> Reports
                     </a>
                 </li>
+                <li [routerLinkActive]="['link-active']" *ngIf="isLogged && isAdmin">
+                    <a [routerLink]="['/users']">
+                        <span class='glyphicon glyphicon-user'></span> Users
+                    </a>
+                </li>
                 <li [routerLinkActive]="['link-active']" *ngIf="isLogged">
                     <a [routerLink]="['/login']">
                         <span class='glyphicon glyphicon-log-out'></span> Logout
