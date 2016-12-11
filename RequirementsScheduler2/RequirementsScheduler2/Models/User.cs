@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using RequirementsScheduler2.Repository;
 
 namespace RequirementsScheduler2.Models
 {
-    public class User
+    public class User : IRepositoryModel
     {
         public int Id { get; set; }
         public bool IsAdmin { get; set; }

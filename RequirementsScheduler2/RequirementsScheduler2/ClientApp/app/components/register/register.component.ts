@@ -1,7 +1,6 @@
 ﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../../services/user.service';
-import { AlertService } from '../../services/alert.service';
+import { UserService, AlertService } from '../../services/index';
 
 @Component({
     template: require('./register.component.html')

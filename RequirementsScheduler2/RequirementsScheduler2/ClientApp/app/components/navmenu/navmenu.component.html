@@ -27,7 +27,7 @@
                         <span class='glyphicon glyphicon-user'></span> Users
                     </a>
                 </li>
-                <li [routerLinkActive]="['link-active']" *ngIf="isLogged">
+                <li [routerLinkActive]="['link-active']" *ngIf="authService.loggedIn()">
                     <a [routerLink]="['/login']">
                         <span class='glyphicon glyphicon-log-out'></span> Logout
                     </a>

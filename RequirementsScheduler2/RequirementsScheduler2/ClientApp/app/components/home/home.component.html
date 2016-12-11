@@ -1,77 +1,7 @@
 <div class="col-md-7 col-md-offset-2">
     <tabs>
         <tab tabTitle="New Experiment" class="col-md-9 col-md-offset-2">
-            <div *ngIf="error" class="alert alert-danger">{{error}}</div>
-            <div *ngIf="success" class="alert alert-success">{{success}}</div>
-            <form name="form" (ngSubmit)="f.form.valid && create()" #f="ngForm" novalidate="">
-                <!-- Total number of tests -->
-                <div class="form-group" [ngClass]="{'has-error': f.submitted && !testAmount.valid}">
-                    <label>The total number of tests</label>
-                    <input type="number" class="form-control" name="testAmount" [(ngModel)]="model.testAmount" #testAmount="ngModel" [min]="1" required />
-                    <div *ngIf="f.submitted && !testAmount.valid" class="help-block">The total number of tests is required and should be more than zero</div>
-                </div>
-                <!-- Total number of requirements -->
-                <div class="form-group" [ngClass]="{'has-error': f.submitted && !requirementsAmount.valid}">
-                    <label>The total number of requirements</label>
-                    <input type="number" class="form-control" name="requirementsAmount" [(ngModel)]="model.requirementsAmount" #requirementsAmount="ngModel" [min]="1" required />
-                    <div *ngIf="f.submitted && !testAmount.valid" class="help-block">The total number of requirements is required and should be more than zero</div>
-                </div>
-                <!-- Ratio for types of detail -->
-                <label>Ratio between types of detail (n1, n2, n12, n21)</label>
-                <div class="row">
-                    <div class="form-group col-xs-3" [ngClass]="{'has-error': f.submitted && !n1.valid}">
-                        <label>n1</label>
-                        <input type="number" class="form-control" name="n1" [(ngModel)]="model.n1" #n1="ngModel" [range]="[0, 100]" required />
-                    </div>
-                    <div class="form-group col-xs-3" [ngClass]="{'has-error': f.submitted && !n2.valid}">
-                        <label>n2</label>
-                        <input type="number" class="form-control" name="n2" [(ngModel)]="model.n2" #n2="ngModel" [range]="[0, 100]" required />
-                    </div>
-                    <div class="form-group col-xs-3" [ngClass]="{'has-error': f.submitted && !n12.valid}">
-                        <label>n12</label>
-                        <input type="number" class="form-control" name="n12" [(ngModel)]="model.n12" #n12="ngModel" [range]="[0, 100]" required />
-                    </div>
-                    <div class="form-group col-xs-3" [ngClass]="{'has-error': f.submitted && !n21.valid}">
-                        <label>n21</label>
-                        <input type="number" class="form-control" name="n21" [(ngModel)]="model.n21" #n21="ngModel" [range]="[0, 100]" required />
-                    </div>
-                </div>
-                <div *ngIf="f.submitted && !n1.valid && !n2.valid && !n12.valid && !n21.valid" class="help-block">Ratio between types of detail is required and should be in [0;100] range</div>
-                <!-- Range boundaries generation -->
-                <label>Range boundaries generation</label>
-                <div class="row">
-                    <div class="form-group col-xs-6" [ngClass]="{'has-error': f.submitted && !minBoundaryRange.valid}">
-                        <label>Min range's boundary</label>
-                        <input type="number" class="form-control" name="minBoundaryRange" [(ngModel)]="model.minBoundaryRange" #minBoundaryRange="ngModel" [min]="0" required />
-                        <div *ngIf="f.submitted && !minBoundaryRange.valid" class="help-block">The min range's boundary is required and should be more than zero</div>
-                    </div>
-                    <div class="form-group col-xs-6" [ngClass]="{'has-error': f.submitted && !maxBoundaryRange.valid}">
-                        <label>Max range's boundary</label>
-                        <input type="number" class="form-control" name="maxBoundaryRange" [(ngModel)]="model.maxBoundaryRange" #maxBoundaryRange="ngModel" [min]="0" required />
-                        <div *ngIf="f.submitted && !maxBoundaryRange.valid" class="help-block">The max range's boundary is required and should be more than zero</div>
-                    </div>
-                </div>
-                <!-- Type of borders generation -->
-                <div class="form-group" [ngClass]="{'has-error': f.submitted && !borderGenerationType.valid}">
-                    <label>Type of borders generation</label>
-                    <select class="form-control" name="borderGenerationType" [(ngModel)]="model.borderGenerationType" #borderGenerationType="ngModel" required>
-                        <option *ngFor="let c of [{name: 'uniform'}]" [ngValue]="c">{{c.name}}</option>
-                    </select>
-                    <div *ngIf="f.submitted && !borderGenerationType.valid" class="help-block">The border generation type is required</div>
-                </div>
-                <!-- Type of p generation -->
-                <div class="form-group" [ngClass]="{'has-error': f.submitted && !pGenerationType.valid}">
-                    <label>Type of p generation</label>
-                    <select class="form-control" name="pGenerationType" [(ngModel)]="model.pGenerationType" #pGenerationType="ngModel" required>
-                        <option *ngFor="let c of [{name: 'uniform'}]" [ngValue]="c">{{c.name}}</option>
-                    </select>
-                    <div *ngIf="f.submitted && !pGenerationType.valid" class="help-block">The p generation type is required</div>
-                </div>
-                <div class="form-group">
-                    <button [disabled]="loading" class="btn btn-primary">Submit</button>
-                    <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-                </div>
-            </form>
+            <experiment-form></experiment-form>
         </tab>
         <tab tabTitle="Experiments in progress">
 

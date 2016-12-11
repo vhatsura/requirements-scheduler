@@ -1,22 +1,24 @@
 ﻿import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Response } from '@angular/http';
+
+import { AuthHttp } from 'angular2-jwt';
 
 import { User }  from '../models/user';
 
 @Injectable()
 export class UserService {
-    constructor(private http: Http) { }
+    constructor(private authHttp: AuthHttp) { }
 
     getAll() {
-        return this.http.get('/api/users', this.jwt()).map((response: Response) => response.json());
+        return this.authHttp.get('/api/users').map((response: Response) => response.json());
     }
 
     getById(id: number) {
-        return this.http.get('/api/users/' + id, this.jwt()).map((response: Response) => response.json());
+        return this.authHttp.get('/api/users/' + id).map((response: Response) => response.json());
     }
 
     create(user: User) {
-        return this.http.post('/api/users', user, this.jwt()).map((response: Response) => response.json());
+        return this.authHttp.post('/api/users', user).map((response: Response) => response.json());
     }
 
     //update(user: User) {
@@ -28,13 +30,4 @@ export class UserService {
     //}
 
     // private helper methods
-
-    private jwt() {
-        // create authorization header with jwt token
-        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (currentUser && currentUser.token) {
-            let headers = new Headers({ 'Authorization': 'Bearer ' + currentUser.token });
-            return new RequestOptions({ headers: headers });
-        }
-    }
 }
