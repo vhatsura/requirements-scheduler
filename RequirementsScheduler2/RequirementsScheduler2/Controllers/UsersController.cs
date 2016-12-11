@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using RequirementsScheduler2.Extensions;
 using RequirementsScheduler2.Models;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
@@ -51,15 +52,19 @@ namespace RequirementsScheduler2.Controllers
         [HttpPost]
         public ActionResult Post([FromBody]User value)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Message =  $"User isn't valid: {ModelState.ErrorsToString()}"});
+            }
 
             var existedUser = UsersCollection.FirstOrDefault(user => user.Username == value.Username);
-            if (existedUser != null) return BadRequest("The user with the same username exists");
+            if (existedUser != null)
+                return BadRequest(new { Message = "The user with the same username already exists" } );
 
             value.Id = UsersCollection.Max(user => user.Id) + 1;
             UsersCollection.Add(value);
 
-            return Ok("User added successfully");
+            return Ok(new { Message = "User added successfully" });
         }
 
         //// PUT api/values/5
@@ -75,3 +80,4 @@ namespace RequirementsScheduler2.Controllers
         //}
     }
 }
+

@@ -1,12 +1,16 @@
 <div class="col-md-7 col-md-offset-2">
     <tabs>
         <tab tabTitle="New Experiment" class="col-md-9 col-md-offset-2">
-            <form name="form" (ngSubmit)="f.form.valid" #f="ngForm" novalidate="">
+            <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+            <div *ngIf="success" class="alert alert-success">{{success}}</div>
+            <form name="form" (ngSubmit)="f.form.valid && create()" #f="ngForm" novalidate="">
+                <!-- Total number of tests -->
                 <div class="form-group" [ngClass]="{'has-error': f.submitted && !testAmount.valid}">
                     <label>The total number of tests</label>
                     <input type="number" class="form-control" name="testAmount" [(ngModel)]="model.testAmount" #testAmount="ngModel" [min]="1" required />
                     <div *ngIf="f.submitted && !testAmount.valid" class="help-block">The total number of tests is required and should be more than zero</div>
                 </div>
+                <!-- Total number of requirements -->
                 <div class="form-group" [ngClass]="{'has-error': f.submitted && !requirementsAmount.valid}">
                     <label>The total number of requirements</label>
                     <input type="number" class="form-control" name="requirementsAmount" [(ngModel)]="model.requirementsAmount" #requirementsAmount="ngModel" [min]="1" required />
@@ -32,7 +36,7 @@
                         <input type="number" class="form-control" name="n21" [(ngModel)]="model.n21" #n21="ngModel" [range]="[0, 100]" required />
                     </div>
                 </div>
-                <div *ngIf="f.submitted && !n1.valid && !n2.valid && !n12.valid && !n21.valid" class="help-block">Ratio between types of detail and should be in [0;100] range</div>
+                <div *ngIf="f.submitted && !n1.valid && !n2.valid && !n12.valid && !n21.valid" class="help-block">Ratio between types of detail is required and should be in [0;100] range</div>
                 <!-- Range boundaries generation -->
                 <label>Range boundaries generation</label>
                 <div class="row">

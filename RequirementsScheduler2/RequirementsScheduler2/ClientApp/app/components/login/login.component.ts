@@ -2,7 +2,6 @@
 import { Router } from '@angular/router';
 
 import { AuthenticationService } from '../../services/authentication.service';
-import { AlertService } from '../../services/alert.service';
 
 @Component({
     template: require('./login.component.html')
@@ -15,8 +14,7 @@ export class LoginComponent implements OnInit {
 
     constructor(
         private router: Router,
-        private authenticationService: AuthenticationService,
-        private alertService: AlertService) { }
+        private authenticationService: AuthenticationService) { }
 
     ngOnInit() {
         // reset login status

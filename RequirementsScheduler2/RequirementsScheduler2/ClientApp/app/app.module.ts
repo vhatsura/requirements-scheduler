@@ -13,7 +13,7 @@ import { CounterComponent } from './components/counter/counter.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthGuard } from './guards/auth.guard';
-import { AlertService, AuthenticationService, UserService } from "./services/index";
+import { AlertService, AuthenticationService, UserService, ExperimentService } from "./services/index";
 import { TabsComponent } from './components/tabs/tabs.component';
 import { TabComponent } from './components/tab/tab.component';
 
@@ -53,7 +53,8 @@ import { CustomFormsModule } from 'ng2-validation'
         AuthGuard,
         AlertService,
         AuthenticationService,
-        UserService
+        UserService,
+        ExperimentService
     ]
 })
 export class AppModule {
