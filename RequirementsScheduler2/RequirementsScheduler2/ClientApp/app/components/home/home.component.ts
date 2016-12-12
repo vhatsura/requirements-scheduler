@@ -1,16 +1,19 @@
-import { Component } from '@angular/core';
-import { User } from "../../models/user";
-import { UserService } from "../../services/user.service";
+import { Component, OnInit } from '@angular/core';
+import { User, Experiment } from "../../models/index";
+import { ExperimentService, AlertService } from "../../services/index";
+import { isBrowser } from 'angular2-universal';
 
 @Component({
     selector: 'home',
     template: require('./home.component.html')
 })
 
-export class HomeComponent {
+export class HomeComponent implements OnInit {
     currentUser: User;
 
-    constructor(private userService: UserService) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    ngOnInit(): void {
+        if (isBrowser) {
+            this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        }
     }
 }

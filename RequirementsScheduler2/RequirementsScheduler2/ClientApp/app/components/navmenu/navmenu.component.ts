@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthenticationService } from '../../services/authentication.service';
+import { AuthenticationService } from '../../services/index';
 import { Subscription } from 'rxjs/Subscription';
 import { isBrowser } from 'angular2-universal';
+
+import { JwtHelper } from 'angular2-jwt';
 
 @Component({
     selector: 'nav-menu',
@@ -13,26 +15,26 @@ export class NavMenuComponent implements OnInit, OnDestroy {
     isAdmin: boolean;
 
     subscription: Subscription;
+    jwtHelper: JwtHelper = new JwtHelper();
 
-    constructor(private _authenticationService: AuthenticationService) { }
+    constructor(public authService: AuthenticationService) { }
 
     ngOnInit() {
-        this.subscription = this._authenticationService.user
+        this.subscription = this.authService.user
             .subscribe(item => {
-                if (item != null) {
+                if (this.authService.loggedIn()) {
                     this.isLogged = true;
-                    this.isAdmin = item.isAdmin;
+                    this.isAdmin = this.authService.userRole() === "admin";
                 } else {
                     this.isLogged = false;
                 }
             });
 
-        if (isBrowser) {
-            if (localStorage.getItem('currentUser')) {
-                let user = JSON.parse(localStorage.getItem('currentUser'));
-                this.isLogged = true;
-                this.isAdmin = user.isAdmin;
-            }
+        if (this.authService.loggedIn()) {
+            this.isLogged = true;
+            this.isAdmin = this.authService.userRole() === "admin";
+        } else {
+            this.isLogged = false;
         }
     }
 

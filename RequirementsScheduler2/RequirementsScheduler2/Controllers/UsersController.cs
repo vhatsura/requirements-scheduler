@@ -1,8 +1,9 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RequirementsScheduler2.Extensions;
 using RequirementsScheduler2.Models;
+using RequirementsScheduler2.Repository;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,67 +12,42 @@ namespace RequirementsScheduler2.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private static readonly BlockingCollection<User> UsersCollection = new BlockingCollection<User>()
-        {
-            new User() { Id = 1, Username = "admin", Password = "admin", IsAdmin = true }
-        };
+        private readonly UsersRepository Repository = new UsersRepository();
 
         // GET: api/values
         [HttpGet]
+        [Authorize(Policy = "CanAccessAdminArea")]
         public IEnumerable<User> Get()
         {
-            return UsersCollection;
+            return Repository.Get();
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
+        [Authorize(Policy = "CanAccessAdminArea")]
         public User Get(int id)
         {
-            return UsersCollection.FirstOrDefault(user => user.Id == id);
-        }
-
-        // POST api/authenticate
-        [HttpPost("authenticate")]
-        public ActionResult Authenticate([FromBody]User user)
-        {
-            var loginUser = UsersCollection.FirstOrDefault(u => u.Username == user.Username);
-            if (loginUser == null)
-            {
-                return Ok();
-            }
-            if (loginUser.Password == user.Password)
-            {
-                var tokenResponse = new { Token = "fake-jwt-token", loginUser.IsAdmin };
-                return Ok(tokenResponse);
-            }
-            return Ok();
+            return Repository.Get(id);
         }
 
         // POST api/values
         [HttpPost]
+        [Authorize(Policy = "CanAccessAdminArea")]
         public ActionResult Post([FromBody]User value)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Message =  $"User isn't valid: {ModelState.ErrorsToString()}"});
+            }
 
-            var existedUser = UsersCollection.FirstOrDefault(user => user.Username == value.Username);
-            if (existedUser != null) return BadRequest("The user with the same username exists");
+            var existedUser = Repository.Get(user => user.Username == value.Username);
+            if (existedUser != null)
+                return BadRequest(new { Message = "The user with the same username already exists" } );
 
-            value.Id = UsersCollection.Max(user => user.Id) + 1;
-            UsersCollection.Add(value);
+            Repository.Add(value);
 
-            return Ok("User added successfully");
+            return Ok(new { Message = "User added successfully" });
         }
-
-        //// PUT api/values/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody]string value)
-        //{
-        //}
-
-        //// DELETE api/values/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }
+

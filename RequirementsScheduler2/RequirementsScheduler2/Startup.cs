@@ -1,13 +1,15 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using RequirementsScheduler2.Identity;
 
 namespace RequirementsScheduler2
 {
@@ -30,6 +32,13 @@ namespace RequirementsScheduler2
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "CanAccessAdminArea",
+                    policy => policy.RequireClaim("role", "admin"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +60,55 @@ namespace RequirementsScheduler2
             }
 
             app.UseStaticFiles();
+
+            app.Use(async (context, func) =>
+            {
+                await func();
+            });
+
+            // secretKey contains a secret passphrase only your server knows
+            var secretKey = "501FC5DD-4268-4CC5-A791-44A6CEA41A43";
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+
+            // Add JWT generation endpoint:
+            var options = new TokenProviderOptions
+            {
+                Path = "/api/token",
+                Audience = "ExampleAudience",
+                Issuer = "ExampleIssuer",
+                Expiration = TimeSpan.FromDays(1),
+                SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256),
+            };
+
+            app.UseMiddleware<TokenProviderMiddleware>(Options.Create(options));
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                // The signing key must match!
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = signingKey,
+
+                // Validate the JWT Issuer (iss) claim
+                ValidateIssuer = true,
+                ValidIssuer = "ExampleIssuer",
+
+                // Validate the JWT Audience (aud) claim
+                ValidateAudience = true,
+                ValidAudience = "ExampleAudience",
+
+                // Validate the token expiry
+                ValidateLifetime = true,
+
+                // If you want to allow a certain amount of clock drift, set that here:
+                ClockSkew = TimeSpan.Zero
+            };
+
+            app.UseJwtBearerAuthentication(new JwtBearerOptions
+            {
+                AutomaticAuthenticate = true,
+                AutomaticChallenge = true,
+                TokenValidationParameters = tokenValidationParameters
+            });
 
             app.UseMvc(routes =>
             {
