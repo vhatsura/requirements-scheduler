@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { UniversalModule } from 'angular2-universal';
+import { UniversalModule, isBrowser } from 'angular2-universal';
 
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
@@ -23,7 +23,7 @@ import { CustomFormsModule } from 'ng2-validation'
 import { AUTH_PROVIDERS } from 'angular2-jwt';
 
 @NgModule({
-    bootstrap: [ AppComponent ],
+    bootstrap: [AppComponent],
     declarations: [
         AppComponent,
         AlertComponent,
@@ -39,19 +39,20 @@ import { AUTH_PROVIDERS } from 'angular2-jwt';
         ExperimentFormComponent
     ],
     imports: [
-        UniversalModule, // Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
+        UniversalModule,
+// Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
         FormsModule,
         CustomFormsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([
             { path: '', component: HomeComponent, canActivate: [AuthGuard] },
             //{ path: 'experiment', component: CounterComponent },
-            { path: 'users', component: UsersComponent, canActivate: [AuthGuard]},
+            { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
             { path: 'reports', component: FetchDataComponent },
             { path: 'login', component: LoginComponent },
             { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
             { path: '**', redirectTo: '' }
-        ])  
+        ])
     ],
     providers: [
         AUTH_PROVIDERS,

@@ -3,8 +3,6 @@ import { AuthenticationService } from '../../services/index';
 import { Subscription } from 'rxjs/Subscription';
 import { isBrowser } from 'angular2-universal';
 
-import { Token } from '../../models/index';
-
 import { JwtHelper } from 'angular2-jwt';
 
 @Component({

@@ -69,8 +69,6 @@ namespace RequirementsScheduler2.Identity
                 new Claim(JwtRegisteredClaimNames.Iat, now.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             };
 
-            claims.AddRange(identity.Claims);
-
             // Create the JWT and write it to a string
             var jwt = new JwtSecurityToken(
                 issuer: _options.Issuer,

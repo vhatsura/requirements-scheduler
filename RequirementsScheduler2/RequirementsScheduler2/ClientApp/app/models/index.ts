@@ -1,4 +1,3 @@
-﻿export * from './user';
-export * from './experiment';
-export * from './httpResponse';
-export * from './token';
+﻿export { User } from './user';
+export { Experiment } from './experiment';
+export { HttpResponse } from './httpResponse';

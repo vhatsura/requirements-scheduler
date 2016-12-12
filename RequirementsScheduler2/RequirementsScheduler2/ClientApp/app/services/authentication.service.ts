@@ -8,18 +8,17 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/of';
 
-import { Token } from '../models/index';
 import { AlertService } from './alert.service';
 
 import { tokenNotExpired, JwtHelper } from 'angular2-jwt';
 
 @Injectable()
-export class AuthenticationService implements OnInit {
+export class AuthenticationService {
 
     private jwtHelper = new JwtHelper();
 
     // Observable navItem source
-    private _user : BehaviorSubject<Token> = new BehaviorSubject<Token>(null);
+    private _user : BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
     user = this._user.asObservable();
 
@@ -34,7 +33,6 @@ export class AuthenticationService implements OnInit {
         } else {
             return false;
         }
-        
     }
 
     userRole(): string {
@@ -57,7 +55,7 @@ export class AuthenticationService implements OnInit {
                 if (user && user.access_token) {
                     if (isBrowser) {
                         // store user details and jwt token in local storage to keep user logged in between page refreshes
-                        localStorage.setItem('id_token', JSON.stringify(user));
+                        localStorage.setItem('id_token', user.access_token);
                         this._user.next(user);
 
                         return true;
@@ -83,17 +81,8 @@ export class AuthenticationService implements OnInit {
     logout() {
         if (isBrowser) {
             // remove user from local storage to log user out
-            localStorage.removeItem('currentUser');
+            localStorage.removeItem('id_token');
             this._user.next(null);
-        }
-    }
-
-    ngOnInit(): void {
-        if (isBrowser) {
-            if (localStorage.getItem('currentUser')) {
-                let user = JSON.parse(localStorage.getItem('currentUser'));
-                this._user.next(user);
-            }
         }
     }
 }

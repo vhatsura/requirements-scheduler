@@ -37,7 +37,7 @@ namespace RequirementsScheduler2
             {
                 options.AddPolicy(
                     "CanAccessAdminArea",
-                    policy => policy.RequireClaim("Role", "Admin"));
+                    policy => policy.RequireClaim("role", "admin"));
             });
         }
 
@@ -61,6 +61,11 @@ namespace RequirementsScheduler2
 
             app.UseStaticFiles();
 
+            app.Use(async (context, func) =>
+            {
+                await func();
+            });
+
             // secretKey contains a secret passphrase only your server knows
             var secretKey = "501FC5DD-4268-4CC5-A791-44A6CEA41A43";
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
@@ -71,6 +76,7 @@ namespace RequirementsScheduler2
                 Path = "/api/token",
                 Audience = "ExampleAudience",
                 Issuer = "ExampleIssuer",
+                Expiration = TimeSpan.FromDays(1),
                 SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256),
             };
 
