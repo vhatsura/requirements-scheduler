@@ -1,24 +1,32 @@
-<h1>Weather forecast</h1>
+<h1>Experiments' reports</h1>
 
-<p>This component demonstrates fetching data from the server.</p>
+<p *ngIf="!reports"><em>Loading...</em></p>
 
-<p *ngIf="!forecasts"><em>Loading...</em></p>
-
-<table class='table' *ngIf="forecasts">
+<table class='table' *ngIf="reports">
     <thead>
         <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+            <th>n1 n2 n3 n4</th>
+            <th>The number of resolved conflicts</th>
+            <th>Stop1, %</th>
+            <th>Stop2, %</th>
+            <th>Stop3, %</th>
+            <th>Stop4, %</th>
+            <th>&#916;Cmax average</th>
+            <th>&#916;Cmax max</th>
+            <th>Execution time</th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let forecast of forecasts">
-            <td>{{ forecast.dateFormatted }}</td>
-            <td>{{ forecast.temperatureC }}</td>
-            <td>{{ forecast.temperatureF }}</td>
-            <td>{{ forecast.summary }}</td>
+        <tr *ngFor="let report of reports">
+            <td>{{report.nRatio}}</td>
+            <td>{{report.conflictsResolutionAmount}}</td>
+            <td>{{report.stop1}}</td>
+            <td>{{report.stop2}}</td>
+            <td>{{report.stop3}}</td>
+            <td>{{report.stop4}}</td>
+            <td>{{report.deltaCmaxAverage}}</td>
+            <td>{{report.deltaCmaxMax}}</td>
+            <td>{{report.executionTime}}</td>
         </tr>
     </tbody>
 </table>
