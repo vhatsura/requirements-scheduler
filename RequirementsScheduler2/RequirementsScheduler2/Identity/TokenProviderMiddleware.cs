@@ -64,7 +64,8 @@ namespace RequirementsScheduler2.Identity
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim("role", user.IsAdmin ? "admin" : "user"),
+                //new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
+                new Claim("role", user.IsAdmin ? "Admin" : "User"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, now.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             };

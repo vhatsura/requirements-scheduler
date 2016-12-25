@@ -16,7 +16,7 @@ namespace RequirementsScheduler2.Controllers
 
         // GET: api/values
         [HttpGet]
-        [Authorize(Policy = "CanAccessAdminArea")]
+        [Authorize(Roles = "Admin")]
         public IEnumerable<User> Get()
         {
             return Repository.Get();
@@ -24,7 +24,7 @@ namespace RequirementsScheduler2.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        [Authorize(Policy = "CanAccessAdminArea")]
+        [Authorize(Roles = "Admin")]
         public User Get(int id)
         {
             return Repository.Get(id);
@@ -32,7 +32,7 @@ namespace RequirementsScheduler2.Controllers
 
         // POST api/values
         [HttpPost]
-        [Authorize(Policy = "CanAccessAdminArea")]
+        [Authorize(Roles = "Admin")]
         public ActionResult Post([FromBody]User value)
         {
             if (!ModelState.IsValid)

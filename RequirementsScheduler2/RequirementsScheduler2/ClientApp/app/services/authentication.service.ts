@@ -39,7 +39,11 @@ export class AuthenticationService {
         if (isBrowser) {
             var token = localStorage.getItem('id_token');
             let decodedToken = this.jwtHelper.decodeToken(token);
-            return decodedToken.role;
+            let role = decodedToken.role;
+            if (role)
+                return role.toLowerCase();
+            else
+                return "";
         }
         return "";
     }
@@ -61,7 +65,7 @@ export class AuthenticationService {
                         return true;
                     }
                 }
-                return false;    
+                return false;
             })
             .catch((error: Response | any) => {
                 // In a real world app, we might use a remote logging infrastructure
@@ -74,7 +78,7 @@ export class AuthenticationService {
                     errMsg = error.message ? error.message : error.toString();
                 }
                 this.alertService.error(errMsg, true);
-                return Observable.of(false);    
+                return Observable.of(false);
             });
     }
 
