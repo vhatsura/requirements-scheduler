@@ -7,7 +7,8 @@ namespace RequirementsScheduler2.Repository
     {
         IEnumerable<T> Get();
         T Get(int id);
-        T Get(Func<T, bool> predicate);
+        void Update(T value);
+        IEnumerable<T> Get(Func<T, bool> predicate);
         void Add(T value);
     }
 }

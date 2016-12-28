@@ -1,15 +1,19 @@
 using System;
+using System.Collections.Specialized;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
+using Quartz.Impl;
 using RequirementsScheduler2.Identity;
+using RequirementsScheduler2.Worker;
 
 namespace RequirementsScheduler2
 {
@@ -35,7 +39,7 @@ namespace RequirementsScheduler2
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -54,11 +58,23 @@ namespace RequirementsScheduler2
 
             app.UseStaticFiles();
 
-            app.Use(async (context, func) =>
-            {
-                await func();
-            });
+            ConfigureOAuth(app);
+            await ConfigureScheduler();
 
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapSpaFallbackRoute(
+                    name: "spa-fallback",
+                    defaults: new { controller = "Home", action = "Index" });
+            });
+        }
+
+        private void ConfigureOAuth(IApplicationBuilder app)
+        {
             // secretKey contains a secret passphrase only your server knows
             var secretKey = "501FC5DD-4268-4CC5-A791-44A6CEA41A43";
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
@@ -68,7 +84,7 @@ namespace RequirementsScheduler2
             {
                 Path = "/api/token",
                 Audience = "ExampleAudience",
-                Issuer = "ExampleIssuer",
+                Issuer = "RequirementsScheduler",
                 Expiration = TimeSpan.FromDays(1),
                 SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256),
             };
@@ -102,17 +118,31 @@ namespace RequirementsScheduler2
                 AutomaticChallenge = true,
                 TokenValidationParameters = tokenValidationParameters
             });
+        }
 
-            app.UseMvc(routes =>
+        private async Task ConfigureScheduler()
+        {
+            var schedulerFactory = new StdSchedulerFactory(/*new NameValueCollection()
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                { "quartz.serializer.type", "binary" }
+            }*/);
 
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
-            });
+            var scheduler = await schedulerFactory.GetScheduler();
+            await scheduler.Start();
+
+            var job = JobBuilder.Create<ExperimentWorker>()
+                .WithIdentity("experimentJob", "experimentGroup")
+                .Build();
+
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity("experimentTrigger", "experimentGroup")
+                .StartNow()
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInMinutes(1)
+                    .RepeatForever())
+                .Build();
+
+            await scheduler.ScheduleJob(job, trigger);
         }
     }
 }

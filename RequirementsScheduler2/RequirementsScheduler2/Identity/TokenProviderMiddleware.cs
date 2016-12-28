@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RequirementsScheduler2.Models;
 using RequirementsScheduler2.Repository;
+using System.Linq;
 
 namespace RequirementsScheduler2.Identity
 {
@@ -48,7 +49,7 @@ namespace RequirementsScheduler2.Identity
             var username = context.Request.Form["username"];
             var password = context.Request.Form["password"];
 
-            var user = Repository.Get(u => u.Username == username);
+            var user = Repository.Get(u => u.Username == username).FirstOrDefault();
             var identity = await GetIdentity(user, password);
             if (identity == null)
             {

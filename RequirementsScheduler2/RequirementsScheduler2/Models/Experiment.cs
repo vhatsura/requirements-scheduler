@@ -42,6 +42,7 @@ namespace RequirementsScheduler2.Models
 
         [Required(ErrorMessage = "P generation type is required")]
         public string PGenerationType { get; set; }
+
+        public ExperimentStatus Status { get; set; }
     }
 }
-
