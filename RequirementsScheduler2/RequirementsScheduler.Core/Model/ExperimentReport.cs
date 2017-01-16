@@ -1,8 +1,6 @@
-﻿using RequirementsScheduler2.Repository;
-
-namespace RequirementsScheduler2.Models
+﻿namespace RequirementsScheduler.Core.Model
 {
-    public class ExperimentReport: IRepositoryModel
+    public sealed class ExperimentReport : IRepositoryModel
     {
         public int Id { get; set; }
         public int ExperimentId { get; set; }

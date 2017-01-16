@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using RequirementsScheduler.Core.Model;
 
-namespace RequirementsScheduler2.Repository
+namespace RequirementsScheduler.DAL.Repository
 {
-    interface IRepository<T> where T : IRepositoryModel
+    public interface IRepository<T> where T : IRepositoryModel
     {
         IEnumerable<T> Get();
         T Get(int id);

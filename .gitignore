@@ -5,3 +5,11 @@ RequirementsScheduler/src/RequirementsScheduler/project.lock.json
 RequirementsScheduler/src/RequirementsScheduler/wwwroot/
 RequirementsScheduler/src/RequirementsScheduler/node_modules/
 RequirementsScheduler2/.vs/
+RequirementsScheduler2/RequirementsScheduler.Library/obj/
+RequirementsScheduler2/RequirementsScheduler.Library/bin/
+RequirementsScheduler2/RequirementsScheduler.Host.Console/obj/
+RequirementsScheduler2/RequirementsScheduler.Host.Console/bin/
+RequirementsScheduler2/RequirementsScheduler.DAL/obj/
+RequirementsScheduler2/RequirementsScheduler.DAL/bin/
+RequirementsScheduler2/RequirementsScheduler.Core/bin/
+RequirementsScheduler2/RequirementsScheduler.Core/obj/

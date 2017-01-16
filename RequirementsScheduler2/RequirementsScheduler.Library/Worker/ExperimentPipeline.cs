@@ -1,21 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using RequirementsScheduler2.Models;
-using RequirementsScheduler2.Repository;
+using RequirementsScheduler.DAL.Repository;
+using RequirementsScheduler.Core.Model;
 
-namespace RequirementsScheduler2.Worker
+namespace RequirementsScheduler.Core.Worker
 {
-    public class ExperimentPipeline
+    public sealed class ExperimentPipeline
     {
-        private readonly ExperimentsRepository Repository = new ExperimentsRepository();
+        private readonly IRepository<Experiment> Repository = new ExperimentsRepository();
 
         public async Task Run(IEnumerable<Experiment> experiments)
         {
             foreach (var experiment in experiments)
             {
                 experiment.Status = ExperimentStatus.InProgress;
+                Repository.Update(experiment);
+
                 await RunTest(experiment);
+
                 experiment.Status = ExperimentStatus.Completed;
+                Repository.Update(experiment);
             }
         }
 

@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
-using Quartz;
-using RequirementsScheduler2.Models;
-using RequirementsScheduler2.Repository;
+﻿using Quartz;
+using RequirementsScheduler.Core.Model;
+using RequirementsScheduler.DAL.Repository;
+using System.Threading.Tasks;
 
-namespace RequirementsScheduler2.Worker
+namespace RequirementsScheduler.Core.Worker
 {
-    public class ExperimentWorker : IJob
+    public sealed class ExperimentWorker : IJob
     {
-        private readonly ExperimentsRepository Repository = new ExperimentsRepository();
+        private readonly IRepository<Experiment> Repository = new ExperimentsRepository();
 
         public async Task Execute(IJobExecutionContext context)
         {

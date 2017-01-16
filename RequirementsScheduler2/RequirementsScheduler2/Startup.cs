@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Specialized;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Quartz.Impl;
 using RequirementsScheduler2.Identity;
-using RequirementsScheduler2.Worker;
+using RequirementsScheduler.Core.Worker;
 
 namespace RequirementsScheduler2
 {
@@ -99,7 +98,7 @@ namespace RequirementsScheduler2
 
                 // Validate the JWT Issuer (iss) claim
                 ValidateIssuer = true,
-                ValidIssuer = "ExampleIssuer",
+                ValidIssuer = "RequirementsScheduler",
 
                 // Validate the JWT Audience (aud) claim
                 ValidateAudience = true,

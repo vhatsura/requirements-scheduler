@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using RequirementsScheduler2.Repository;
 
-namespace RequirementsScheduler2.Models
+namespace RequirementsScheduler.Core.Model
 {
-    public class Experiment : IRepositoryModel
+    public sealed class Experiment : IRepositoryModel
     {
         public int Id { get; set; }
 
@@ -44,5 +43,12 @@ namespace RequirementsScheduler2.Models
         public string PGenerationType { get; set; }
 
         public ExperimentStatus Status { get; set; }
+    }
+
+    public enum ExperimentStatus
+    {
+        New,
+        InProgress,
+        Completed
     }
 }

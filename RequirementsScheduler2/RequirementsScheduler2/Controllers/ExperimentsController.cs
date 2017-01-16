@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RequirementsScheduler.Core;
+using RequirementsScheduler.Core.Model;
+using RequirementsScheduler.Core.Service;
 using RequirementsScheduler2.Extensions;
-using RequirementsScheduler2.Models;
-using RequirementsScheduler2.Repository;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,14 +13,14 @@ namespace RequirementsScheduler2.Controllers
     [Route("api/[controller]")]
     public class ExperimentsController : Controller
     {
-        private readonly ExperimentsRepository Repository = new ExperimentsRepository();
+        private readonly IExperimentsService Service = new ExperimentsService();
 
         // GET: api/values
         [HttpGet]
         [Authorize]
         public IEnumerable<Experiment> Get()
         {
-            return Repository.Get();
+            return Service.GetAll();
         }
 
         // GET api/values/5
@@ -40,7 +41,7 @@ namespace RequirementsScheduler2.Controllers
                 return BadRequest(new { Message = $"Experiment isn't valid: {ModelState.ErrorsToString()}" });
             }
 
-            Repository.Add(value);
+            Service.AddExperiment(value);
 
             return Ok(new { Message = "Experiment added successfully" });
         }

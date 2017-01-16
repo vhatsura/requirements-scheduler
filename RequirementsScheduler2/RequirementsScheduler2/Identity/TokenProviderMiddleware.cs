@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using RequirementsScheduler2.Models;
-using RequirementsScheduler2.Repository;
 using System.Linq;
+using RequirementsScheduler.Core.Service;
+using RequirementsScheduler.Core.Model;
 
 namespace RequirementsScheduler2.Identity
 {
@@ -49,7 +49,7 @@ namespace RequirementsScheduler2.Identity
             var username = context.Request.Form["username"];
             var password = context.Request.Form["password"];
 
-            var user = Repository.Get(u => u.Username == username).FirstOrDefault();
+            var user = UserService.GetByUserName(username);
             var identity = await GetIdentity(user, password);
             if (identity == null)
             {
@@ -92,7 +92,7 @@ namespace RequirementsScheduler2.Identity
             await context.Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.Indented }));
         }
 
-        private readonly UsersRepository Repository = new UsersRepository();
+        private readonly IUserService UserService = new UserService();
 
         private Task<ClaimsIdentity> GetIdentity(User user, string password)
         {

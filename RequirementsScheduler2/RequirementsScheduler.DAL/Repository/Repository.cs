@@ -4,13 +4,32 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using RequirementsScheduler.Core.Model;
 
-namespace RequirementsScheduler2.Repository
+namespace RequirementsScheduler.DAL.Repository
 {
     public abstract class Repository<T> : IRepository<T>
         where T : class, IRepositoryModel
     {
         protected static readonly ConcurrentDictionary<int, T> ModelsCollection = new ConcurrentDictionary<int, T>();
+
+        protected static void AddDefaultValue(params T[] values)
+        {
+            foreach (var value in values)
+            {
+                SetIdToRepositoryModel(value);
+                ModelsCollection.TryAdd(value.Id, value);
+            }
+        }
+
+        protected static void SetIdToRepositoryModel(T value)
+        {
+            lock (syncObject)
+            {
+                value.Id = lastModelId;
+                Interlocked.Increment(ref lastModelId);
+            }
+        }
 
         public IEnumerable<T> Get()
         {
@@ -40,21 +59,20 @@ namespace RequirementsScheduler2.Repository
         {
             BeforeAdd(value);
 
-            lock (syncObject)
-            {
-                value.Id = lastModelId;
-                Interlocked.Increment(ref lastModelId);
-            }
+            SetIdToRepositoryModel(value);
 
             ModelsCollection.TryAdd(value.Id, value);
         }
 
         public IEnumerable<T> Get(Func<T, bool> predicate)
         {
-            if(predicate == null)
+            if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
 
-            var filteredCollection = ModelsCollection.Where(predicate).ToList();
+            var filteredCollection = ModelsCollection
+                                        .Select(pair => pair.Value)
+                                        .Where(predicate)
+                                        .ToList();
 
             return filteredCollection.Any() ? filteredCollection : Enumerable.Empty<T>();
         }
