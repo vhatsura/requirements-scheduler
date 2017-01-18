@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using RequirementsScheduler2.Models;
+using RequirementsScheduler.Core.Model;
 
 namespace RequirementsScheduler2.Controllers
 {

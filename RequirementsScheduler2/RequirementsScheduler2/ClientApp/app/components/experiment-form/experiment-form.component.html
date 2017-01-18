@@ -48,6 +48,18 @@
             <div *ngIf="f.submitted && !f.controls.maxBoundaryRange.valid" class="help-block">The max range's boundary is required and should be more than zero</div>
         </div>
     </div>
+    <div class="row">
+        <div class="form-group col-xs-6" [ngClass]="{'has-error': f.submitted && !f.controls.minPercentageFromA.valid}">
+            <label>Min percentage from A</label>
+            <input type="number" class="form-control" formControlName="minPercentageFromA" min="5" max="50"/>
+            <div *ngIf="f.submitted && !f.controls.minPercentageFromA.valid" class="help-block">The min percentage from A is required and should be between 5 and 50</div>
+        </div>
+        <div class="form-group col-xs-6" [ngClass]="{'has-error': f.submitted && !f.controls.maxPercentageFromA.valid}">
+            <label>Max percentage from A</label>
+            <input type="number" class="form-control" formControlName="maxPercentageFromA" min="5" max="50"/>
+            <div *ngIf="f.submitted && !f.controls.maxPercentageFromA.valid" class="help-block">The max percentage from A is required and should be between 5 and 50</div>
+        </div>
+    </div>
     <!-- Type of borders generation -->
     <div class="form-group" [ngClass]="{'has-error': f.submitted && !f.controls.borderGenerationType.valid}">
         <label>Type of borders generation</label>

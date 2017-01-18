@@ -14,6 +14,9 @@
     "Microsoft.Extensions.Logging.Console": "1.1.0",
     "Microsoft.Extensions.Logging.Debug": "1.1.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
+    "Quartz": "3.0.0-alpha2",
+    "RequirementsScheduler.Core": "1.0.0-*",
+    "RequirementsScheduler.Library": "1.0.0-*",
     "System.IdentityModel.Tokens.Jwt": "5.1.0"
   },
 

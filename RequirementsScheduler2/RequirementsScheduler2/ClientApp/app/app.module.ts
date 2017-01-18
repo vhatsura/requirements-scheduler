@@ -17,6 +17,7 @@ import { AlertService, AuthenticationService, UserService, ExperimentService } f
 import { TabsComponent } from './components/tabs/tabs.component';
 import { TabComponent } from './components/tab/tab.component';
 import { ExperimentFormComponent } from './components/experiment-form/experiment-form.component';
+import { ExperimentsComponent } from './components/experiments/experiments.component';
 
 import { CustomFormsModule } from 'ng2-validation'
 
@@ -36,7 +37,8 @@ import { AUTH_PROVIDERS } from 'angular2-jwt';
         RegisterComponent,
         TabComponent,
         TabsComponent,
-        ExperimentFormComponent
+        ExperimentFormComponent,
+        ExperimentsComponent
     ],
     imports: [
         UniversalModule,

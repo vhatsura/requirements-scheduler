@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RequirementsScheduler.Core.Model;
+using RequirementsScheduler.Core.Service;
 using RequirementsScheduler2.Extensions;
-using RequirementsScheduler2.Models;
-using RequirementsScheduler2.Repository;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,14 +15,17 @@ namespace RequirementsScheduler2.Controllers
     [Route("api/[controller]")]
     public class ExperimentsController : Controller
     {
-        private readonly ExperimentsRepository Repository = new ExperimentsRepository();
+        private readonly IExperimentsService Service = new ExperimentsService();
 
         // GET: api/values
         [HttpGet]
         [Authorize]
         public IEnumerable<Experiment> Get()
         {
-            return Repository.Get();
+            var username = UserName;
+            return string.IsNullOrWhiteSpace(username) ?
+                Enumerable.Empty<Experiment>() :
+                Service.GetAll(username);
         }
 
         // GET api/values/5
@@ -30,6 +36,25 @@ namespace RequirementsScheduler2.Controllers
             return "value";
         }
 
+        [HttpGet("[action]/{status}")]
+        [Authorize]
+        public IActionResult GetByStatus(string status)
+        {
+            var username = UserName;
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return new ObjectResult(Enumerable.Empty<Experiment>());
+            }
+
+            ExperimentStatus experimentStatus;
+            if (Enum.TryParse<ExperimentStatus>(status, true, out experimentStatus))
+            {
+                return new ObjectResult(Service.GetByStatus(experimentStatus, username));
+            }
+
+            return BadRequest(new { Message = "Invalid status of experiment" });
+        }
+
         // POST api/values
         [HttpPost]
         [Authorize]
@@ -37,24 +62,27 @@ namespace RequirementsScheduler2.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new { Message = $"Experiment isn't valid: {ModelState.ErrorsToString()}" });
+                return BadRequest(new { Message = $"Experiment isn't valid: { ModelState.ErrorsToString() }" });
             }
 
-            Repository.Add(value);
+            var username = UserName;
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return Forbid();
+            }
 
-            return Ok(new { Message = "Experiment added successfully" });
+            var experiment = Service.AddExperiment(value, username);
+
+            return Ok(experiment);
         }
 
-        //// PUT api/values/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody]string value)
-        //{
-        //}
-
-        //// DELETE api/values/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+        private string UserName
+        {
+            get
+            {
+                var identity = User.Identity as ClaimsIdentity;
+                return identity?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+            }
+        }
     }
 }

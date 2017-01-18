@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using RequirementsScheduler2.Repository;
 
-namespace RequirementsScheduler2.Models
+namespace RequirementsScheduler.Core.Model
 {
-    public class Experiment : IRepositoryModel
+    public sealed class Experiment : IRepositoryModel
     {
         public int Id { get; set; }
+
+        public int UserId { get; set; }
 
         [Required(ErrorMessage = "The test amount is required")]
         [Range(1, 1000000, ErrorMessage = "The tests amount must be in [1, 1000000] range")]
@@ -42,6 +43,14 @@ namespace RequirementsScheduler2.Models
 
         [Required(ErrorMessage = "P generation type is required")]
         public string PGenerationType { get; set; }
+
+        public ExperimentStatus Status { get; set; }
+    }
+
+    public enum ExperimentStatus
+    {
+        New,
+        InProgress,
+        Completed
     }
 }
-

@@ -1,3 +1,3 @@
 ﻿export { User } from './user';
-export { Experiment } from './experiment';
+export { Experiment, ExperimentStatus } from './experiment';
 export { HttpResponse } from './httpResponse';

@@ -1,4 +1,4 @@
-﻿namespace RequirementsScheduler2.Repository
+﻿namespace RequirementsScheduler.Core.Model
 {
     public interface IRepositoryModel
     {

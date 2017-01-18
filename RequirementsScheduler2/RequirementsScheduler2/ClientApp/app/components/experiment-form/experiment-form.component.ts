@@ -55,6 +55,8 @@ export class ExperimentFormComponent implements OnInit {
             n21: ['', Validators.compose([Validators.required, CustomValidators.range([0, 100])])],
             minBoundaryRange: ['', Validators.compose([Validators.required, CustomValidators.min(0)])],
             maxBoundaryRange: ['', Validators.compose([Validators.required, CustomValidators.min(0)])],
+            minPercentageFromA: ['', Validators.compose([Validators.required, CustomValidators.range([5, 50])])],
+            maxPercentageFromA: ['', Validators.compose([Validators.required, CustomValidators.range([5, 50])])],
             borderGenerationType: ['', Validators.required],
             pGenerationType: ['', Validators.required]
         });
