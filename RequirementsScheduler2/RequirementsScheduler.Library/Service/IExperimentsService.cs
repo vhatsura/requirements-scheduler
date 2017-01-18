@@ -5,7 +5,8 @@ namespace RequirementsScheduler.Core.Service
 {
     public interface IExperimentsService
     {
-        IEnumerable<Experiment> GetAll();
-        void AddExperiment(Experiment value);
+        IEnumerable<Experiment> GetAll(string username);
+        IEnumerable<Experiment> GetByStatus(ExperimentStatus status, string username);
+        Experiment AddExperiment(Experiment value, string username);
     }
 }

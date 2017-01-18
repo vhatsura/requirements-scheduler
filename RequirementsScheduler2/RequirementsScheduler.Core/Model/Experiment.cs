@@ -6,6 +6,8 @@ namespace RequirementsScheduler.Core.Model
     {
         public int Id { get; set; }
 
+        public int UserId { get; set; }
+
         [Required(ErrorMessage = "The test amount is required")]
         [Range(1, 1000000, ErrorMessage = "The tests amount must be in [1, 1000000] range")]
         public int TestsAmount { get; set; }

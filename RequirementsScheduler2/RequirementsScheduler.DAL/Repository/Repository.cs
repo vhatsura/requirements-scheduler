@@ -43,9 +43,10 @@ namespace RequirementsScheduler.DAL.Repository
             return value;
         }
 
-        public void Update(T value)
+        public T Update(T value)
         {
             ModelsCollection.AddOrUpdate(value.Id, value, (k, v) => value);
+            return this.Get(value.Id);
         }
 
         // ReSharper disable StaticMemberInGenericType
@@ -55,13 +56,14 @@ namespace RequirementsScheduler.DAL.Repository
 
         protected virtual void BeforeAdd(T value) { }
 
-        public void Add(T value)
+        public T Add(T value)
         {
             BeforeAdd(value);
 
             SetIdToRepositoryModel(value);
 
             ModelsCollection.TryAdd(value.Id, value);
+            return this.Get(value.Id);
         }
 
         public IEnumerable<T> Get(Func<T, bool> predicate)

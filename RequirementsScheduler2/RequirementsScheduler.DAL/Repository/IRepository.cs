@@ -8,8 +8,8 @@ namespace RequirementsScheduler.DAL.Repository
     {
         IEnumerable<T> Get();
         T Get(int id);
-        void Update(T value);
+        T Update(T value);
         IEnumerable<T> Get(Func<T, bool> predicate);
-        void Add(T value);
+        T Add(T value);
     }
 }
