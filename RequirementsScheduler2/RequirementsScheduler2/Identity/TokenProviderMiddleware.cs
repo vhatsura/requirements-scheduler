@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Linq;
 using RequirementsScheduler.Core.Service;
 using RequirementsScheduler.Core.Model;
 

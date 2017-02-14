@@ -13,3 +13,4 @@ RequirementsScheduler2/RequirementsScheduler.DAL/obj/
 RequirementsScheduler2/RequirementsScheduler.DAL/bin/
 RequirementsScheduler2/RequirementsScheduler.Core/bin/
 RequirementsScheduler2/RequirementsScheduler.Core/obj/
+.lock.json

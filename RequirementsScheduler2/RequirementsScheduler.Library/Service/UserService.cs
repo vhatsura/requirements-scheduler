@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RequirementsScheduler.Core.Model;
 using RequirementsScheduler.DAL.Repository;
 using System.Linq;
