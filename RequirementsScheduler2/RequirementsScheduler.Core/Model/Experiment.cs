@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace RequirementsScheduler.Core.Model
 {
@@ -38,11 +39,19 @@ namespace RequirementsScheduler.Core.Model
         [Required(ErrorMessage = "Max boundary is required")]
         public int MaxBoundaryRange { get; set; }
 
+        [Required] [Range(5, 20)]
+        public int MinPercentageFromA { get; set; }
+
+        [Required] [Range(5,20)]
+        public int MaxPercentageFromA { get; set; }
+
         [Required(ErrorMessage = "Border generation type is required")]
         public string BorderGenerationType { get; set; }
 
         [Required(ErrorMessage = "P generation type is required")]
         public string PGenerationType { get; set; }
+
+        public List<ExperimentInfo> Results { get; } = new List<ExperimentInfo>();
 
         public ExperimentStatus Status { get; set; }
     }

@@ -29,9 +29,36 @@ namespace RequirementsScheduler.Core.Worker
         {
             for (var i = 0; i < experiment.TestsAmount; i++)
             {
-                await GenerateDataForTest(experiment);
+                var experimentInfo = await GenerateDataForTest(experiment);
+
+                CheckFirst(experimentInfo);
+
+                if (experimentInfo.FirstSecond.IsOptimized && experimentInfo.SecondFirst.IsOptimized)
+                {
+                    experimentInfo.Result.Type = ResultType.STOP1_1;
+                    experiment.Results.Add(experimentInfo);
+                    continue;
+                }
             }
         }
+
+        private void CheckFirst(ExperimentInfo experimentInfo)
+        {
+            if (experimentInfo.FirstSecond.First.Sum(time => time.B) <=
+                    experimentInfo.SecondFirst.Second.Sum(time => time.A) + experimentInfo.Second.Sum(time => time.A))
+            {
+                experimentInfo.FirstSecond.IsOptimized = true;
+            }
+            else return;
+
+            if (experimentInfo.FirstSecond.Second.Sum(time => time.A) >=
+                experimentInfo.First.Sum(time => time.B) + experimentInfo.SecondFirst.First.Sum(time => time.B))
+            {
+                experimentInfo.SecondFirst.IsOptimized = true;
+            }
+        }
+
+        #region Generation
 
         private static readonly Random Random = new Random();
 
@@ -83,7 +110,7 @@ namespace RequirementsScheduler.Core.Worker
 
         #endregion
 
-        private static IEnumerable<double> GetABoundaries(int min, int max, int amount)
+        private static ICollection<double> GetABoundaries(int min, int max, int amount)
         {
             return Enumerable
                 .Range(0, amount)
@@ -91,18 +118,67 @@ namespace RequirementsScheduler.Core.Worker
                 .ToList();
         }
 
-        private Task GenerateDataForTest(Experiment experiment)
+        private static ICollection<double> GetBBoundaries(IEnumerable<double> aBoundaries, int minPercentage,
+            int maxPercentage)
+        {
+            return aBoundaries
+                .Select(a => Random.Next(minPercentage, maxPercentage) * a / 100 + a)
+                .ToList();
+        }
+
+        private Task<ExperimentInfo> GenerateDataForTest(Experiment experiment)
         {
             var firstRequirementsAmount = experiment.RequirementsAmount * experiment.N1 / 100;
             var secondRequirementsAmount = experiment.RequirementsAmount * experiment.N2 / 100;
             var firstSecondRequirementsAmount = experiment.RequirementsAmount * experiment.N12 / 100;
             var secondFirstRequirementsAmount = experiment.RequirementsAmount * experiment.N21 / 100;
 
-            var firstABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange, firstRequirementsAmount);
-            var secondABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange, secondRequirementsAmount);
+            var firstABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
+                firstRequirementsAmount);
+            var firstBBoundaries = GetBBoundaries(firstABoundaries, experiment.MinPercentageFromA,
+                experiment.MaxPercentageFromA);
 
+            var secondABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
+                secondRequirementsAmount);
+            var secondBBoundaries = GetBBoundaries(secondABoundaries, experiment.MinPercentageFromA,
+                experiment.MaxPercentageFromA);
 
-            return Task.FromResult(0);
+            var firstSecondFirstABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
+                firstSecondRequirementsAmount);
+            var firstSecondFirstBBoundaries = GetBBoundaries(firstSecondFirstABoundaries, experiment.MinPercentageFromA,
+                experiment.MaxPercentageFromA);
+            var firstSecondSecondABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
+                firstSecondRequirementsAmount);
+            var firstSecondSecondBBoundaries = GetBBoundaries(firstSecondSecondABoundaries, experiment.MinPercentageFromA,
+                experiment.MaxPercentageFromA);
+
+            var secondFirstFirstABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
+                secondFirstRequirementsAmount);
+            var secondFirstFirstBBoundaries = GetBBoundaries(secondFirstFirstABoundaries, experiment.MinPercentageFromA,
+                experiment.MaxPercentageFromA);
+            var secondFirstSecondABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
+                secondFirstRequirementsAmount);
+            var secondFirstSecondBBoundaries = GetBBoundaries(secondFirstSecondABoundaries, experiment.MinPercentageFromA,
+                experiment.MaxPercentageFromA);
+
+            var experimentInfo = new ExperimentInfo();
+
+            experimentInfo.First.AddRange(firstABoundaries.Zip(firstBBoundaries, (a, b) => new ProcessingTime(a, b)));
+            experimentInfo.Second.AddRange(secondABoundaries.Zip(secondBBoundaries, (a, b) => new ProcessingTime(a, b)));
+
+            experimentInfo.FirstSecond.First.AddRange(firstSecondFirstABoundaries.Zip(firstSecondFirstBBoundaries,
+                (a, b) => new ProcessingTime(a, b)));
+            experimentInfo.FirstSecond.Second.AddRange(firstSecondSecondABoundaries.Zip(firstSecondSecondBBoundaries,
+                (a, b) => new ProcessingTime(a, b)));
+
+            experimentInfo.SecondFirst.First.AddRange(secondFirstFirstABoundaries.Zip(secondFirstFirstBBoundaries,
+                (a, b) => new ProcessingTime(a, b)));
+            experimentInfo.SecondFirst.Second.AddRange(secondFirstSecondABoundaries.Zip(secondFirstSecondBBoundaries,
+                (a, b) => new ProcessingTime(a, b)));
+
+            return Task.FromResult(experimentInfo);
         }
+
+        #endregion
     }
 }
