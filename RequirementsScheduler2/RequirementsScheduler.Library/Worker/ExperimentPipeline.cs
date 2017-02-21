@@ -39,10 +39,29 @@ namespace RequirementsScheduler.Core.Worker
                     experiment.Results.Add(experimentInfo);
                     continue;
                 }
+
+                CheckSecond(experimentInfo);
             }
         }
 
         private void CheckFirst(ExperimentInfo experimentInfo)
+        {
+            if (experimentInfo.FirstSecond.First.Sum(time => time.B) <=
+                    experimentInfo.SecondFirst.Second.Sum(time => time.A) + experimentInfo.Second.Sum(time => time.A))
+            {
+                experimentInfo.FirstSecond.IsOptimized = true;
+            }
+            else return;
+
+            if (experimentInfo.FirstSecond.Second.Sum(time => time.A) >=
+                experimentInfo.First.Sum(time => time.B) + experimentInfo.SecondFirst.First.Sum(time => time.B))
+            {
+                experimentInfo.SecondFirst.IsOptimized = true;
+            }
+        }
+
+        //todo
+        private void CheckSecond(ExperimentInfo experimentInfo)
         {
             if (experimentInfo.FirstSecond.First.Sum(time => time.B) <=
                     experimentInfo.SecondFirst.Second.Sum(time => time.A) + experimentInfo.Second.Sum(time => time.A))
