@@ -41,6 +41,13 @@ namespace RequirementsScheduler.Core.Worker
                 }
 
                 CheckSecond(experimentInfo);
+
+                if (experimentInfo.FirstSecond.IsOptimized && experimentInfo.SecondFirst.IsOptimized)
+                {
+                    experimentInfo.Result.Type = ResultType.STOP1_1;
+                    experiment.Results.Add(experimentInfo);
+                    continue;
+                }
             }
         }
 
@@ -63,17 +70,17 @@ namespace RequirementsScheduler.Core.Worker
         //todo
         private void CheckSecond(ExperimentInfo experimentInfo)
         {
-            if (experimentInfo.FirstSecond.First.Sum(time => time.B) <=
-                    experimentInfo.SecondFirst.Second.Sum(time => time.A) + experimentInfo.Second.Sum(time => time.A))
+            if (experimentInfo.SecondFirst.Second.Sum(time => time.B) <=
+                    experimentInfo.FirstSecond.First.Sum(time => time.A) + experimentInfo.First.Sum(time => time.A))
             {
-                experimentInfo.FirstSecond.IsOptimized = true;
+                experimentInfo.SecondFirst.IsOptimized = true;
             }
             else return;
 
-            if (experimentInfo.FirstSecond.Second.Sum(time => time.A) >=
-                experimentInfo.First.Sum(time => time.B) + experimentInfo.SecondFirst.First.Sum(time => time.B))
+            if (experimentInfo.SecondFirst.First.Sum(time => time.A) >=
+                experimentInfo.Second.Sum(time => time.B) + experimentInfo.FirstSecond.Second.Sum(time => time.B))
             {
-                experimentInfo.SecondFirst.IsOptimized = true;
+                experimentInfo.FirstSecond.IsOptimized = true;
             }
         }
 
