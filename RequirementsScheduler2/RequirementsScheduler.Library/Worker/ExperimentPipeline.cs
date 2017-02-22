@@ -33,7 +33,7 @@ namespace RequirementsScheduler.Core.Worker
 
                 CheckFirst(experimentInfo);
 
-                if (experimentInfo.FirstSecond.IsOptimized && experimentInfo.SecondFirst.IsOptimized)
+                if (experimentInfo.J12.IsOptimized && experimentInfo.J21.IsOptimized)
                 {
                     experimentInfo.Result.Type = ResultType.STOP1_1;
                     experiment.Results.Add(experimentInfo);
@@ -42,7 +42,7 @@ namespace RequirementsScheduler.Core.Worker
 
                 CheckSecond(experimentInfo);
 
-                if (experimentInfo.FirstSecond.IsOptimized && experimentInfo.SecondFirst.IsOptimized)
+                if (experimentInfo.J12.IsOptimized && experimentInfo.J21.IsOptimized)
                 {
                     experimentInfo.Result.Type = ResultType.STOP1_1;
                     experiment.Results.Add(experimentInfo);
@@ -53,34 +53,33 @@ namespace RequirementsScheduler.Core.Worker
 
         private void CheckFirst(ExperimentInfo experimentInfo)
         {
-            if (experimentInfo.FirstSecond.First.Sum(time => time.B) <=
-                    experimentInfo.SecondFirst.Second.Sum(time => time.A) + experimentInfo.Second.Sum(time => time.A))
+            if (experimentInfo.J12.Sum(detail => detail.OnFirst.Time.B) <=
+                    experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) + experimentInfo.J2.Sum(detail => detail.Time.A))
             {
-                experimentInfo.FirstSecond.IsOptimized = true;
+                experimentInfo.J12.IsOptimized = true;
             }
             else return;
 
-            if (experimentInfo.FirstSecond.Second.Sum(time => time.A) >=
-                experimentInfo.First.Sum(time => time.B) + experimentInfo.SecondFirst.First.Sum(time => time.B))
+            if (experimentInfo.J12.Sum(detail => detail.OnSecond.Time.A) >=
+                experimentInfo.J1.Sum(detail => detail.Time.B) + experimentInfo.J21.Sum(detail => detail.OnFirst.Time.B))
             {
-                experimentInfo.SecondFirst.IsOptimized = true;
+                experimentInfo.J21.IsOptimized = true;
             }
         }
 
-        //todo
         private void CheckSecond(ExperimentInfo experimentInfo)
         {
-            if (experimentInfo.SecondFirst.Second.Sum(time => time.B) <=
-                    experimentInfo.FirstSecond.First.Sum(time => time.A) + experimentInfo.First.Sum(time => time.A))
+            if (experimentInfo.J21.Sum(detail => detail.OnSecond.Time.B) <=
+                    experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) + experimentInfo.J1.Sum(detail => detail.Time.A))
             {
-                experimentInfo.SecondFirst.IsOptimized = true;
+                experimentInfo.J21.IsOptimized = true;
             }
             else return;
 
-            if (experimentInfo.SecondFirst.First.Sum(time => time.A) >=
-                experimentInfo.Second.Sum(time => time.B) + experimentInfo.FirstSecond.Second.Sum(time => time.B))
+            if (experimentInfo.J21.Sum(detail => detail.OnFirst.Time.A) >=
+                experimentInfo.J2.Sum(detail => detail.Time.B) + experimentInfo.J12.Sum(detail => detail.OnSecond.Time.B))
             {
-                experimentInfo.FirstSecond.IsOptimized = true;
+                experimentInfo.J12.IsOptimized = true;
             }
         }
 
@@ -90,49 +89,49 @@ namespace RequirementsScheduler.Core.Worker
 
         #region Triangle Distribution
 
-        private Tuple<float[], int, int> InitializeArray(int a, int m, int R, int amount)
-        {
-            var array = new float[amount];
-            var period = 0;
-            var aperiodicInterval = 0;
-            for (var i = 0; i < amount; i++)
-            {
-                R = (a * R) % m;
-                var value = (float)R / m;
-                for (var j = 0; j < i; j++)
-                    if (Math.Abs(array[j] - value) < 0.00000001)
-                    {
-                        aperiodicInterval = i;
-                        period = i - j;
-                    }
-                if (aperiodicInterval != 0)
-                    break;
-                array[i] = value;
-            }
+        //private Tuple<float[], int, int> InitializeArray(int a, int m, int R, int amount)
+        //{
+        //    var array = new float[amount];
+        //    var period = 0;
+        //    var aperiodicInterval = 0;
+        //    for (var i = 0; i < amount; i++)
+        //    {
+        //        R = (a * R) % m;
+        //        var value = (float)R / m;
+        //        for (var j = 0; j < i; j++)
+        //            if (Math.Abs(array[j] - value) < 0.00000001)
+        //            {
+        //                aperiodicInterval = i;
+        //                period = i - j;
+        //            }
+        //        if (aperiodicInterval != 0)
+        //            break;
+        //        array[i] = value;
+        //    }
 
-            return new Tuple<float[], int, int>(array, period, aperiodicInterval);
-        }
+        //    return new Tuple<float[], int, int>(array, period, aperiodicInterval);
+        //}
 
-        private float[] EvenNumbersLemer(int a, int m, int R, int amount)
-        {
-            var lemerObject = InitializeArray(a, m, R, amount);
-            return lemerObject.Item1;
-        }
+        //private float[] EvenNumbersLemer(int a, int m, int R, int amount)
+        //{
+        //    var lemerObject = InitializeArray(a, m, R, amount);
+        //    return lemerObject.Item1;
+        //}
 
-        private float[] GetTriangleDistributionValues(int min, int max, int amount)
-        {
-            //parameters are calculated in practice
-            var lemerArray = EvenNumbersLemer(17767, 30893, 32145, amount);
+        //private float[] GetTriangleDistributionValues(int min, int max, int amount)
+        //{
+        //    //parameters are calculated in practice
+        //    var lemerArray = EvenNumbersLemer(17767, 30893, 32145, amount);
 
-            var array = new float[amount];
+        //    var array = new float[amount];
 
-            for (var i = 0; i < Math.Floor((double)lemerArray.Length / 2); i++)
-            {
-                array[i] = min + (max - min) * Math.Max(lemerArray[i * 2], lemerArray[2 * i + 1]);
-            }
+        //    for (var i = 0; i < Math.Floor((double)lemerArray.Length / 2); i++)
+        //    {
+        //        array[i] = min + (max - min) * Math.Max(lemerArray[i * 2], lemerArray[2 * i + 1]);
+        //    }
 
-            return array;
-        }
+        //    return array;
+        //}
 
         #endregion
 
@@ -189,18 +188,23 @@ namespace RequirementsScheduler.Core.Worker
 
             var experimentInfo = new ExperimentInfo();
 
-            experimentInfo.First.AddRange(firstABoundaries.Zip(firstBBoundaries, (a, b) => new ProcessingTime(a, b)));
-            experimentInfo.Second.AddRange(secondABoundaries.Zip(secondBBoundaries, (a, b) => new ProcessingTime(a, b)));
+            experimentInfo.J1.AddRange(firstABoundaries.Zip(firstBBoundaries, (a, b) => new Detail(a, b)));
+            experimentInfo.J2.AddRange(secondABoundaries.Zip(secondBBoundaries, (a, b) => new Detail(a, b)));
 
-            experimentInfo.FirstSecond.First.AddRange(firstSecondFirstABoundaries.Zip(firstSecondFirstBBoundaries,
-                (a, b) => new ProcessingTime(a, b)));
-            experimentInfo.FirstSecond.Second.AddRange(firstSecondSecondABoundaries.Zip(firstSecondSecondBBoundaries,
-                (a, b) => new ProcessingTime(a, b)));
+            var onFirstDetails = firstSecondFirstABoundaries.Zip(firstSecondFirstBBoundaries,
+                (a, b) => new Detail(a, b));
+            var onSecondDetails = firstSecondSecondABoundaries.Zip(firstSecondSecondBBoundaries,
+                (a, b) => new Detail(a, b));
 
-            experimentInfo.SecondFirst.First.AddRange(secondFirstFirstABoundaries.Zip(secondFirstFirstBBoundaries,
-                (a, b) => new ProcessingTime(a, b)));
-            experimentInfo.SecondFirst.Second.AddRange(secondFirstSecondABoundaries.Zip(secondFirstSecondBBoundaries,
-                (a, b) => new ProcessingTime(a, b)));
+            experimentInfo.J12.AddRange(onFirstDetails.Zip(onSecondDetails, (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond)));
+
+            onFirstDetails = secondFirstFirstABoundaries.Zip(secondFirstFirstBBoundaries,
+                (a, b) => new Detail(a, b));
+            onSecondDetails = secondFirstSecondABoundaries.Zip(secondFirstSecondBBoundaries,
+                (a, b) => new Detail(a, b));
+
+            experimentInfo.J21.AddRange(onFirstDetails.Zip(onSecondDetails,
+                (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond)));
 
             return Task.FromResult(experimentInfo);
         }
