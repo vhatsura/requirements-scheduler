@@ -59,7 +59,7 @@ namespace RequirementsScheduler.Host.Console
 
         public static void Main(string[] args)
         {
-            var pipeline = new ExperimentPipeline();
+            var pipeline = new ExperimentPipeline(new ExperimentGenerator());
 
             var experiment = ReadExperimentFromConsole();
             if (experiment == null) return;

@@ -49,7 +49,8 @@ namespace RequirementsScheduler.Core.Model
 
     public enum ResultType
     {
-        STOP1_1
+        STOP1_1,
+        STOP1_2
     }
 
     public class ResultInfo
@@ -57,10 +58,16 @@ namespace RequirementsScheduler.Core.Model
         public ResultType Type { get; set; }
     }
 
-    public class ExperimentInfo
+    public class ExperimentInfo : IMachine
     {
-        public ResultInfo Result { get; private set; } = new ResultInfo();
+        public bool IsOptimized => 
+            J1.IsOptimized && 
+            J2.IsOptimized && 
+            J12.IsOptimized && 
+            J21.IsOptimized;
 
+        public ResultInfo Result { get; private set; } = new ResultInfo();
+        
         public DetailList J1 { get; } = new DetailList();
         public DetailList J2 { get; } = new DetailList();
 

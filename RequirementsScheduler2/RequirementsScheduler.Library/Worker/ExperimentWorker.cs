@@ -12,7 +12,7 @@ namespace RequirementsScheduler.Core.Worker
         public async Task Execute(IJobExecutionContext context)
         {
             var experimentsForProcessing = Repository.Get(experiment => experiment.Status == ExperimentStatus.New);
-            var pipeline = new ExperimentPipeline();
+            var pipeline = new ExperimentPipeline(new ExperimentGenerator());
             await pipeline.Run(experimentsForProcessing);
         }
     }
