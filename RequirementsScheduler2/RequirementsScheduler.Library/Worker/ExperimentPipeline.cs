@@ -75,18 +75,79 @@ namespace RequirementsScheduler.Core.Worker
         {
             if (!experimentInfo.J12.IsOptimized)
             {
-                TryToOptimizeJ12(experimentInfo);
+                experimentInfo.J12Chain = TryToOptimizeJ12(experimentInfo);
             }
 
             if (!experimentInfo.J21.IsOptimized)
             {
-                TryToOptimizeJ21(experimentInfo);
+                experimentInfo.J21Chain = TryToOptimizeJ21(experimentInfo);
             }
 
             return experimentInfo.IsOptimized;
         }
 
-        private static void TryToOptimizeJ12(ExperimentInfo experimentInfo)
+
+        private static Chain GetChainFromBox(
+            IReadOnlyCollection<LaboriousDetail> sortedBox,
+            Func<LaboriousDetail, LaboriousDetail, bool> conflictPredicate)
+        {
+            if (sortedBox.Count == 1)
+            {
+                return new Chain(sortedBox);
+            }
+            var chain = new Chain();
+            
+            foreach (var detailFromSortedBox in sortedBox)
+            {
+                //chain have elements
+                if (chain.Any())
+                {
+                    //last element from chain
+                    var lastElement = chain.Last;
+                    if (lastElement.Value.Type == ChainType.Conflict)
+                    {
+                        var conflict = lastElement.Value as Conflict;
+                        var isConflict = conflict.Details.Any(detail => conflictPredicate.Invoke(detail, detailFromSortedBox));
+
+                        if (isConflict)
+                        {
+                            conflict.Details.Add(detailFromSortedBox);
+                        }
+                        else
+                        {
+                            chain.AddLast(detailFromSortedBox);
+                        }
+                    }
+                    else
+                    {
+                        var lastDetail = lastElement.Value as LaboriousDetail;
+                        if (conflictPredicate.Invoke(lastDetail, detailFromSortedBox))
+                        {
+                            //it's conflict
+                            var conflict = new Conflict();
+                            conflict.Details.Add(lastDetail);
+                            conflict.Details.Add(detailFromSortedBox);
+
+                            chain.RemoveLast();
+                            chain.AddLast(conflict);
+                        }
+                        else
+                        {
+                            chain.AddLast(detailFromSortedBox);
+                        }
+                    }
+                }
+                //chain doesn't have elements
+                else
+                {
+                    chain.AddLast(detailFromSortedBox);
+                }
+            }
+
+            return chain;
+        }
+
+        private static Chain TryToOptimizeJ12(ExperimentInfo experimentInfo)
         {
             var boxes = SplitToBoxes(
                             experimentInfo.J12,
@@ -98,113 +159,135 @@ namespace RequirementsScheduler.Core.Worker
                 .ToList();
 
             var sortedSecondBox = boxes.Item2
-                .OrderBy(detail => detail.OnFirst.Time.A)
+                .OrderBy(detail => detail.OnSecond.Time.A)
                 .Reverse()
                 .ToList();
-
-            var firstChain = new LinkedList<LaboriousDetail>();
-
-            if (sortedFirstBox.Count == 1)
-            {
-                firstChain.AddFirst(sortedFirstBox.First());
-            }
-            else
-            {
-                for (var i = 1; i <= sortedFirstBox.Count - 1; i++)
-                {
-                    if (i == sortedFirstBox.Count - 1)
-                    {
-                        //todo if it in conflict with last item in chain, then add it to conflict
-                        //todo else add as last item to chain
-                        if (false)
-                        {
-                            //todo add it to last conflict
-                        }
-                        else
-                        {
-                            firstChain.AddLast(sortedFirstBox[i]);
-                        }
-                    }
-
-                    if (sortedFirstBox[i - 1].OnFirst.Time.B < sortedFirstBox[i].OnFirst.Time.A)
-                    {
-                        if (!firstChain.Any())
-                        {
-                            firstChain.AddFirst(sortedFirstBox[i - 1]);
-                        }
-                        else
-                        {
-                            firstChain.AddLast(sortedFirstBox[i - 1]);
-                        }
-                    }
-                    else
-                    {
-                        //todo add as conflict to LinkedList (i and i + 1)
-                        i++;
-                    }
-                }
-            }
-
-            var secondChain = new LinkedList<LaboriousDetail>();
-            if (sortedSecondBox.Count == 1)
-            {
-                secondChain.AddFirst(sortedSecondBox.First());
-            }
-            else
-            {
-                for (var i = 1; i <= sortedSecondBox.Count - 1; i++)
-                {
-                    if (i == sortedSecondBox.Count - 1)
-                    {
-                        //todo if it in conflict with last item in chain, then add it to conflict
-                        //todo else add as last item to chain
-                        if (false)
-                        {
-                            //todo add it to last conflict
-                        }
-                        else
-                        {
-                            secondChain.AddLast(sortedSecondBox[i]);
-                        }
-                    }
-
-                    if (sortedSecondBox[i - 1].OnFirst.Time.B < sortedSecondBox[i].OnFirst.Time.A)
-                    {
-                        if (!secondChain.Any())
-                        {
-                            secondChain.AddFirst(sortedSecondBox[i - 1]);
-                        }
-                        else
-                        {
-                            secondChain.AddLast(sortedSecondBox[i - 1]);
-                        }
-                    }
-                    else
-                    {
-                        //todo add as conflict to LinkedList (i and i + 1)
-                        i++;
-                    }
-                }
-            }
             
-            IEnumerable<LaboriousDetail> chain;
+            var firstChain = GetChainFromBox(
+                sortedFirstBox,
+                (previousDetail, currentDetail) => previousDetail.OnFirst.Time.B > currentDetail.OnFirst.Time.A);
+
+            var secondChain = GetChainFromBox(
+                sortedSecondBox,
+                (previousDetail, currentDetail) => previousDetail.OnSecond.Time.A < currentDetail.OnSecond.Time.B);
 
             if (!boxes.Item3.Any())
             {
-                chain = firstChain.Concat(secondChain);
-            }
-            else if (boxes.Item3.Count() == 1)
-            {
-                chain = firstChain.Append(boxes.Item3.First());
-                chain = chain.Concat(secondChain);
-            }
-            else
-            {
-                //todo add all details as conflicts
+                return new Chain(firstChain.Concat(secondChain));
             }
 
-            //todo if we don't have conflicts, sequence is optimized. Else return chain and continue works with chain
+            if (boxes.Item3.Count() == 1)
+            {
+                return new Chain(firstChain.Append(boxes.Item3.First()).Concat(secondChain));
+            }
 
+            //find conflict borders
+            var minAOnFirst = boxes.Item3.Min(detail => detail.OnFirst.Time.A);
+            var minAOnSecond = boxes.Item3.Min(detail => detail.OnSecond.Time.A);
+
+            var resultChain = new Chain();
+            var jConflict = new Conflict();
+
+            foreach (var chainElement in firstChain)
+            {
+                if (chainElement.Type == ChainType.Conflict)
+                {
+                    var conflict = chainElement as Conflict;
+                    if (conflict.Details.Max(detail => detail.OnFirst.Time.B) > minAOnFirst)
+                    {
+                        //we find a border of conflict
+                        var chainNode = firstChain.Find(chainElement);
+                        
+                        while (chainNode != null)
+                        {
+                            var nodeValue = chainNode.Value;
+                            if (nodeValue.Type == ChainType.Conflict)
+                            {
+                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
+                            }
+                            else
+                            {
+                                jConflict.Details.Add(nodeValue as LaboriousDetail);
+                            }
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                    resultChain.AddLast(chainElement);
+                }
+                else
+                {
+                    var detail = chainElement as LaboriousDetail;
+                    if (detail.OnFirst.Time.B > minAOnFirst)
+                    {
+                        //we find a border of conflict
+                        var chainNode = firstChain.Find(chainElement);
+
+                        while (chainNode != null)
+                        {
+                            var nodeValue = chainNode.Value;
+                            if (nodeValue.Type == ChainType.Conflict)
+                            {
+                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
+                            }
+                            else
+                            {
+                                jConflict.Details.Add(nodeValue as LaboriousDetail);
+                            }
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            jConflict.Details.AddRange(boxes.Item3);
+
+            foreach (var chainElement in secondChain)
+            {
+                if (chainElement.Type == ChainType.Conflict)
+                {
+                    var conflict = chainElement as Conflict;
+                    if (conflict.Details.Max(detail => detail.OnSecond.Time.B) > minAOnSecond)
+                    {
+                        jConflict.Details.AddRange(conflict.Details);
+                    }
+                    else
+                    {
+                        resultChain.AddLast(jConflict);
+                        var chainNode = secondChain.Find(chainElement);
+
+                        while (chainNode != null)
+                        {
+                            resultChain.AddLast(chainNode.Value);
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    var detail = chainElement as LaboriousDetail;
+                    if (detail.OnSecond.Time.B > minAOnSecond)
+                    {
+                        jConflict.Details.Add(detail);
+                    }
+                    else
+                    {
+                        resultChain.AddLast(jConflict);
+                        var chainNode = secondChain.Find(chainElement);
+
+                        while (chainNode != null)
+                        {
+                            resultChain.AddLast(chainNode.Value);
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            return resultChain;
         }
 
         private static Tuple<IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>> SplitToBoxes(
@@ -230,7 +313,7 @@ namespace RequirementsScheduler.Core.Worker
                 firstBox,secondBox, asteriskBox);
         }
 
-        private static void TryToOptimizeJ21(ExperimentInfo experimentInfo)
+        private static Chain TryToOptimizeJ21(ExperimentInfo experimentInfo)
         {
             var boxes = SplitToBoxes(
                             experimentInfo.J21,
@@ -242,98 +325,135 @@ namespace RequirementsScheduler.Core.Worker
                     .ToList();
 
             var sortedSecondBox = boxes.Item2
-                .OrderBy(detail => detail.OnSecond.Time.A)
+                .OrderBy(detail => detail.OnFirst.Time.A)
                 .Reverse()
                 .ToList();
 
-            var firstChain = new LinkedList<LaboriousDetail>();
+            var firstChain = GetChainFromBox(
+                sortedFirstBox,
+                (previousDetail, currentDetail) => previousDetail.OnSecond.Time.B > currentDetail.OnSecond.Time.A);
 
-            for (var i = 1; i <= sortedFirstBox.Count - 1; i++)
-            {
-                if (i == sortedFirstBox.Count - 1)
-                {
-                    //todo if it in conflict with last item in chain, then add it to conflict
-                    //todo else add as last item to chain
-                    if (false)
-                    {
-                        //todo add it to last conflict
-                    }
-                    else
-                    {
-                        firstChain.AddLast(sortedFirstBox[i]);
-                    }
-                }
-
-                if (sortedFirstBox[i - 1].OnSecond.Time.B < sortedFirstBox[i].OnSecond.Time.A)
-                {
-                    if (!firstChain.Any())
-                    {
-                        firstChain.AddFirst(sortedFirstBox[i - 1]);
-                    }
-                    else
-                    {
-                        firstChain.AddLast(sortedFirstBox[i - 1]);
-                    }
-                }
-                else
-                {
-                    //todo add as conflict to LinkedList (i and i + 1)
-                    i++;
-                }
-            }
-
-            var secondChain = new LinkedList<LaboriousDetail>();
-            for (var i = 1; i <= sortedSecondBox.Count - 1; i++)
-            {
-                if (i == sortedSecondBox.Count - 1)
-                {
-                    //todo if it in conflict with last item in chain, then add it to conflict
-                    //todo else add as last item to chain
-                    if (false)
-                    {
-                        //todo add it to last conflict
-                    }
-                    else
-                    {
-                        secondChain.AddLast(sortedSecondBox[i]);
-                    }
-                }
-
-                if (sortedSecondBox[i - 1].OnSecond.Time.B < sortedSecondBox[i].OnSecond.Time.A)
-                {
-                    if (!secondChain.Any())
-                    {
-                        secondChain.AddFirst(sortedSecondBox[i - 1]);
-                    }
-                    else
-                    {
-                        secondChain.AddLast(sortedSecondBox[i - 1]);
-                    }
-                }
-                else
-                {
-                    //todo add as conflict to LinkedList (i and i + 1)
-                    i++;
-                }
-            }
-
-            IEnumerable<LaboriousDetail> chain;
+            var secondChain = GetChainFromBox(
+                sortedSecondBox,
+                (previousDetail, currentDetail) => previousDetail.OnFirst.Time.A < currentDetail.OnFirst.Time.B);
 
             if (!boxes.Item3.Any())
             {
-                chain = firstChain.Concat(secondChain);
+                return new Chain(firstChain.Concat(secondChain));
             }
-            else if (boxes.Item3.Count() == 1)
+
+            if (boxes.Item3.Count() == 1)
             {
-                chain = firstChain.Append(boxes.Item3.First());
-                chain = chain.Concat(secondChain);
+                return new Chain(firstChain.Append(boxes.Item3.First()).Concat(secondChain));
             }
-            else
+
+             //find conflict borders
+            var minAOnFirst = boxes.Item3.Min(detail => detail.OnFirst.Time.A);
+            var minAOnSecond = boxes.Item3.Min(detail => detail.OnSecond.Time.A);
+
+            var resultChain = new Chain();
+            var jConflict = new Conflict();
+
+            foreach (var chainElement in firstChain)
             {
-                //todo add all details as conflicts
+                if (chainElement.Type == ChainType.Conflict)
+                {
+                    var conflict = chainElement as Conflict;
+                    if (conflict.Details.Max(detail => detail.OnSecond.Time.B) > minAOnSecond)
+                    {
+                        //we find a border of conflict
+                        var chainNode = firstChain.Find(chainElement);
+                        
+                        while (chainNode != null)
+                        {
+                            var nodeValue = chainNode.Value;
+                            if (nodeValue.Type == ChainType.Conflict)
+                            {
+                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
+                            }
+                            else
+                            {
+                                jConflict.Details.Add(nodeValue as LaboriousDetail);
+                            }
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                    resultChain.AddLast(chainElement);
+                }
+                else
+                {
+                    var detail = chainElement as LaboriousDetail;
+                    if (detail.OnSecond.Time.B > minAOnSecond)
+                    {
+                        //we find a border of conflict
+                        var chainNode = firstChain.Find(chainElement);
+
+                        while (chainNode != null)
+                        {
+                            var nodeValue = chainNode.Value;
+                            if (nodeValue.Type == ChainType.Conflict)
+                            {
+                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
+                            }
+                            else
+                            {
+                                jConflict.Details.Add(nodeValue as LaboriousDetail);
+                            }
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                }
             }
-            
-            //todo if we don't have conflicts, sequence is optimized. Else return chain and continue works with chain
+
+            jConflict.Details.AddRange(boxes.Item3);
+
+            foreach (var chainElement in secondChain)
+            {
+                if (chainElement.Type == ChainType.Conflict)
+                {
+                    var conflict = chainElement as Conflict;
+                    if (conflict.Details.Max(detail => detail.OnFirst.Time.B) > minAOnFirst)
+                    {
+                        jConflict.Details.AddRange(conflict.Details);
+                    }
+                    else
+                    {
+                        resultChain.AddLast(jConflict);
+                        var chainNode = secondChain.Find(chainElement);
+
+                        while (chainNode != null)
+                        {
+                            resultChain.AddLast(chainNode.Value);
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    var detail = chainElement as LaboriousDetail;
+                    if (detail.OnFirst.Time.B > minAOnFirst)
+                    {
+                        jConflict.Details.Add(detail);
+                    }
+                    else
+                    {
+                        resultChain.AddLast(jConflict);
+                        var chainNode = secondChain.Find(chainElement);
+
+                        while (chainNode != null)
+                        {
+                            resultChain.AddLast(chainNode.Value);
+                            chainNode = chainNode.Next;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            return resultChain;
         }
 
         private static void CheckFirst(ExperimentInfo experimentInfo)
