@@ -1,6 +1,9 @@
-﻿namespace RequirementsScheduler.Core.Model
+﻿using System.Diagnostics;
+
+namespace RequirementsScheduler.Core.Model
 {
-   public class ExperimentInfo : IMachine
+    [DebuggerDisplay("Result: {Result.Type}")]
+    public class ExperimentInfo : IMachine
     {
         public bool IsOptimized => 
             J1.IsOptimized && 

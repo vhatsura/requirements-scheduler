@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using RequirementsScheduler.Core.Model;
 using RequirementsScheduler.Core.Worker;
 
@@ -64,7 +66,27 @@ namespace RequirementsScheduler.Host.Console
             var experiment = ReadExperimentFromConsole();
             if (experiment == null) return;
 
+            var stopwatch = Stopwatch.StartNew();
             pipeline.Run(new List<Experiment>() {experiment}).ConfigureAwait(false);
+            stopwatch.Stop();
+
+            System.Console.ForegroundColor = ConsoleColor.DarkGreen;
+            System.Console.WriteLine("\n\n---------   RESULTS OF EXPERIMENTS' EXECUTION   ---------");
+
+            System.Console.WriteLine($"Time of execution experiments: {TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds):%m' minute(s) '%s' second(s)'}\n\n");
+
+            System.Console.WriteLine($"Amounts of tests: {experiment.TestsAmount}");
+            var stop11Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_1);
+            var stop12Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_2);
+            var stop13Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_3);
+            var stop14Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_4);
+            System.Console.WriteLine($"Amounts of resolved tests in offline mode: {experiment.Results.Count}, {(experiment.Results.Count * 100 / (double)experiment.TestsAmount):0.###}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.1: {stop11Count}, {(stop11Count * 100 / (double)experiment.TestsAmount):0.###}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.2: {stop12Count}, {(stop12Count * 100 / (double)experiment.TestsAmount):###}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.3: {stop13Count}, {(stop13Count * 100 / (double)experiment.TestsAmount):0.###}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.4: {stop14Count}, {(stop14Count * 100 / (double)experiment.TestsAmount):0.###}%");
+
+            System.Console.ReadKey();
 
         }
     }

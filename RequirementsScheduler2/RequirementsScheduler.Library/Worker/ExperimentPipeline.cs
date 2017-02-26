@@ -51,7 +51,21 @@ namespace RequirementsScheduler.Core.Worker
                     experiment.Results.Add(experimentInfo);
                     continue;
                 }
-                
+
+                if (CheckStopOneAndThree(experimentInfo))
+                {
+                    experimentInfo.Result.Type = ResultType.STOP1_3;
+                    experiment.Results.Add(experimentInfo);
+                    continue;
+                }
+
+                if (CheckStopOneAndFour(experimentInfo))    
+                {
+                    experimentInfo.Result.Type = ResultType.STOP1_4;
+                    experiment.Results.Add(experimentInfo);
+                    continue;
+                }
+
             }
 
             return Task.FromResult(0);
@@ -86,6 +100,357 @@ namespace RequirementsScheduler.Core.Worker
             return experimentInfo.IsOptimized;
         }
 
+        private static bool CheckStopOneAndThree(ExperimentInfo experimentInfo)
+        {
+            if (experimentInfo.J12Chain != null && !experimentInfo.J12Chain.IsOptimized)
+            {
+                for (var node = experimentInfo.J12Chain.First; node != null; node = node.Next)
+                {
+                    if(node.Value.Type != ChainType.Conflict) continue;
+
+                    var sumOfBOnFirst = 0.0;
+                    var sumOfAOnSecond = 0.0;
+                    for (var nodeForSum = experimentInfo.J12Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    {
+                        if (nodeForSum.Value.Type == ChainType.Conflict)
+                        {
+                            sumOfBOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+                            sumOfAOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
+                        }
+                        else
+                        {
+                            sumOfBOnFirst += (nodeForSum.Value as LaboriousDetail).OnFirst.Time.B;
+                            sumOfAOnSecond += (nodeForSum.Value as LaboriousDetail).OnSecond.Time.A;
+                        }
+                    }
+                    sumOfBOnFirst += (node.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+
+                    sumOfAOnSecond += experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) +
+                                         experimentInfo.J2.Sum(detail => detail.Time.A);
+
+                    if (sumOfAOnSecond >= sumOfBOnFirst)
+                    {
+                        LinkedListNode<IChainNode> insertedNode = node;
+                        foreach (var laboriousDetail in (node.Value as Conflict).Details)
+                        {
+                            insertedNode = experimentInfo.J12Chain.AddBefore(node, laboriousDetail);
+                        }
+                        experimentInfo.J12Chain.Remove(node);
+                        node = insertedNode;    
+                    }
+                }
+            }
+
+            if (experimentInfo.J21Chain != null && !experimentInfo.J21Chain.IsOptimized)
+            {
+                for (var node = experimentInfo.J21Chain.First; node != null; node = node.Next)
+                {
+                    if (node.Value.Type != ChainType.Conflict) continue;
+
+                    var sumOfBOnSecond = 0.0;
+                    var sumOfAOnFirst = 0.0;
+                    for (var nodeForSum = experimentInfo.J21Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    {
+                        if (nodeForSum.Value.Type == ChainType.Conflict)
+                        {
+                            sumOfBOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+                            sumOfAOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
+                        }
+                        else
+                        {
+                            sumOfBOnSecond += (nodeForSum.Value as LaboriousDetail).OnSecond.Time.B;
+                            sumOfAOnFirst += (nodeForSum.Value as LaboriousDetail).OnFirst.Time.A;
+                        }
+                    }
+                    sumOfBOnSecond += (node.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+
+                    sumOfAOnFirst += experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) +
+                                         experimentInfo.J1.Sum(detail => detail.Time.A);
+
+                    if (sumOfAOnFirst >= sumOfBOnSecond)
+                    {
+                        LinkedListNode<IChainNode> insertedNode = node;
+                        foreach (var laboriousDetail in (node.Value as Conflict).Details)
+                        {
+                            insertedNode = experimentInfo.J21Chain.AddBefore(node, laboriousDetail);
+                        }
+                        experimentInfo.J21Chain.Remove(node);
+                        node = insertedNode;
+                    }
+                }
+            }
+
+            return experimentInfo.IsOptimized;
+        }
+
+        private static bool CheckStopOneAndFour(ExperimentInfo experimentInfo)
+        {
+            if (experimentInfo.J12Chain != null && !experimentInfo.J12Chain.IsOptimized)
+            {
+                for (var node = experimentInfo.J12Chain.Last; node != null; node = node.Previous)
+                {
+                    if (node.Value.Type != ChainType.Conflict) continue;
+
+                    var conflict = node.Value as Conflict;
+                    var x1Box = conflict.Details
+                        .Where(detail => detail.OnSecond.Time.A - detail.OnFirst.Time.B >= 0)
+                        .OrderBy(detail => detail.OnFirst.Time.B)
+                        .ToList();
+
+                    var x2Box = conflict.Details
+                        .Except(x1Box)
+                        .OrderBy(detail => detail.OnSecond.Time.A)
+                        .Reverse()
+                        .ToList();
+
+                    var xBox = x1Box.Concat(x2Box).ToList();
+
+                    var sumBeforeConflictOfBOnFirst = 0.0;
+                    var sumBeforeConflictOfAOnSecond = 0.0;
+
+                    for (var nodeForSum = experimentInfo.J12Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    {
+                        if (nodeForSum.Value.Type == ChainType.Conflict)
+                        {
+                            sumBeforeConflictOfBOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+                            sumBeforeConflictOfAOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
+                        }
+                        else
+                        {
+                            sumBeforeConflictOfBOnFirst += (nodeForSum.Value as LaboriousDetail).OnFirst.Time.B;
+                            sumBeforeConflictOfAOnSecond += (nodeForSum.Value as LaboriousDetail).OnSecond.Time.A;
+                        }
+                    }
+
+                    sumBeforeConflictOfAOnSecond += experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) + 
+                                                    experimentInfo.J2.Sum(detail => detail.Time.A);
+
+                    var sumOfBOnFirst = sumBeforeConflictOfBOnFirst;
+                    var sumOfAOnSecond = sumBeforeConflictOfAOnSecond;
+
+                    var isResolved = true;
+
+                    foreach (var detailInBox in xBox)
+                    {
+                        sumOfBOnFirst += detailInBox.OnFirst.Time.B;
+                        if (sumOfBOnFirst <= sumOfAOnSecond)
+                        {
+                            sumOfAOnSecond += detailInBox.OnSecond.Time.A;
+                            continue;
+                        }
+
+                        isResolved = false;
+                        break;
+                    }
+
+                    if (isResolved)
+                    {
+                        var insertedNode = node;
+                        foreach (var detailInBox in xBox)
+                        {
+                            insertedNode = experimentInfo.J12Chain.AddBefore(node, detailInBox);
+                        }
+                        experimentInfo.J12Chain.Remove(node);
+                        node = insertedNode;
+                        continue;
+                    }
+
+                    var y1Box = conflict.Details
+                        .Where(detail => detail.OnFirst.Time.A - detail.OnSecond.Time.B >= 0)
+                        .OrderBy(detail => detail.OnSecond.Time.B)
+                        .Reverse()
+                        .ToList();
+
+                    var y2Box = conflict.Details
+                        .Except(y1Box)
+                        .OrderBy(detail => detail.OnFirst.Time.A)
+                        .ToList();
+
+                    var yBox = y2Box.Concat(y1Box).ToList();
+
+                    var aOfDetailAfterConflict = 0.0;
+
+                    if (node.Next == null)
+                    {
+                        if (experimentInfo.J1.Any())
+                        {
+                            aOfDetailAfterConflict = experimentInfo.J1.First().Time.A;
+                        }
+                        else
+                        {
+                            break;
+                            //throw new NotSupportedException();
+                        }
+                    }
+                    else
+                    {
+                        aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail ? 
+                            (node.Next.Value as LaboriousDetail).OnFirst.Time.A : 
+                            (node.Next.Value as Conflict).Details.First().OnFirst.Time.A;
+                    }
+
+                    var sumOfAOnFirst = aOfDetailAfterConflict;
+                    var sumOfBOnSecond = 0.0;
+                    isResolved = true;
+                    foreach (var detailInBox in yBox.AsEnumerable().Reverse())
+                    {
+                        sumOfBOnSecond += detailInBox.OnSecond.Time.B;
+                        if (sumOfAOnFirst >= sumOfBOnSecond)
+                        {
+                            sumOfAOnFirst += detailInBox.OnFirst.Time.A;
+                            continue;
+                        }
+                        isResolved = false;
+                        break;
+                    }
+
+                    if (isResolved)
+                    {
+                        var insertedNode = node;
+                        foreach (var detailInBox in yBox)
+                        {
+                            insertedNode = experimentInfo.J12Chain.AddBefore(node, detailInBox);
+                        }
+                        experimentInfo.J12Chain.Remove(node);
+                        node = insertedNode;
+                    }
+                }
+            }
+
+            if (experimentInfo.J21Chain != null && !experimentInfo.J21Chain.IsOptimized)
+            {
+                for (var node = experimentInfo.J21Chain.Last; node != null; node = node.Previous)
+                {
+                    if (node.Value.Type != ChainType.Conflict) continue;
+
+                    var conflict = node.Value as Conflict;
+                    var x1Box = conflict.Details
+                        .Where(detail => detail.OnFirst.Time.A - detail.OnSecond.Time.B >= 0)
+                        .OrderBy(detail => detail.OnSecond.Time.B)
+                        .ToList();
+
+                    var x2Box = conflict.Details
+                        .Except(x1Box)
+                        .OrderBy(detail => detail.OnFirst.Time.A)
+                        .Reverse()
+                        .ToList();
+
+                    var xBox = x1Box.Concat(x2Box).ToList();
+
+                    var sumBeforeConflictOfBOnSecond = 0.0;
+                    var sumBeforeConflictOfAOnFirst = 0.0;
+
+                    for (var nodeForSum = experimentInfo.J21Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    {
+                        if (nodeForSum.Value.Type == ChainType.Conflict)
+                        {
+                            sumBeforeConflictOfBOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+                            sumBeforeConflictOfAOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
+                        }
+                        else
+                        {
+                            sumBeforeConflictOfBOnSecond += (nodeForSum.Value as LaboriousDetail).OnSecond.Time.B;
+                            sumBeforeConflictOfAOnFirst += (nodeForSum.Value as LaboriousDetail).OnFirst.Time.A;
+                        }
+                    }
+
+                    sumBeforeConflictOfAOnFirst += experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) +
+                                                    experimentInfo.J1.Sum(detail => detail.Time.A);
+
+                    var sumOfBOnSecond = sumBeforeConflictOfBOnSecond;
+                    var sumOfAOnFirst = sumBeforeConflictOfAOnFirst;
+
+                    var isResolved = true;
+
+                    foreach (var detailInBox in xBox)
+                    {
+                        sumOfBOnSecond += detailInBox.OnSecond.Time.B;
+                        if (sumOfBOnSecond <= sumOfAOnFirst)
+                        {
+                            sumOfAOnFirst += detailInBox.OnFirst.Time.A;
+                            continue;
+                        }
+
+                        isResolved = false;
+                        break;
+                    }
+
+                    if (isResolved)
+                    {
+                        var insertedNode = node;
+                        foreach (var detailInBox in xBox)
+                        {
+                            insertedNode = experimentInfo.J21Chain.AddBefore(node, detailInBox);
+                        }
+                        experimentInfo.J21Chain.Remove(node);
+                        node = insertedNode;
+                        continue;
+                    }
+
+                    var y1Box = conflict.Details
+                        .Where(detail => detail.OnSecond.Time.A - detail.OnFirst.Time.B >= 0)
+                        .OrderBy(detail => detail.OnFirst.Time.B)
+                        .Reverse()
+                        .ToList();
+
+                    var y2Box = conflict.Details
+                        .Except(y1Box)
+                        .OrderBy(detail => detail.OnSecond.Time.A)
+                        .ToList();
+
+                    var yBox = y2Box.Concat(y1Box).ToList();
+
+                    var aOfDetailAfterConflict = 0.0;
+
+                    if (node.Next == null)
+                    {
+                        if (experimentInfo.J2.Any())
+                        {
+                            aOfDetailAfterConflict = experimentInfo.J2.First().Time.A;
+                        }
+                        else
+                        {
+                            break;
+                            //throw new NotSupportedException();
+                        }
+                    }
+                    else
+                    {
+                        aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail ?
+                            (node.Next.Value as LaboriousDetail).OnSecond.Time.A :
+                            (node.Next.Value as Conflict).Details.First().OnSecond.Time.A;
+                    }
+
+                    var sumOfAOnSecond = aOfDetailAfterConflict;
+                    var sumOfBOnFirst = 0.0;
+                    isResolved = true;
+                    foreach (var detailInBox in yBox.AsEnumerable().Reverse())
+                    {
+                        sumOfBOnFirst += detailInBox.OnFirst.Time.B;
+                        if (sumOfAOnSecond >= sumOfBOnFirst)
+                        {
+                            sumOfAOnSecond += detailInBox.OnSecond.Time.A;
+                            continue;
+                        }
+                        isResolved = false;
+                        break;
+                    }
+
+                    if (isResolved)
+                    {
+                        var insertedNode = node;
+                        foreach (var detailInBox in yBox)
+                        {
+                            insertedNode = experimentInfo.J21Chain.AddBefore(node, detailInBox);
+                        }
+                        experimentInfo.J21Chain.Remove(node);
+                        node = insertedNode;
+                    }
+                }
+            }
+
+            return experimentInfo.IsOptimized;
+        }
 
         private static Chain GetChainFromBox(
             IReadOnlyCollection<LaboriousDetail> sortedBox,
