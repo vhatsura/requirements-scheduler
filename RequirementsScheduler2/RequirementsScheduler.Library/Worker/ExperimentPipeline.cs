@@ -15,6 +15,9 @@ namespace RequirementsScheduler.Core.Worker
 
         public ExperimentPipeline(IExperimentGenerator generator)
         {
+            if (Generator == null)
+                throw new ArgumentNullException(nameof(generator));
+
             Generator = generator;
         }
 
@@ -65,7 +68,6 @@ namespace RequirementsScheduler.Core.Worker
                     experiment.Results.Add(experimentInfo);
                     continue;
                 }
-
             }
 
             return Task.FromResult(0);
@@ -81,7 +83,6 @@ namespace RequirementsScheduler.Core.Worker
             }
 
             CheckSecond(experimentInfo);
-
             return experimentInfo.IsOptimized;
         }
 
