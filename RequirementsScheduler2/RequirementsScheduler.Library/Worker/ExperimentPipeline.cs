@@ -674,7 +674,8 @@ namespace RequirementsScheduler.Core.Worker
                 .Except(secondBox)
                 .ToList();
 
-            return new Tuple<IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>>(
+            return 
+                new Tuple<IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>>(
                 firstBox,secondBox, asteriskBox);
         }
 
@@ -828,7 +829,8 @@ namespace RequirementsScheduler.Core.Worker
             {
                 experimentInfo.J12.IsOptimized = true;
             }
-            else return;
+            else
+                return;
 
             if (experimentInfo.J12.Sum(detail => detail.OnSecond.Time.A) >=
                 experimentInfo.J1.Sum(detail => detail.Time.B) + experimentInfo.J21.Sum(detail => detail.OnFirst.Time.B))
@@ -844,7 +846,8 @@ namespace RequirementsScheduler.Core.Worker
             {
                 experimentInfo.J21.IsOptimized = true;
             }
-            else return;
+            else
+                return;
             
             //todo if J12 already optimized we don't need check it again
             if (experimentInfo.J21.Sum(detail => detail.OnFirst.Time.A) >=
