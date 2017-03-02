@@ -15,8 +15,8 @@ namespace RequirementsScheduler.Core.Worker
 
         public ExperimentPipeline(IExperimentGenerator generator)
         {
-            if (Generator == null)
-                throw new ArgumentNullException(nameof(generator));
+           if (generator == null)
+               throw new ArgumentNullException(nameof(generator));
 
             Generator = generator;
         }
