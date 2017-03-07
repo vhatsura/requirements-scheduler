@@ -46,23 +46,25 @@ namespace RequirementsScheduler.Core.Worker
 
             var experimentInfo = new ExperimentInfo();
 
-            experimentInfo.J1.AddRange(firstABoundaries.Zip(firstBBoundaries, (a, b) => new Detail(a, b)));
-            experimentInfo.J2.AddRange(secondABoundaries.Zip(secondBBoundaries, (a, b) => new Detail(a, b)));
+            int number = 1;
+
+            experimentInfo.J1.AddRange(firstABoundaries.Zip(firstBBoundaries, (a, b) => new Detail(a, b, number++)));
+            experimentInfo.J2.AddRange(secondABoundaries.Zip(secondBBoundaries, (a, b) => new Detail(a, b, number++)));
 
             var onFirstDetails = firstSecondFirstABoundaries.Zip(firstSecondFirstBBoundaries,
-                (a, b) => new Detail(a, b));
+                (a, b) => new ProcessingTime(a, b));
             var onSecondDetails = firstSecondSecondABoundaries.Zip(firstSecondSecondBBoundaries,
-                (a, b) => new Detail(a, b));
+                (a, b) => new ProcessingTime(a, b));
 
-            experimentInfo.J12.AddRange(onFirstDetails.Zip(onSecondDetails, (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond)));
+            experimentInfo.J12.AddRange(onFirstDetails.Zip(onSecondDetails, (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, number++)));
 
             onFirstDetails = secondFirstFirstABoundaries.Zip(secondFirstFirstBBoundaries,
-                (a, b) => new Detail(a, b));
+                (a, b) => new ProcessingTime(a, b));
             onSecondDetails = secondFirstSecondABoundaries.Zip(secondFirstSecondBBoundaries,
-                (a, b) => new Detail(a, b));
+                (a, b) => new ProcessingTime(a, b));
 
             experimentInfo.J21.AddRange(onFirstDetails.Zip(onSecondDetails,
-                (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond)));
+                (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, number++)));
 
             return experimentInfo;
         }

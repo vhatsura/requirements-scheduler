@@ -1,18 +1,24 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace RequirementsScheduler.Core.Model
 {
+    [DebuggerDisplay("Number: {" + nameof(Number) + "}")]
     public class LaboriousDetail : IChainNode, IEquatable<LaboriousDetail>
     {
         public ChainType Type => ChainType.Detail;
 
+        public int Number { get; }
+
         public Detail OnFirst { get; }
         public Detail OnSecond { get; }
 
-        public LaboriousDetail(Detail onFirst, Detail onSecond)
+        public LaboriousDetail(ProcessingTime onFirst, ProcessingTime onSecond, int number)
         {
-            OnFirst = onFirst;
-            OnSecond = onSecond;
+            Number = number;
+
+            OnFirst = new Detail(onFirst.A, onFirst.B, this.Number);
+            OnSecond = new Detail(onSecond.A, onSecond.B, this.Number);
         }
 
         public bool Equals(LaboriousDetail other)

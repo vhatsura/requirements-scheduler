@@ -273,21 +273,18 @@ namespace RequirementsScheduler.Core.Worker
 
                     if (node.Next == null)
                     {
-                        if (experimentInfo.J1.Any())
-                        {
-                            aOfDetailAfterConflict = experimentInfo.J1.First().Time.A;
-                        }
-                        else
+                        aOfDetailAfterConflict = experimentInfo.J1?.Sum(detail => detail.Time.A) ??
+                                                 0.0 + experimentInfo.J21?.Sum(detail => detail.OnFirst.Time.A) ?? 0.0;
+                        if (aOfDetailAfterConflict == 0.0)
                         {
                             break;
-                            //throw new NotSupportedException();
                         }
                     }
                     else
                     {
                         aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail ? 
                             (node.Next.Value as LaboriousDetail).OnFirst.Time.A : 
-                            (node.Next.Value as Conflict).Details.First().OnFirst.Time.A;
+                            (node.Next.Value as Conflict).Details.Min(detail => detail.OnFirst.Time.A);
                     }
 
                     var sumOfAOnFirst = aOfDetailAfterConflict;
@@ -405,21 +402,18 @@ namespace RequirementsScheduler.Core.Worker
 
                     if (node.Next == null)
                     {
-                        if (experimentInfo.J2.Any())
-                        {
-                            aOfDetailAfterConflict = experimentInfo.J2.First().Time.A;
-                        }
-                        else
+                        aOfDetailAfterConflict = experimentInfo.J2?.Sum(detail => detail.Time.A) ??
+                                                 0.0 + experimentInfo.J12?.Sum(detail => detail.OnSecond.Time.A) ?? 0.0;
+                        if (aOfDetailAfterConflict == 0.0)
                         {
                             break;
-                            //throw new NotSupportedException();
                         }
                     }
                     else
                     {
                         aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail ?
                             (node.Next.Value as LaboriousDetail).OnSecond.Time.A :
-                            (node.Next.Value as Conflict).Details.First().OnSecond.Time.A;
+                            (node.Next.Value as Conflict).Details.Min(detail => detail.OnSecond.Time.A);
                     }
 
                     var sumOfAOnSecond = aOfDetailAfterConflict;

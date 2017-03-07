@@ -9,6 +9,9 @@ namespace RequirementsScheduler.Core.Model
 
         public ProcessingTime(double a, double b)
         {
+            if(a >= b || a <= 0  || b <= 0)
+                throw new ArgumentOutOfRangeException();
+
             A = a;
             B = b;
         }

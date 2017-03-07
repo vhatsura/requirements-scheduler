@@ -1,0 +1,2 @@
+dotnet RequirementsScheduler.Host.Console.dll
+pause
