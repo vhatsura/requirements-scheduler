@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using RequirementsScheduler.Core.Model;
-
-namespace RequirementsScheduler.DAL.Repository
+﻿namespace RequirementsScheduler.DAL.Repository
 {
-    public interface IRepository<T> where T : IRepositoryModel
+    public interface IRepository<TEntity, in TKey> : IReadOnlyRepository<TEntity, TKey> 
+        where TEntity : class
     {
-        IEnumerable<T> Get();
-        T Get(int id);
-        T Update(T value);
-        IEnumerable<T> Get(Func<T, bool> predicate);
-        T Add(T value);
+        TEntity Add(TEntity entity);
+        bool Delete(TKey id);
+        TEntity Update(TKey id, TEntity entity);
     }
 }

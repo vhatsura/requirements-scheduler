@@ -1,4 +1,4 @@
-﻿using RequirementsScheduler.Core.Model;
+﻿using RequirementsScheduler.BLL.Model;
 
 namespace RequirementsScheduler.Core.Worker
 {

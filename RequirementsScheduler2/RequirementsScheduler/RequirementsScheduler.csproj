@@ -23,7 +23,6 @@
     <Content Remove="ClientApp\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RequirementsScheduler.Core\RequirementsScheduler.Core.csproj" />
     <ProjectReference Include="..\RequirementsScheduler.Library\RequirementsScheduler.Library.csproj" />
   </ItemGroup>
   <Target Name="RunWebpack" AfterTargets="ComputeFilesToPublish">

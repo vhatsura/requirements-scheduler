@@ -1,19 +1,25 @@
 ﻿using Quartz;
-using RequirementsScheduler.Core.Model;
-using RequirementsScheduler.DAL.Repository;
 using System.Threading.Tasks;
+using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.Core.Service;
 
 namespace RequirementsScheduler.Core.Worker
 {
     public sealed class ExperimentWorker : IJob
     {
-        private readonly IRepository<Experiment> Repository = new ExperimentsRepository();
+        private IExperimentsService Service { get; }
+        private ExperimentPipeline Pipeline { get; }
+
+        public ExperimentWorker(IExperimentsService service, ExperimentPipeline pipeline)
+        {
+            Service = service;
+            Pipeline = pipeline;
+        }
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var experimentsForProcessing = Repository.Get(experiment => experiment.Status == ExperimentStatus.New);
-            var pipeline = new ExperimentPipeline(new ExperimentGenerator());
-            await pipeline.Run(experimentsForProcessing);
+            var experimentsForProcessing = Service.GetByStatus(ExperimentStatus.New, "worker");
+            await Pipeline.Run(experimentsForProcessing);
         }
     }
 }

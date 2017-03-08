@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RequirementsScheduler.Core.Model;
+using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.Core.Service;
 using RequirementsScheduler2.Extensions;
 
@@ -15,7 +15,12 @@ namespace RequirementsScheduler2.Controllers
     [Route("api/[controller]")]
     public class ExperimentsController : Controller
     {
-        private readonly IExperimentsService Service = new ExperimentsService();
+        private IExperimentsService Service { get; }
+
+        public ExperimentsController(IExperimentsService service)
+        {
+            Service = service;
+        }
 
         // GET: api/values
         [HttpGet]
@@ -46,8 +51,7 @@ namespace RequirementsScheduler2.Controllers
                 return new ObjectResult(Enumerable.Empty<Experiment>());
             }
 
-            ExperimentStatus experimentStatus;
-            if (Enum.TryParse<ExperimentStatus>(status, true, out experimentStatus))
+            if (Enum.TryParse(status, true, out ExperimentStatus experimentStatus))
             {
                 return new ObjectResult(Service.GetByStatus(experimentStatus, username));
             }

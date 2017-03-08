@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RequirementsScheduler.DAL.Repository;
-using RequirementsScheduler.Core.Model;
+using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.Core.Worker
 {
     public sealed class ExperimentPipeline
     {
-        private readonly IRepository<Experiment> Repository = new ExperimentsRepository();
-
         private IExperimentGenerator Generator { get; }
 
-        public ExperimentPipeline(IExperimentGenerator generator)
+        private IWorkerExperimentService Service { get; }
+
+        public ExperimentPipeline(
+            IExperimentGenerator generator,
+            IWorkerExperimentService service)
         {
            if (generator == null)
                throw new ArgumentNullException(nameof(generator));
 
             Generator = generator;
+            Service = service;
         }
 
         public async Task Run(IEnumerable<Experiment> experiments)
@@ -26,12 +29,12 @@ namespace RequirementsScheduler.Core.Worker
             foreach (var experiment in experiments)
             {
                 experiment.Status = ExperimentStatus.InProgress;
-                Repository.Update(experiment);
+                Service.StartExperiment(experiment.Id);
 
                 await RunTest(experiment);
 
                 experiment.Status = ExperimentStatus.Completed;
-                Repository.Update(experiment);
+                Service.StopExperiment(experiment.Id);
             }
         }
 
@@ -44,7 +47,7 @@ namespace RequirementsScheduler.Core.Worker
                 if (CheckStopOneAndOne(experimentInfo))
                 {
                     experimentInfo.Result.Type = ResultType.STOP1_1;
-                    experiment.Results.Add(experimentInfo);
+                    experiment.Results.Append(experimentInfo);
                     continue;
                 }
 

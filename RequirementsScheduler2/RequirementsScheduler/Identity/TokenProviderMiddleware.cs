@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.Core.Service;
-using RequirementsScheduler.Core.Model;
 
 namespace RequirementsScheduler2.Identity
 {
@@ -18,10 +18,13 @@ namespace RequirementsScheduler2.Identity
 
         public TokenProviderMiddleware(
             RequestDelegate next,
-            IOptions<TokenProviderOptions> options)
+            IOptions<TokenProviderOptions> options,
+            IUserService service)
         {
             _next = next;
             _options = options.Value;
+
+            UserService = service;
         }
 
         public Task Invoke(HttpContext context)
@@ -91,7 +94,7 @@ namespace RequirementsScheduler2.Identity
             await context.Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.Indented }));
         }
 
-        private readonly IUserService UserService = new UserService();
+        private IUserService UserService { get; }
 
         private Task<ClaimsIdentity> GetIdentity(User user, string password)
         {

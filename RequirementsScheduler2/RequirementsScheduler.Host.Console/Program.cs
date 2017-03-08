@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using RequirementsScheduler.Core.Model;
+using Moq;
+using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
 
 namespace RequirementsScheduler.Host.Console
@@ -61,7 +63,7 @@ namespace RequirementsScheduler.Host.Console
 
         public static void Main(string[] args)
         {
-            var pipeline = new ExperimentPipeline(new ExperimentGenerator());
+            var pipeline = new ExperimentPipeline(new ExperimentGenerator(), Mock.Of<IWorkerExperimentService>());
 
             var experiment = ReadExperimentFromConsole();
             if (experiment == null) return;

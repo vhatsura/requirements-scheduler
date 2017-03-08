@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using RequirementsScheduler.Core.Model;
+using RequirementsScheduler.BLL.Model;
 
 namespace RequirementsScheduler2.Controllers
 {
@@ -11,6 +11,7 @@ namespace RequirementsScheduler2.Controllers
         [HttpGet]
         public IEnumerable<ExperimentReport> Get()
         {
+            //todo get from service
             return new List<ExperimentReport>()
             {
                 new ExperimentReport()

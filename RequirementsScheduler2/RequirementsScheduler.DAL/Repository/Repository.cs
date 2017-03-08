@@ -1,82 +1,99 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
-using RequirementsScheduler.Core.Model;
+using System.Linq.Expressions;
+using System.Reflection;
+using LinqToDB;
+using LinqToDB.Mapping;
 
 namespace RequirementsScheduler.DAL.Repository
 {
-    public abstract class Repository<T> : IRepository<T>
-        where T : class, IRepositoryModel
+    public abstract class Repository<TEntity, TKey> : IRepository<TEntity, TKey>
+        where TEntity : class, IRepositoryModel<TKey>
     {
-        protected static readonly ConcurrentDictionary<int, T> ModelsCollection = new ConcurrentDictionary<int, T>();
+        private Database Db { get; }
 
-        protected static void AddDefaultValue(params T[] values)
+        protected Repository(Database db)
         {
-            foreach (var value in values)
+            Db = db;
+        }
+
+        public IEnumerable<TEntity> Get()
+        {
+            using (var db = Db.Open())
             {
-                SetIdToRepositoryModel(value);
-                ModelsCollection.TryAdd(value.Id, value);
+                return db.GetTable<TEntity>().ToList();
             }
         }
 
-        protected static void SetIdToRepositoryModel(T value)
+        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
         {
-            lock (syncObject)
+            using (var db = Db.Open())
             {
-                value.Id = lastModelId;
-                Interlocked.Increment(ref lastModelId);
+                return db.GetTable<TEntity>()
+                    .Where(filter)
+                    .ToList();
             }
         }
 
-        public IEnumerable<T> Get()
+        public TEntity Get(TKey id)
         {
-            return ModelsCollection.Values.ToImmutableList();
+            using (var db = Db.Open())
+            {
+                var pkName =
+                    typeof(TEntity)
+                        .GetProperties()
+                        .First(prop => prop.GetCustomAttributes<PrimaryKeyAttribute>(false).Any());
+
+                var expression = SimpleComparison(pkName.Name, id);
+
+                return db.GetTable<TEntity>()
+                    .Where(expression)
+                    .FirstOrDefault();
+            }
         }
 
-        public T Get(int id)
+        public TEntity Add(TEntity entity)
         {
-            T value;
-            ModelsCollection.TryGetValue(id, out value);
-            return value;
+            using (var db = Db.Open())
+            {
+                var key = db.InsertWithIdentity(entity);
+
+                return Get((TKey) key);
+            }
         }
 
-        public T Update(T value)
+        public bool Delete(TKey id)
         {
-            ModelsCollection.AddOrUpdate(value.Id, value, (k, v) => value);
-            return this.Get(value.Id);
+            using (var db = Db.Open())
+            {
+                var count = db.GetTable<TEntity>()
+                    .Delete(entity => Equals(entity.Id, id));
+
+                return count > 0;
+            }
         }
 
-        // ReSharper disable StaticMemberInGenericType
-        private static int lastModelId = 1;
-        private static readonly object syncObject = new object();
-        // ReSharper restore StaticMemberInGenericType
-
-        protected virtual void BeforeAdd(T value) { }
-
-        public T Add(T value)
+        public TEntity Update(TKey id, TEntity entity)
         {
-            BeforeAdd(value);
+            using (var db = Db.Open())
+            {
+                db.GetTable<TEntity>()
+                    .Update(e => Equals(e.Id, id), e => entity);
 
-            SetIdToRepositoryModel(value);
-
-            ModelsCollection.TryAdd(value.Id, value);
-            return this.Get(value.Id);
+                return Get(id);
+            }
         }
 
-        public IEnumerable<T> Get(Func<T, bool> predicate)
+        public Func<TEntity, bool> SimpleComparison(string property, TKey value)
         {
-            if (predicate == null)
-                throw new ArgumentNullException(nameof(predicate));
+            var type = typeof(TEntity);
+            var pe = Expression.Parameter(type, "p");
+            var propertyReference = Expression.Property(pe, property);
+            var constantReference = Expression.Constant(value);
 
-            var filteredCollection = ModelsCollection
-                                        .Select(pair => pair.Value)
-                                        .Where(predicate)
-                                        .ToList();
-
-            return filteredCollection.Any() ? filteredCollection : Enumerable.Empty<T>();
+            return Expression.Lambda<Func<TEntity, bool>>
+                (Expression.Equal(propertyReference, constantReference), pe).Compile();
         }
     }
 }
