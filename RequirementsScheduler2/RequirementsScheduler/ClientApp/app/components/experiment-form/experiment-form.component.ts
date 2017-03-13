@@ -1,13 +1,13 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from "@angular/core";
 
-import { Experiment } from '../../models/index';
+import { Experiment } from "../../models/index";
 import { ExperimentService } from "../../services/index";
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
-import { CustomValidators } from 'ng2-validation';
+import { CustomValidators } from "ng2-validation";
 
 @Component({
-    selector: 'experiment-form',
+    selector: "experiment-form",
     styles: [`
     .ng-valid[required], .ng-valid.required  {
         border-left: 5px solid #42A948; /* green */
@@ -16,12 +16,12 @@ import { CustomValidators } from 'ng2-validation';
         border-left: 5px solid #a94442; /* red */
     }
     `],
-    template: require('./experiment-form.component.html')
+    template: require("./experiment-form.component.html")
 })
 
 export class ExperimentFormComponent implements OnInit {
-    error = '';
-    success = '';
+    error = "";
+    success = "";
     loading = false;
     f: FormGroup;
 
