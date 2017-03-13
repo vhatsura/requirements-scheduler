@@ -1,15 +1,24 @@
-﻿import { Component, Input } from '@angular/core';
+﻿import { Component, Input, AfterContentInit } from "@angular/core";
+import { ITabComponentValue } from "../TabComponentValue";
 
 @Component({
-    selector: 'tab',
+    selector: "tab",
     styles: [`
     .pane{
       padding: 1em;
     }
   `],
-    template: require('./tab.component.html'),
+    template: require("./tab.component.html")
 })
-export class TabComponent {
-    @Input('tabTitle') title: string;
+export class TabComponent implements AfterContentInit {
+    ngAfterContentInit(): void {
+        
+    }
+
+    @Input("tabTitle") title: string;
     @Input() active = false;
+
+    public activate(value: boolean) {
+        this.active = value;
+    }
 }

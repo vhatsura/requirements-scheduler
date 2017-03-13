@@ -1,15 +1,17 @@
-﻿import { Component, Input, AfterContentInit } from '@angular/core';
+﻿import { Component, Input, AfterContentInit } from "@angular/core";
 
-import { Experiment, ExperimentStatus } from '../../models/index';
+import { Experiment, ExperimentStatus } from "../../models/index";
 import { ExperimentService } from "../../services/index";
 
+import { ITabComponentValue } from "../TabComponentValue";
+
 @Component({
-    selector: 'experiments',
+    selector: "experiments",
     styles: [`
   `],
-    template: require('./experiments.component.html'),
+    template: require("./experiments.component.html")
 })
-export class ExperimentsComponent implements AfterContentInit {
+export class ExperimentsComponent implements AfterContentInit, ITabComponentValue {
     public ExperimentStatus = ExperimentStatus;
     public experimentStatus : ExperimentStatus;
     @Input('experimentStatus') set status(value: ExperimentStatus) {
@@ -40,5 +42,10 @@ export class ExperimentsComponent implements AfterContentInit {
     ngAfterContentInit(): void {
         this.experimentService.getByStatus(this.experimentStatus)
             .subscribe(experiments => this.experiments = experiments);
+    }
+
+    ShowContent(): void {
+        this.experimentService.getByStatus(this.experimentStatus)
+            .subscribe(experiments => this.experiments = experiments);    
     }
 }
