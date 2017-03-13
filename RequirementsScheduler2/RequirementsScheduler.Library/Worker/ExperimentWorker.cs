@@ -1,16 +1,16 @@
-﻿using Quartz;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Quartz;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.Core.Service;
 
-namespace RequirementsScheduler.Core.Worker
+namespace RequirementsScheduler.Library.Worker
 {
     public sealed class ExperimentWorker : IJob
     {
         private IExperimentsService Service { get; }
-        private ExperimentPipeline Pipeline { get; }
+        private IExperimentPipeline Pipeline { get; }
 
-        public ExperimentWorker(IExperimentsService service, ExperimentPipeline pipeline)
+        public ExperimentWorker(IExperimentsService service, IExperimentPipeline pipeline)
         {
             Service = service;
             Pipeline = pipeline;

@@ -6,6 +6,7 @@ using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.Library.Worker;
 
 namespace RequirementsScheduler.Host.Console
 {

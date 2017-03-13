@@ -10,6 +10,7 @@ namespace RequirementsScheduler.BLL
             CreateMap<BLL.Model.User, DAL.Model.User>();
 
             CreateMap<DAL.Model.Experiment, BLL.Model.Experiment>();
+            CreateMap<BLL.Model.Experiment, DAL.Model.Experiment>();
         }
     }
 }

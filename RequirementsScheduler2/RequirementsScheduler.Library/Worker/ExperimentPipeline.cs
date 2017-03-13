@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
+using RequirementsScheduler.Core.Worker;
 
-namespace RequirementsScheduler.Core.Worker
+namespace RequirementsScheduler.Library.Worker
 {
-    public sealed class ExperimentPipeline
+    public sealed class ExperimentPipeline : IExperimentPipeline
     {
         private IExperimentGenerator Generator { get; }
 

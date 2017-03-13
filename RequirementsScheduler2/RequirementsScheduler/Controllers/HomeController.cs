@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace RequirementsScheduler2.Controllers
+namespace RequirementsScheduler.Controllers
 {
     public class HomeController : Controller
     {

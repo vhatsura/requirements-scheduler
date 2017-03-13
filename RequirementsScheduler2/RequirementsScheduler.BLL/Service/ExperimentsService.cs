@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.Core.Service;
 using RequirementsScheduler.DAL.Repository;
 
-namespace RequirementsScheduler.Core.Service
+namespace RequirementsScheduler.BLL.Service
 {
     public class ExperimentsService : IExperimentsService
     {

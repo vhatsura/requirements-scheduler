@@ -12,8 +12,14 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Quartz.Impl;
+using Quartz.Spi;
+using RequirementsScheduler.BLL.Service;
+using RequirementsScheduler.Core.Service;
 using RequirementsScheduler2.Identity;
 using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.DAL.Repository;
+using RequirementsScheduler.Extensions;
+using RequirementsScheduler.Library.Worker;
 
 namespace RequirementsScheduler
 {
@@ -38,6 +44,33 @@ namespace RequirementsScheduler
             services.AddMvc();
 
             services.AddAutoMapper();
+
+            services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IExperimentsService, ExperimentsService>();
+
+#if IN_MEMORY
+            ConfigureInMemoryServices(services);
+#else
+            ConfigureRequirementsServices(services);
+#endif
+
+            services.AddTransient<IJobFactory, WorkerJobFactory>(provider => new WorkerJobFactory(provider));
+            services.AddTransient<IExperimentPipeline, ExperimentPipeline>();
+            services.AddTransient<IExperimentGenerator, ExperimentGenerator>();
+            services.AddSingleton<IWorkerExperimentService, WorkerExperimentService>();
+            services.AddSingleton<ExperimentWorker, ExperimentWorker>();
+        }
+
+        private void ConfigureInMemoryServices(IServiceCollection services)
+        {
+            services.AddSingleton<IRepository<DAL.Model.User, int>, UsersInMemoryRepository>();
+            services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, ExperimentsInMemoryRepository>();
+        }
+
+        private void ConfigureRequirementsServices(IServiceCollection services)
+        {
+            services.AddSingleton<IRepository<DAL.Model.User, int>, Repository<DAL.Model.User, int>>();
+            services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, Repository<DAL.Model.Experiment, Guid>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,7 +95,7 @@ namespace RequirementsScheduler
             app.UseStaticFiles();
 
             ConfigureOAuth(app);
-            await ConfigureScheduler();
+            app.UseQuartz(c => c.AddJob<ExperimentWorker>("experimentJob", "experimentGroup", (int) TimeSpan.FromMinutes(1).TotalSeconds));
 
             app.UseMvc(routes =>
             {
@@ -121,31 +154,6 @@ namespace RequirementsScheduler
                 AutomaticChallenge = true,
                 TokenValidationParameters = tokenValidationParameters
             });
-        }
-
-        private async Task ConfigureScheduler()
-        {
-            var schedulerFactory = new StdSchedulerFactory(/*new NameValueCollection()
-            {
-                { "quartz.serializer.type", "binary" }
-            }*/);
-
-            var scheduler = await schedulerFactory.GetScheduler();
-            await scheduler.Start();
-
-            var job = JobBuilder.Create<ExperimentWorker>()
-                .WithIdentity("experimentJob", "experimentGroup")
-                .Build();
-
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity("experimentTrigger", "experimentGroup")
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInMinutes(1)
-                    .RepeatForever())
-                .Build();
-
-            await scheduler.ScheduleJob(job, trigger);
         }
     }
 }

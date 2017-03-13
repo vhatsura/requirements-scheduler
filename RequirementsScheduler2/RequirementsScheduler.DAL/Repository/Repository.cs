@@ -8,12 +8,12 @@ using LinqToDB.Mapping;
 
 namespace RequirementsScheduler.DAL.Repository
 {
-    public abstract class Repository<TEntity, TKey> : IRepository<TEntity, TKey>
+    public class Repository<TEntity, TKey> : IRepository<TEntity, TKey>
         where TEntity : class, IRepositoryModel<TKey>
     {
         private Database Db { get; }
 
-        protected Repository(Database db)
+        public Repository(Database db)
         {
             Db = db;
         }
