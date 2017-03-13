@@ -1,4 +1,4 @@
-﻿import { Component, Input, AfterContentInit } from "@angular/core";
+﻿import { Component, Input, OnInit } from "@angular/core";
 import { ITabComponentValue } from "../TabComponentValue";
 
 @Component({
@@ -10,15 +10,15 @@ import { ITabComponentValue } from "../TabComponentValue";
   `],
     template: require("./tab.component.html")
 })
-export class TabComponent implements AfterContentInit {
-    ngAfterContentInit(): void {
+export class TabComponent implements OnInit {
+    ngOnInit(): void {
         
     }
 
     @Input("tabTitle") title: string;
     @Input() active = false;
 
-    public activate(value: boolean) {
+    activate(value: boolean) {
         this.active = value;
     }
 }

@@ -1,14 +1,14 @@
-﻿import { Component, ContentChildren, QueryList, AfterContentInit } from "@angular/core";
+﻿import { Component, ContentChildren, QueryList, OnInit } from "@angular/core";
 import { TabComponent } from "../tab/tab.component"
 
 @Component({
     selector: "tabs",
     template: require("./tabs.component.html")
 })
-export class TabsComponent implements AfterContentInit {
+export class TabsComponent implements OnInit {
     @ContentChildren(TabComponent) tabs: QueryList<TabComponent>;
 
-    ngAfterContentInit() {
+    ngOnInit() {
         let activeTabs = this.tabs.filter((tab) => tab.active);
 
         if (activeTabs.length === 0) {

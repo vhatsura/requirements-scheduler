@@ -1,16 +1,19 @@
-﻿<table class="table">
-    <thead>
+﻿<div>
+    <table class="table">
+        <thead>
         <tr>
             <th>Experiment ID</th>
             <th>Amount of tests</th>
             <th>Amount of requirements</th>
+            <th></th>
         </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let experiment of experiments">
-        <td>{{experiment.Id}}</td>
-        <td>{{experiment.testAmount}}</td>
-        <td>{{experiment.requirementsAmount}}</td>
-    </tr>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        <tr *ngFor="let experiment of experiments">
+            <td>{{experiment.Id}}</td>
+            <td>{{experiment.testAmount}}</td>
+            <td>{{experiment.requirementsAmount}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
