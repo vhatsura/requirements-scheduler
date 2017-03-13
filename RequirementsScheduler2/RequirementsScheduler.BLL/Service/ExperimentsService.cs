@@ -51,6 +51,13 @@ namespace RequirementsScheduler.BLL.Service
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException();
 
+            if (username == "worker")
+            {
+                return Repository
+                    .Get(experiment => experiment.Status == (int) status)
+                    .Select(e => Mapper.Map<BLL.Model.Experiment>(e));
+            }
+
             var user = UsersService.GetByUserName(username);
             if (user != null)
             {

@@ -5,6 +5,8 @@ namespace RequirementsScheduler.BLL.Model
     [DebuggerDisplay("Result: {Result.Type}")]
     public class ExperimentInfo : IMachine
     {
+        public int TestNumber { get; set; }
+
         public bool IsOptimized => 
             J1.IsOptimized && 
             J2.IsOptimized && 

@@ -1,17 +1,15 @@
 using System;
 using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Quartz;
-using Quartz.Impl;
 using Quartz.Spi;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
@@ -25,6 +23,8 @@ namespace RequirementsScheduler
 {
     public class Startup
     {
+        private IHostingEnvironment _hostingEnvironment;
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -33,6 +33,8 @@ namespace RequirementsScheduler
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            _hostingEnvironment = env;
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -43,13 +45,18 @@ namespace RequirementsScheduler
             // Add framework services.
             services.AddMvc();
 
+            var physicalProvider = _hostingEnvironment.ContentRootFileProvider;
+
+            services.AddSingleton<IFileProvider>(physicalProvider);
+
             services.AddAutoMapper();
 
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IExperimentsService, ExperimentsService>();
 
 #if IN_MEMORY
-            ConfigureInMemoryServices(services);
+            ConfigureInMemoryRepositories(services);
+            services.AddSingleton<IExperimentTestResultService, ExperimentTestResultFileService>();
 #else
             ConfigureRequirementsServices(services);
 #endif
@@ -61,7 +68,7 @@ namespace RequirementsScheduler
             services.AddSingleton<ExperimentWorker, ExperimentWorker>();
         }
 
-        private void ConfigureInMemoryServices(IServiceCollection services)
+        private void ConfigureInMemoryRepositories(IServiceCollection services)
         {
             services.AddSingleton<IRepository<DAL.Model.User, int>, UsersInMemoryRepository>();
             services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, ExperimentsInMemoryRepository>();

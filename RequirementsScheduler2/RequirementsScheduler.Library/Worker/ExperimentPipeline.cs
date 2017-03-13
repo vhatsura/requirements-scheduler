@@ -11,18 +11,20 @@ namespace RequirementsScheduler.Library.Worker
     public sealed class ExperimentPipeline : IExperimentPipeline
     {
         private IExperimentGenerator Generator { get; }
-
         private IWorkerExperimentService Service { get; }
+        private IExperimentTestResultService ResultService { get; }
 
         public ExperimentPipeline(
             IExperimentGenerator generator,
-            IWorkerExperimentService service)
+            IWorkerExperimentService service,
+            IExperimentTestResultService resultService)
         {
            if (generator == null)
                throw new ArgumentNullException(nameof(generator));
 
             Generator = generator;
             Service = service;
+            ResultService = resultService;
         }
 
         public async Task Run(IEnumerable<Experiment> experiments)
@@ -45,36 +47,45 @@ namespace RequirementsScheduler.Library.Worker
             {
                 var experimentInfo = Generator.GenerateDataForTest(experiment);
 
-                if (CheckStopOneAndOne(experimentInfo))
-                {
-                    experimentInfo.Result.Type = ResultType.STOP1_1;
-                    experiment.Results.Append(experimentInfo);
-                    continue;
-                }
+                experimentInfo.TestNumber = i + 1;
 
-                if (CheckStopOneAndTwo(experimentInfo))
+                if (CheckOffline(experimentInfo))
                 {
-                    experimentInfo.Result.Type = ResultType.STOP1_2;
-                    experiment.Results.Add(experimentInfo);
-                    continue;
-                }
-
-                if (CheckStopOneAndThree(experimentInfo))
-                {
-                    experimentInfo.Result.Type = ResultType.STOP1_3;
-                    experiment.Results.Add(experimentInfo);
-                    continue;
-                }
-
-                if (CheckStopOneAndFour(experimentInfo))    
-                {
-                    experimentInfo.Result.Type = ResultType.STOP1_4;
-                    experiment.Results.Add(experimentInfo);
+                    ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
                     continue;
                 }
             }
 
             return Task.FromResult(0);
+        }
+
+        private static bool CheckOffline(ExperimentInfo experimentInfo)
+        {
+            if (CheckStopOneAndOne(experimentInfo))
+            {
+                experimentInfo.Result.Type = ResultType.STOP1_1;
+                return true;
+            }
+
+            if (CheckStopOneAndTwo(experimentInfo))
+            {
+                experimentInfo.Result.Type = ResultType.STOP1_2;
+                return true;
+            }
+
+            if (CheckStopOneAndThree(experimentInfo))
+            {
+                experimentInfo.Result.Type = ResultType.STOP1_3;
+                return true;
+            }
+
+            if (CheckStopOneAndFour(experimentInfo))
+            {
+                experimentInfo.Result.Type = ResultType.STOP1_4;
+                return true;
+            }
+
+            return false;
         }
 
         private static bool CheckStopOneAndOne(ExperimentInfo experimentInfo)

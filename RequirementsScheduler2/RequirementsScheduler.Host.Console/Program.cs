@@ -30,9 +30,8 @@ namespace RequirementsScheduler.Host.Console
         {
             System.Console.Write(message);
             var line = System.Console.ReadLine();
-            T value;
 
-            if (!ConvertValue(line, out value))
+            if (!ConvertValue(line, out T value))
             {
                 System.Console.Write("Error input");
                 return;
@@ -64,7 +63,10 @@ namespace RequirementsScheduler.Host.Console
 
         public static void Main(string[] args)
         {
-            var pipeline = new ExperimentPipeline(new ExperimentGenerator(), Mock.Of<IWorkerExperimentService>());
+            var pipeline = new ExperimentPipeline(
+                new ExperimentGenerator(),
+                Mock.Of<IWorkerExperimentService>(),
+                new ExperimentTestResultFileService());
 
             var experiment = ReadExperimentFromConsole();
             if (experiment == null) return;
