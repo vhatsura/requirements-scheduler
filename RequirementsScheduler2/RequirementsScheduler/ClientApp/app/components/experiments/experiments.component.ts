@@ -3,7 +3,9 @@
 import { Experiment, ExperimentStatus } from "../../models/index";
 import { ExperimentService } from "../../services/index";
 
-import { ITabComponentValue } from "../TabComponentValue";
+import { Subscription } from 'rxjs';
+
+import { isBrowser } from 'angular2-universal';
 
 @Component({
     selector: "experiments",
@@ -11,12 +13,22 @@ import { ITabComponentValue } from "../TabComponentValue";
   `],
     template: require("./experiments.component.html")
 })
-export class ExperimentsComponent implements AfterContentInit, ITabComponentValue {
+export class ExperimentsComponent implements AfterContentInit {
+    columns = [
+        { name: 'id' },
+        { name: 'testAmount' },
+        { name: 'requirementsAmount' }
+    ];
+
+    rows = [];
+
+    busy: Subscription;
+
     public ExperimentStatus = ExperimentStatus;
     public experimentStatus : ExperimentStatus;
     @Input('experimentStatus') set status(value: ExperimentStatus) {
 
-        let status = this.ExperimentStatus[value.toString()] as ExperimentStatus;
+        const status = this.ExperimentStatus[value.toString()] as ExperimentStatus;
         switch (status) {
             case ExperimentStatus.New:
                 this.experimentStatus = ExperimentStatus.New;
@@ -37,15 +49,13 @@ export class ExperimentsComponent implements AfterContentInit, ITabComponentValu
         private experimentService: ExperimentService
     ) { }
 
-    private experiments : Array<Experiment>;
-
     ngAfterContentInit(): void {
-        this.experimentService.getByStatus(this.experimentStatus)
-            .subscribe(experiments => this.experiments = experiments);
+        this.busy = this.experimentService.getByStatus(this.experimentStatus)
+            .subscribe(experiments => this.rows = experiments);
     }
 
-    ShowContent(): void {
-        this.experimentService.getByStatus(this.experimentStatus)
-            .subscribe(experiments => this.experiments = experiments);    
+    updateExperiments(): void {
+        this.busy = this.experimentService.getByStatus(this.experimentStatus)
+            .subscribe(experiments => this.rows = experiments);    
     }
 }

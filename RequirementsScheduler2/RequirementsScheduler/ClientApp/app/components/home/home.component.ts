@@ -11,6 +11,10 @@ import { isBrowser } from 'angular2-universal';
 export class HomeComponent implements OnInit {
     currentUser: User;
 
+    isBrowser() {
+        return isBrowser;
+    }
+
     ngOnInit(): void {
         if (isBrowser) {
             this.currentUser = JSON.parse(localStorage.getItem('currentUser'));

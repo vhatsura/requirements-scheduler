@@ -7,6 +7,7 @@ export enum ExperimentStatus {
 }
 
 export class Experiment implements Serializable<Experiment> {
+    id : string;
     testAmount: number;
     requirementsAmount: number;
     n1: number;
@@ -22,6 +23,7 @@ export class Experiment implements Serializable<Experiment> {
     ExperimentStatus: ExperimentStatus;
 
     deserialize(input): Experiment {
+        //this.id = input.id;
         this.testAmount = input.testAmount;
         this.requirementsAmount = input.requirementsAmount;
         this.n1 = input.n1;
@@ -35,7 +37,6 @@ export class Experiment implements Serializable<Experiment> {
         this.borderGenerationType = input.borderGenerationType;
         this.pGenerationType = input.pGenerationType;
         this.ExperimentStatus = input.ExperimentStatus;
-
 
         return this;
     }

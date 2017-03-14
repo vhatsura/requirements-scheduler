@@ -1,19 +1,12 @@
-﻿<div>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Experiment ID</th>
-            <th>Amount of tests</th>
-            <th>Amount of requirements</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let experiment of experiments">
-            <td>{{experiment.Id}}</td>
-            <td>{{experiment.testAmount}}</td>
-            <td>{{experiment.requirementsAmount}}</td>
-        </tr>
-        </tbody>
-    </table>
+﻿<div [ngBusy]="busy">
+    <div class="col-sm-offset-5 col-sm-7">
+        <button type="button" class="btn btn-secondary" (click)="updateExperiments()">Refresh</button>
+    </div>
+    <ngx-datatable
+        [rows]="rows"
+        [columns]="columns"
+        [limit]="10"
+        [footerHeight]="50">
+
+    </ngx-datatable>
 </div>

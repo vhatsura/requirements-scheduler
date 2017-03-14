@@ -1,5 +1,4 @@
 ﻿import { Component, Input, OnInit } from "@angular/core";
-import { ITabComponentValue } from "../TabComponentValue";
 
 @Component({
     selector: "tab",
