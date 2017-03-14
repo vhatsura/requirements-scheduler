@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
 using RequirementsScheduler.DAL.Repository;
@@ -19,12 +20,16 @@ namespace RequirementsScheduler.Library.Worker
 
         public void StartExperiment(Guid experimentId)
         {
-            
+            var experiment = Repository.Get(experimentId);
+            experiment.Status = (int) ExperimentStatus.InProgress;
+            Repository.Update(experimentId, experiment);
         }
 
         public void StopExperiment(Guid experimentId)
         {
-            
+            var experiment = Repository.Get(experimentId);
+            experiment.Status = (int)ExperimentStatus.Completed;
+            Repository.Update(experimentId, experiment);
         }
     }
 }

@@ -33,10 +33,12 @@ var ExperimentService = (function () {
                 .map(function (response) { return response.json(); })
                 .subscribe(function (result) {
                 var experiments = new Array();
-                for (var r in result) {
-                    if (result.hasOwnProperty(r)) {
-                        experiments.push(new index_2.Experiment().deserialize(r));
-                    }
+                //console.log('Result in experiment service: ');
+                //console.log(result);
+                for (var _i = 0, result_1 = result; _i < result_1.length; _i++) {
+                    var r = result_1[_i];
+                    //console.log(r);
+                    experiments.push(new index_2.Experiment().deserialize(r));
                 }
                 observer.next(experiments);
                 observer.complete();

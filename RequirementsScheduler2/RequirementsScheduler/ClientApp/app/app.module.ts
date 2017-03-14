@@ -18,12 +18,14 @@ import { TabsComponent } from './components/tabs/tabs.component';
 import { TabComponent } from './components/tab/tab.component';
 import { ExperimentFormComponent } from './components/experiment-form/experiment-form.component';
 import { ExperimentsComponent } from './components/experiments/experiments.component';
+import { ExperimentDetailComponent } from './components/experiment-detail/experiment-detail.component';
 
 import { CustomFormsModule } from 'ng2-validation'
 
 import { AUTH_PROVIDERS } from 'angular2-jwt';
 
 import { BusyModule } from 'angular2-busy';
+import { GenericTableModule, GtPaginationComponent } from 'angular2-generic-table';
 
 let imports = [
     UniversalModule,
@@ -32,6 +34,7 @@ let imports = [
     CustomFormsModule,
     ReactiveFormsModule,
     BusyModule,
+    GenericTableModule,
     RouterModule.forRoot([
         { path: '', component: HomeComponent, canActivate: [AuthGuard] },
         //{ path: 'experiment', component: CounterComponent },
@@ -62,7 +65,8 @@ if (isBrowser) {
         TabComponent,
         TabsComponent,
         ExperimentFormComponent,
-        ExperimentsComponent
+        ExperimentsComponent,
+        ExperimentDetailComponent
     ],
     imports: imports,
     providers: [
@@ -72,7 +76,8 @@ if (isBrowser) {
         AuthenticationService,
         UserService,
         ExperimentService
-    ]
+    ],
+    entryComponents: [ExperimentDetailComponent]
 })
 export class AppModule {
 }

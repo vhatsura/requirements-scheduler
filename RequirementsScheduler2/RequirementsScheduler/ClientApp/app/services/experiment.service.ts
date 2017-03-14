@@ -25,10 +25,13 @@ export class ExperimentService {
                 .map((response: Response) => response.json())
                 .subscribe((result) => {
                     var experiments = new Array<Experiment>();
-                    for (let r in result) {
-                        if (result.hasOwnProperty(r)) {
-                            experiments.push(new Experiment().deserialize(r));
-                        }
+
+                    //console.log('Result in experiment service: ');
+                    //console.log(result);
+
+                    for (let r of result) {
+                        //console.log(r);
+                        experiments.push(new Experiment().deserialize(r));
                     }
                     observer.next(experiments);
                     observer.complete();

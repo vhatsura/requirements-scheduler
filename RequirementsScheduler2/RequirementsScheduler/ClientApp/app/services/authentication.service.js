@@ -51,7 +51,7 @@ var AuthenticationService = (function () {
         var _this = this;
         var headers = new http_1.Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
         var options = new http_1.RequestOptions({ headers: headers });
-        var body = "username=" + username + "&password=" + password;
+        var body = 'username=${username}&password=${password}';
         return this.http.post('/api/token', body, options)
             .map(function (response) {
             // login successful if there's a jwt token in the response

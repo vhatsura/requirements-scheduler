@@ -1,4 +1,6 @@
-﻿namespace RequirementsScheduler.DAL.Repository
+﻿using System;
+
+namespace RequirementsScheduler.DAL.Repository
 {
     public interface IRepository<TEntity, in TKey> : IReadOnlyRepository<TEntity, TKey> 
         where TEntity : class

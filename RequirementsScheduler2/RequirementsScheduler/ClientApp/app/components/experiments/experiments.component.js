@@ -11,10 +11,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var index_1 = require("../../models/index");
 var index_2 = require("../../services/index");
+var angular2_universal_1 = require("angular2-universal");
+var angular2_generic_table_1 = require("angular2-generic-table");
+var experiment_detail_component_1 = require("../experiment-detail/experiment-detail.component");
 var ExperimentsComponent = (function () {
     function ExperimentsComponent(experimentService) {
         this.experimentService = experimentService;
+        this.tableInfo = {};
+        this.data = new core_1.EventEmitter();
+        this.expandedRow = experiment_detail_component_1.ExperimentDetailComponent;
+        this.showColumnControls = false;
         this.ExperimentStatus = index_1.ExperimentStatus;
+        this.configObject = {
+            settings: [
+                {
+                    objectKey: 'id',
+                    visible: true,
+                    sort: 'desc',
+                    columnOrder: 0
+                },
+                {
+                    objectKey: 'testsAmount',
+                    visible: true,
+                    sort: 'enable',
+                    columnOrder: 1
+                }
+            ],
+            fields: [
+                {
+                    name: 'Id',
+                    objectKey: 'id',
+                    classNames: 'clickable sort-string',
+                    expand: true
+                },
+                {
+                    name: 'Amount of tests',
+                    objectKey: 'testsAmount',
+                    classNames: 'sort-numeric',
+                    value: function (row) { return row.testsAmount; }
+                }
+            ],
+            data: []
+        };
     }
     Object.defineProperty(ExperimentsComponent.prototype, "status", {
         set: function (value) {
@@ -37,13 +75,34 @@ var ExperimentsComponent = (function () {
         enumerable: true,
         configurable: true
     });
-    ExperimentsComponent.prototype.ngAfterContentInit = function () {
+    ExperimentsComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.experimentService.getByStatus(this.experimentStatus)
-            .subscribe(function (experiments) { return _this.experiments = experiments; });
+        this.busy = this.experimentService.getByStatus(this.experimentStatus)
+            .subscribe(function (experiments) { return _this.configObject.data = experiments; });
+    };
+    ExperimentsComponent.prototype.updateExperiments = function () {
+        var _this = this;
+        this.busy = this.experimentService.getByStatus(this.experimentStatus)
+            .subscribe(function (experiments) {
+            console.log(experiments);
+            _this.configObject.data = [];
+            _this.configObject.data.push(experiments);
+            return _this.configObject.data = experiments;
+        });
+    };
+    ExperimentsComponent.prototype.isBrowser = function () {
+        return angular2_universal_1.isBrowser;
     };
     return ExperimentsComponent;
 }());
+__decorate([
+    core_1.Output(),
+    __metadata("design:type", Object)
+], ExperimentsComponent.prototype, "data", void 0);
+__decorate([
+    core_1.ViewChild(angular2_generic_table_1.GenericTableComponent),
+    __metadata("design:type", angular2_generic_table_1.GenericTableComponent)
+], ExperimentsComponent.prototype, "myTable", void 0);
 __decorate([
     core_1.Input('experimentStatus'),
     __metadata("design:type", Number),
@@ -51,9 +110,9 @@ __decorate([
 ], ExperimentsComponent.prototype, "status", null);
 ExperimentsComponent = __decorate([
     core_1.Component({
-        selector: 'experiments',
+        selector: "experiments",
         styles: ["\n  "],
-        template: require('./experiments.component.html'),
+        template: require("./experiments.component.html")
     }),
     __metadata("design:paramtypes", [index_2.ExperimentService])
 ], ExperimentsComponent);

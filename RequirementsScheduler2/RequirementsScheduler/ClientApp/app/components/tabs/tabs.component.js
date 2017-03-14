@@ -12,16 +12,22 @@ var core_1 = require("@angular/core");
 var tab_component_1 = require("../tab/tab.component");
 var TabsComponent = (function () {
     function TabsComponent() {
+        this.tabs = new core_1.QueryList();
     }
-    TabsComponent.prototype.ngAfterContentInit = function () {
+    TabsComponent.prototype.ngOnInit = function () {
         var activeTabs = this.tabs.filter(function (tab) { return tab.active; });
         if (activeTabs.length === 0) {
             this.selectTab(this.tabs.first);
         }
     };
     TabsComponent.prototype.selectTab = function (tab) {
-        this.tabs.toArray().forEach(function (tab) { return tab.active = false; });
-        tab.active = true;
+        this.tabs.toArray().forEach(function (tab) { return tab.activate(false); });
+        if (tab) {
+            tab.activate(true);
+        }
+        else if (this.tabs.first) {
+            this.tabs.first.activate(true);
+        }
     };
     return TabsComponent;
 }());
@@ -31,9 +37,10 @@ __decorate([
 ], TabsComponent.prototype, "tabs", void 0);
 TabsComponent = __decorate([
     core_1.Component({
-        selector: 'tabs',
-        template: require('./tabs.component.html'),
-    })
+        selector: "tabs",
+        template: require("./tabs.component.html")
+    }),
+    __metadata("design:paramtypes", [])
 ], TabsComponent);
 exports.TabsComponent = TabsComponent;
 //# sourceMappingURL=tabs.component.js.map

@@ -9,7 +9,10 @@ var Experiment = (function () {
     function Experiment() {
     }
     Experiment.prototype.deserialize = function (input) {
-        this.testAmount = input.testAmount;
+        //console.log('Response from server: ');
+        //console.log(input);
+        this.id = input.id;
+        this.testsAmount = input.testsAmount;
         this.requirementsAmount = input.requirementsAmount;
         this.n1 = input.n1;
         this.n2 = input.n2;
@@ -22,6 +25,8 @@ var Experiment = (function () {
         this.borderGenerationType = input.borderGenerationType;
         this.pGenerationType = input.pGenerationType;
         this.ExperimentStatus = input.ExperimentStatus;
+        //console.log('Result of deserialization: ');
+        //console.log(this);
         return this;
     };
     return Experiment;

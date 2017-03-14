@@ -10,6 +10,9 @@ var angular2_universal_1 = require("angular2-universal");
 var HomeComponent = (function () {
     function HomeComponent() {
     }
+    HomeComponent.prototype.isBrowser = function () {
+        return angular2_universal_1.isBrowser;
+    };
     HomeComponent.prototype.ngOnInit = function () {
         if (angular2_universal_1.isBrowser) {
             this.currentUser = JSON.parse(localStorage.getItem('currentUser'));

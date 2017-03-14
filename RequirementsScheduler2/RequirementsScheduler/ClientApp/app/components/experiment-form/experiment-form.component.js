@@ -16,8 +16,8 @@ var ExperimentFormComponent = (function () {
     function ExperimentFormComponent(experimentService, formBuilder) {
         this.experimentService = experimentService;
         this.formBuilder = formBuilder;
-        this.error = '';
-        this.success = '';
+        this.error = "";
+        this.success = "";
         this.loading = false;
     }
     ExperimentFormComponent.prototype.onSubmit = function () {
@@ -56,9 +56,9 @@ var ExperimentFormComponent = (function () {
 }());
 ExperimentFormComponent = __decorate([
     core_1.Component({
-        selector: 'experiment-form',
+        selector: "experiment-form",
         styles: ["\n    .ng-valid[required], .ng-valid.required  {\n        border-left: 5px solid #42A948; /* green */\n    }\n    .ng-invalid:not(form)  {\n        border-left: 5px solid #a94442; /* red */\n    }\n    "],
-        template: require('./experiment-form.component.html')
+        template: require("./experiment-form.component.html")
     }),
     __metadata("design:paramtypes", [index_1.ExperimentService,
         forms_1.FormBuilder])

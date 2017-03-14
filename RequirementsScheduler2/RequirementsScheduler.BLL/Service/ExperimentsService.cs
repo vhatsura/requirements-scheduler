@@ -10,7 +10,7 @@ namespace RequirementsScheduler.BLL.Service
 {
     public class ExperimentsService : IExperimentsService
     {
-        private IRepository<DAL.Model.Experiment, Guid> Repository { get; }
+        protected IRepository<DAL.Model.Experiment, Guid> Repository { get; }
         private IUserService UsersService { get; }
         private IMapper Mapper { get; }
 

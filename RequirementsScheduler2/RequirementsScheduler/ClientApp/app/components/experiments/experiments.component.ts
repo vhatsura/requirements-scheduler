@@ -1,4 +1,4 @@
-﻿import { Component, Input, AfterContentInit } from "@angular/core";
+﻿import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from "@angular/core";
 
 import { Experiment, ExperimentStatus } from "../../models/index";
 import { ExperimentService } from "../../services/index";
@@ -6,6 +6,9 @@ import { ExperimentService } from "../../services/index";
 import { Subscription } from 'rxjs';
 
 import { isBrowser } from 'angular2-universal';
+import { GtConfig, GenericTableComponent } from 'angular2-generic-table';
+
+import { ExperimentDetailComponent } from '../experiment-detail/experiment-detail.component';
 
 @Component({
     selector: "experiments",
@@ -13,14 +16,51 @@ import { isBrowser } from 'angular2-universal';
   `],
     template: require("./experiments.component.html")
 })
-export class ExperimentsComponent implements AfterContentInit {
-    columns = [
-        { name: 'id' },
-        { name: 'testAmount' },
-        { name: 'requirementsAmount' }
-    ];
+export class ExperimentsComponent implements OnInit {
+    public configObject: GtConfig<any>;
+    public tableInfo = {};
 
-    rows = [];
+    @Output() data = new EventEmitter();
+
+    @ViewChild(GenericTableComponent)
+    private myTable: GenericTableComponent<any, ExperimentDetailComponent>;
+    public expandedRow = ExperimentDetailComponent;
+    public showColumnControls = false;
+
+    constructor(private experimentService: ExperimentService) {
+        this.configObject = {
+            settings: [
+                {
+                    objectKey: 'id',
+                    visible: true,
+                    sort: 'desc',
+                    columnOrder: 0
+                },
+                {
+                    objectKey: 'testsAmount',
+                    visible: true,
+                    sort: 'enable',
+                    columnOrder: 1
+                }
+            ],
+            fields: [
+                {
+                    name: 'Id',
+                    objectKey: 'id',
+                    classNames: 'clickable sort-string',
+                    expand: true
+                },
+                {
+                    name: 'Amount of tests',
+                    objectKey: 'testsAmount',
+                    classNames: 'sort-numeric',
+                    value: function (row) { return row.testsAmount }
+                }
+            ],
+            data:[]
+        };
+
+    }
 
     busy: Subscription;
 
@@ -45,17 +85,22 @@ export class ExperimentsComponent implements AfterContentInit {
         }
     }
 
-    constructor(
-        private experimentService: ExperimentService
-    ) { }
-
-    ngAfterContentInit(): void {
+    ngOnInit(): void {
         this.busy = this.experimentService.getByStatus(this.experimentStatus)
-            .subscribe(experiments => this.rows = experiments);
+            .subscribe(experiments => this.configObject.data = experiments);
     }
 
-    updateExperiments(): void {
+    updateExperiments() {
         this.busy = this.experimentService.getByStatus(this.experimentStatus)
-            .subscribe(experiments => this.rows = experiments);    
+            .subscribe(experiments => {
+                console.log(experiments);
+                this.configObject.data = [];
+                this.configObject.data.push(experiments);
+                return this.configObject.data = experiments;
+            });    
+    }
+
+    isBrowser() {
+        return isBrowser;
     }
 }
