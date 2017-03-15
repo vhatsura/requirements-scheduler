@@ -1,27 +1,26 @@
-"use strict";
-require("angular2-universal-polyfills/browser");
-var core_1 = require("@angular/core");
-var angular2_universal_1 = require("angular2-universal");
-var app_module_1 = require("./app/app.module");
-require("bootstrap");
-var rootElemTagName = 'app'; // Update this if you change your root component selector
+import 'angular2-universal-polyfills/browser';
+import { enableProdMode } from '@angular/core';
+import { platformUniversalDynamic } from 'angular2-universal';
+import { AppModule } from './app/app.module';
+import 'bootstrap';
+const rootElemTagName = 'app'; // Update this if you change your root component selector
 // Enable either Hot Module Reloading or production mode
 if (module['hot']) {
     module['hot'].accept();
-    module['hot'].dispose(function () {
+    module['hot'].dispose(() => {
         // Before restarting the app, we create a new root element and dispose the old one
-        var oldRootElem = document.querySelector(rootElemTagName);
-        var newRootElem = document.createElement(rootElemTagName);
+        const oldRootElem = document.querySelector(rootElemTagName);
+        const newRootElem = document.createElement(rootElemTagName);
         oldRootElem.parentNode.insertBefore(newRootElem, oldRootElem);
         platform.destroy();
     });
 }
 else {
-    core_1.enableProdMode();
+    enableProdMode();
 }
 // Boot the application, either now or when the DOM content is loaded
-var platform = angular2_universal_1.platformUniversalDynamic();
-var bootApplication = function () { platform.bootstrapModule(app_module_1.AppModule); };
+const platform = platformUniversalDynamic();
+const bootApplication = () => { platform.bootstrapModule(AppModule); };
 if (document.readyState === 'complete') {
     bootApplication();
 }

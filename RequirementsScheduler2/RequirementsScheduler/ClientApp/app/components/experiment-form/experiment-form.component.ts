@@ -21,9 +21,11 @@ import { CustomValidators } from "ng2-validation";
 
 export class ExperimentFormComponent implements OnInit {
     error = "";
+    isTesting = false;
     success = "";
     loading = false;
     f: FormGroup;
+    t: FormGroup;
 
     constructor(
         private experimentService: ExperimentService,
@@ -45,6 +47,10 @@ export class ExperimentFormComponent implements OnInit {
             });
     }
 
+    onTestingSubmit() {
+
+    }
+
     ngOnInit(): void {
         this.f = this.formBuilder.group({
             testsAmount: ['', Validators.compose([Validators.required, CustomValidators.min(1)])],
@@ -59,6 +65,10 @@ export class ExperimentFormComponent implements OnInit {
             maxPercentageFromA: ['', Validators.compose([Validators.required, CustomValidators.range([5, 50])])],
             borderGenerationType: ['', Validators.required],
             pGenerationType: ['', Validators.required]
+        });
+
+        this.t = this.formBuilder.group({
+            testsAmount: ['', Validators.compose([Validators.required, CustomValidators.min(1)])]    
         });
     }
 }

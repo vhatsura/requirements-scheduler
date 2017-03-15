@@ -1,6 +1,10 @@
 ﻿<div *ngIf="error" class="alert alert-danger">{{error}}</div>
 <div *ngIf="success" class="alert alert-success">{{success}}</div>
-<form name="form" (ngSubmit)="onSubmit()" [formGroup]="f" novalidate>
+<div class="checkbox">
+    <label><input [(ngModel)]="isTesting" type="checkbox" />Enable testing mode</label>
+</div>
+<div *ngIf="!isTesting">
+    <form name="form" (ngSubmit)="onSubmit()" [formGroup]="f" novalidate>
     <!-- Total number of tests -->
     <div class="form-group" [ngClass]="{'has-error': f.submitted && !f.controls.testsAmount.valid}">
         <label>The total number of tests</label>
@@ -81,3 +85,20 @@
         <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
     </div>
 </form>
+</div>
+<div *ngIf="isTesting">
+    <form name="form" (ngSubmit)="onTestingSubmit()" [formGroup]="t" novalidate>
+        <!-- Total number of tests -->
+        <div class="form-group" [ngClass]="{'has-error': t.submitted && !t.controls.testsAmount.valid}">
+            <label>The total number of tests</label>
+            <input formControlName="testsAmount" type="number" class="form-control" />
+            <div *ngIf="t.submitted && !t.controls.testsAmount.valid" class="help-block">The total number of tests is required and should be more than zero</div>
+        </div>
+        <!-- Total number of requirements -->
+        <div class="form-group" [ngClass]="{'has-error': t.submitted && !t.controls.requirementsAmount.valid}">
+            <label>The total number of requirements</label>
+            <input formControlName="requirementsAmount" type="number" class="form-control" />
+            <div *ngIf="t.submitted && !t.controls.requirementsAmount.valid" class="help-block">The total number of requirements is required and should be more than zero</div>
+        </div>
+    </form>
+</div>

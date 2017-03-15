@@ -39,6 +39,7 @@
     "isomorphic-fetch": "^2.2.1",
     "jquery": "^3.1.1",
     "json-loader": "^0.5.4",
+    "js-beautify": "1.6.11",
     "ng2-validation": "^3.8.0",
     "preboot": "^4.5.2",
     "raw-loader": "^0.5.1",

@@ -51,7 +51,7 @@ export class AuthenticationService {
     login(username: string, password: string) {
         let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
         let options = new RequestOptions({ headers: headers });
-        let body = 'username=${username}&password=${password}';
+        let body = `username=${username}&password=${password}`;
         return this.http.post('/api/token', body, options)
             .map((response: Response) => {
                 // login successful if there's a jwt token in the response

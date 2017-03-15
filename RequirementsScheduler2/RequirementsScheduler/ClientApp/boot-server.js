@@ -1,17 +1,15 @@
-"use strict";
-require("angular2-universal-polyfills");
-require("angular2-universal-patch");
-require("zone.js");
-var aspnet_prerendering_1 = require("aspnet-prerendering");
-var core_1 = require("@angular/core");
-var angular2_universal_1 = require("angular2-universal");
-var app_module_1 = require("./app/app.module");
-core_1.enableProdMode();
-var platform = angular2_universal_1.platformNodeDynamic();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = aspnet_prerendering_1.createServerRenderer(function (params) {
-    return new Promise(function (resolve, reject) {
-        var requestZone = Zone.current.fork({
+import 'angular2-universal-polyfills';
+import 'angular2-universal-patch';
+import 'zone.js';
+import { createServerRenderer } from 'aspnet-prerendering';
+import { enableProdMode } from '@angular/core';
+import { platformNodeDynamic } from 'angular2-universal';
+import { AppModule } from './app/app.module';
+enableProdMode();
+const platform = platformNodeDynamic();
+export default createServerRenderer(params => {
+    return new Promise((resolve, reject) => {
+        const requestZone = Zone.current.fork({
             name: 'angular-universal request',
             properties: {
                 baseUrl: '/',
@@ -20,13 +18,13 @@ exports.default = aspnet_prerendering_1.createServerRenderer(function (params) {
                 preboot: false,
                 document: '<app></app>'
             },
-            onHandleError: function (parentZone, currentZone, targetZone, error) {
+            onHandleError: (parentZone, currentZone, targetZone, error) => {
                 // If any error occurs while rendering the module, reject the whole operation
                 reject(error);
                 return true;
             }
         });
-        return requestZone.run(function () { return platform.serializeModule(app_module_1.AppModule); }).then(function (html) {
+        return requestZone.run(() => platform.serializeModule(AppModule)).then(html => {
             resolve({ html: html });
         }, reject);
     });
