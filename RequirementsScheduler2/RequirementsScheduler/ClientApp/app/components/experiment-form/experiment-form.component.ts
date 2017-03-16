@@ -30,7 +30,7 @@ export class ExperimentFormComponent implements OnInit {
     success = "";
     loading = false;
     f: FormGroup;
-    model : any = {
+    model: any = {
         J1: [],
         J2: [],
         J12: {
@@ -68,12 +68,33 @@ export class ExperimentFormComponent implements OnInit {
     }
 
     addDetailToJ1() {
-        let detail = { A: 0, B: 1 };
+        let detail = { A: 0.01, B: 1 };
         this.model.J1.push(detail);
     }
 
     onTestingSubmit() {
         console.log(this.model);
+        this.experimentService.createTest(this.model)
+            .subscribe(result => {
+                if(result.status == 200) {
+                    this.success = "Experiment was submitted successfully";
+                    this.error = '';
+                    this.model = {
+                        J1: [],
+                        J2: [],
+                        J12: {
+                            OnFirst: [],
+                            OnSecond: []
+                        },
+                        J21: {
+                            OnFirst: [],
+                            OnSecond: []
+                        }
+                    }
+                } else {
+                    this.error = result.response;
+                }
+            });
     }
 
     ngOnInit(): void {

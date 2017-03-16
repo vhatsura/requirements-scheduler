@@ -37,7 +37,8 @@
                 <input type="number" class="form-control" formControlName="n21" />
             </div>
         </div>
-        <div *ngIf="f.submitted && !f.controls.n1.valid && !f.controls.n2.valid && !f.controls.n12.valid && !f.controls.n21.valid" class="help-block">Ratio between types of detail is required and should be in [0;100] range</div>
+        <div *ngIf="f.submitted && !f.controls.n1.valid && !f.controls.n2.valid && !f.controls.n12.valid && !f.controls.n21.valid"
+            class="help-block">Ratio between types of detail is required and should be in [0;100] range</div>
         <!-- Range boundaries generation -->
         <label>Range boundaries generation</label>
         <div class="row">
@@ -82,58 +83,180 @@
         </div>
         <div class="form-group">
             <button [disabled]="loading || !f.valid" class="btn btn-primary">Submit</button>
-            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" alt="" />
+            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+                alt="" />
         </div>
     </form>
 </div>
 <div *ngIf="isTesting">
     <form name="form" (ngSubmit)="t.form.valid && onTestingSubmit()" #t="ngForm" novalidate>
-        <!-- J1 -->
-        <div class="form-group col-xs-6">
-            <label>J1</label>
-            <div class="form-group" *ngFor="let item of model.J1; let i=index; trackBy: trackByIndex">
+        <!-- J1 and J12 -->
+        <div class="row">
+            <!-- J1 -->
+            <div class="form-group col-md-4">
+                <label>J1</label>
                 <div class="row">
-                    <div class="form-group col-xs-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
-                        <label>A: {{model.J1[i].A}}</label>
-                        <input class="form-control" type="number" value="1" [(ngModel)]="model.J1[i].A" min="0" name="A[{{i}}]" required />
-                    </div>
-                    <div class="form-group col-xs-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
-                        <label>B: {{model.J1[i].B}}</label>
-                        <input class="form-control" type="number" [value]="model.J1[i].B" [(ngModel)]="model.J1[i].B" min="0" name="B[{{i}}]" required />
-                    </div>
-                    <div class="col-xs-2 vcenter">
-                        <button type="button" class="btn" (click)="model.J1.splice(i, 1)">
-                            <span class="glyphicon glyphicon-remove"></span>
-                        </button>
+                    <label></label>
+                    <div class="form-group">
+                        <template ngFor let-item [ngForOf]="model.J1" let-i="index">
+                            <div class="row">
+                                <div class="col-md-1 vcenter">{{i + 1}}:</div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label for="J1A[{{i}}]">A</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.A" min="0.01" name="J1A[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label for="J1B[{{i}}]">B</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.B" min="0.01" name="J1B[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-2 vcenter">
+                                    <button type="button" class="btn" (click)="model.J1.splice(i, 1)">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" (click)="addDetailToJ1()">Add J1 detail</button>
+                </div>
             </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-primary" (click)="addDetailToJ1()">Add detail</button>
+            <!-- J12 -->
+            <div class="form-group col-md-8">
+                <label>J12</label>
+                <div class="row">
+                    <!-- On First -->
+                    <div class="form-group col-md-6">
+                        <label>On First</label>
+                        <template ngFor let-item [ngForOf]="model.J12.OnFirst" let-i="index">
+                            <div class="row">
+                                <div class="col-md-1 vcenter">{{i + 1}}:</div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>A</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.A" min="0.01" name="J12OnFirstA[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>B</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.B" min="0.01" name="J12OnFirstB[{{i}}]" required />
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <!-- On Second -->
+                    <div class="form-group col-md-6">
+                        <label>On Second</label>
+                        <template ngFor let-item [ngForOf]="model.J12.OnSecond" let-i="index">
+                            <div class="row">
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>A</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.A" min="0.01" name="J12OnSecondA[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>B</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.B" min="0.01" name="J12OnSecondB[{{i}}]" required />
+                                </div>
+                                <div class="col-md-2 vcenter">
+                                    <button type="button" class="btn" (click)="model.J12.OnFirst.splice(i, 1);model.J12.OnSecond.splice(i, 1)">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" (click)="model.J12.OnFirst.push({A: 0.01, B: 1});model.J12.OnSecond.push({A: 0.01, B: 1})">Add J12 detail</button>
+                </div>
             </div>
         </div>
-        <!-- J2 -->
-        <div class="form-group col-xs-6">
-            <label>J2</label>
-            <div class="form-group">
-                <template ngFor let-item [ngForOf]="model.J2" let-i="index">
-                    <div class="form-group col-xs-6" [ngClass]="{'has-error': t.form.valid}">
-                        <label>A</label>
-                        <input class="form-control" type="number" [(ngModel)]="item.A" min="0" name="A" required />
+
+        <!-- J2 and J21 -->
+        <div class="row">
+            <!-- J2 -->
+            <div class="form-group col-md-4">
+                <label>J2</label>
+                <div class="row">
+                    <label></label>
+                    <div class="form-group">
+                        <template ngFor let-item [ngForOf]="model.J2" let-i="index">
+                            <div class="row">
+                                <div class="col-md-1 vcenter">{{i + 1}}:</div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label for="A[{{i}}]">A</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.A" min="0.01" name="A[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label for="B[{{i}}]">B</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.B" min="0.01" name="B[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-2 vcenter">
+                                    <button type="button" class="btn" (click)="model.J2.splice(i, 1)">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                                </div>
+                            </div>
+                        </template>
                     </div>
-                    <div class="form-group col-xs-6" [ngClass]="{'has-error': t.form.valid}">
-                        <label>B</label>
-                        <input class="form-control" type="number" [(ngModel)]="item.B" min="0" name="B" required />
-                    </div>
-                </template>
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" (click)="model.J2.push({A:0.01, B: 1})">Add J2 detail</button>
+                </div>
             </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-primary" (click)="model.J2.push({A: 0, B: 1})">Add detail</button>
+            <!-- J21 -->
+            <div class="form-group col-md-8">
+                <label>J21</label>
+                <div class="row">
+                    <!-- On First -->
+                    <div class="form-group col-md-6">
+                        <label>On First</label>
+                        <template ngFor let-item [ngForOf]="model.J21.OnFirst" let-i="index">
+                            <div class="row">
+                                <div class="col-md-1 vcenter">{{i + 1}}:</div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>A</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.A" min="0.01" name="OnFirstA[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>B</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.B" min="0.01" name="OnFirstB[{{i}}]" required />
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <!-- On Second -->
+                    <div class="form-group col-md-6">
+                        <label>On Second</label>
+                        <template ngFor let-item [ngForOf]="model.J21.OnSecond" let-i="index">
+                            <div class="row">
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>A</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.A" min="0.01" name="OnSecondA[{{i}}]" required />
+                                </div>
+                                <div class="form-group col-md-4 vcenter" [ngClass]="{'has-error': t.form.valid}">
+                                    <label>B</label>
+                                    <input class="form-control" type="number" [(ngModel)]="item.B" min="0.01" name="OnSecondB[{{i}}]" required />
+                                </div>
+                                <div class="col-md-2 vcenter">
+                                    <button type="button" class="btn" (click)="model.J21.OnFirst.splice(i, 1);model.J21.OnSecond.splice(i, 1)">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" (click)="model.J21.OnFirst.push({A: 0.01, B: 1});model.J21.OnSecond.push({A: 0.01, B: 1})">Add J21 detail</button>
+                </div>
             </div>
         </div>
         <div class="form-group">
             <button [disabled]="loading || !t.form.valid" class="btn btn-primary">Submit</button>
-            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" alt="" />
+            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+                alt="" />
         </div>
     </form>
 </div>

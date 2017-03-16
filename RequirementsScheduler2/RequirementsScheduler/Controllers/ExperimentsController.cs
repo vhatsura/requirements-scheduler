@@ -80,6 +80,22 @@ namespace RequirementsScheduler2.Controllers
             return Ok(experiment);
         }
 
+        // POST api/values
+        [HttpPost("[action]")]
+        [Authorize]
+        public ActionResult Test([FromBody]TestExperiment value)
+        {   
+            var username = UserName;
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return Forbid();
+            }
+
+            //var experiment = Service.AddExperiment(value, username);
+
+            return Ok(value);
+        }
+
         private string UserName
         {
             get

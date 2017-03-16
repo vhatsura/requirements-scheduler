@@ -19,6 +19,16 @@ export class ExperimentService {
             });
     }
 
+    createTest(experiment: any) : Observable<HttpResponse> {
+        return this.authHttp.post('/api/experiments/test', experiment)
+            .map((response: Response) => {
+                let httpResponse = new HttpResponse();
+                httpResponse.status = response.status;
+                httpResponse.response = response.json();
+                return httpResponse;
+            });
+    }
+
     getByStatus(status: ExperimentStatus): Observable<Array<Experiment>> {
         return Observable.create(observer => {
             this.authHttp.get('/api/experiments/GetByStatus/' + status)
