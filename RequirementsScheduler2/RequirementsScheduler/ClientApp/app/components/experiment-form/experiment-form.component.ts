@@ -15,6 +15,11 @@ import { CustomValidators } from "ng2-validation";
     .ng-invalid:not(form)  {
         border-left: 5px solid #a94442; /* red */
     }
+    .vcenter {
+        display: inline-block;
+        vertical-align: middle;
+        float: none;
+    }
     `],
     template: require("./experiment-form.component.html")
 })
@@ -25,7 +30,22 @@ export class ExperimentFormComponent implements OnInit {
     success = "";
     loading = false;
     f: FormGroup;
-    t: FormGroup;
+    model : any = {
+        J1: [],
+        J2: [],
+        J12: {
+            OnFirst: [],
+            OnSecond: []
+        },
+        J21: {
+            OnFirst: [],
+            OnSecond: []
+        }
+    }
+
+    trackByIndex(index: number, obj: any): any {
+        return index;
+    }
 
     constructor(
         private experimentService: ExperimentService,
@@ -47,8 +67,13 @@ export class ExperimentFormComponent implements OnInit {
             });
     }
 
-    onTestingSubmit() {
+    addDetailToJ1() {
+        let detail = { A: 0, B: 1 };
+        this.model.J1.push(detail);
+    }
 
+    onTestingSubmit() {
+        console.log(this.model);
     }
 
     ngOnInit(): void {
@@ -65,10 +90,6 @@ export class ExperimentFormComponent implements OnInit {
             maxPercentageFromA: ['', Validators.compose([Validators.required, CustomValidators.range([5, 50])])],
             borderGenerationType: ['', Validators.required],
             pGenerationType: ['', Validators.required]
-        });
-
-        this.t = this.formBuilder.group({
-            testsAmount: ['', Validators.compose([Validators.required, CustomValidators.min(1)])]    
         });
     }
 }
