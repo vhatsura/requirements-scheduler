@@ -67,11 +67,6 @@ export class ExperimentFormComponent implements OnInit {
             });
     }
 
-    addDetailToJ1() {
-        let detail = { A: 0.01, B: 1 };
-        this.model.J1.push(detail);
-    }
-
     onTestingSubmit() {
         console.log(this.model);
         this.experimentService.createTest(this.model)

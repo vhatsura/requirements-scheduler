@@ -10,6 +10,6 @@
 
     public class ResultInfo
     {
-        public ResultType Type { get; set; }
+        public ResultType? Type { get; set; }
     }
 }
