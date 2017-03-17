@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
@@ -7,6 +8,7 @@ namespace RequirementsScheduler.BLL.Model
         public double A { get; }
         public double B { get; }
 
+        [JsonConstructor]
         public ProcessingTime(double a, double b)
         {
             if(a >= b || a <= 0  || b <= 0)

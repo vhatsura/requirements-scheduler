@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Quartz;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
 
 namespace RequirementsScheduler.Library.Worker

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 
 namespace RequirementsScheduler.BLL.Model
 {
-    public class DetailList : List<Detail>, IMachine
+    public class DetailList : Collection<Detail>, IMachine
     {
         public bool IsOptimized => true;
     }

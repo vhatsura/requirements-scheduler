@@ -85,5 +85,26 @@ namespace RequirementsScheduler.BLL.Service
             var dalValue = Mapper.Map<DAL.Model.Experiment>(value);
             return Mapper.Map<BLL.Model.Experiment>(Repository.Add(dalValue));
         }
+
+        public Experiment Get(Guid experimentId, string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException();
+
+            if (username == "worker")
+            {
+                return Mapper.Map < Experiment > (Repository.Get(experimentId));
+            }
+            var user = UsersService.GetByUserName(username);
+            if (user != null)
+            {
+                return Mapper.Map<Experiment>(
+                    Repository
+                    .Get(experiment => experiment.UserId == user.Id)
+                    .FirstOrDefault());
+            }
+
+            return null;
+        }
     }
 }

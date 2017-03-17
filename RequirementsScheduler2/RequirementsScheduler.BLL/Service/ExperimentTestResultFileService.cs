@@ -25,13 +25,24 @@ namespace RequirementsScheduler.BLL.Service
 
             using (var writer = new StreamWriter(fileStream))
             {
-                await writer.WriteAsync(JsonConvert.SerializeObject(experimentInfo));
+                await writer.WriteAsync(JsonConvert.SerializeObject(experimentInfo, SerializerSettings));
             }
         }
 
+        private JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()
+        {
+            TypeNameHandling = TypeNameHandling.All,
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full,
+#if DEBUG
+            Formatting = Formatting.Indented
+#endif
+
+        };
+
         public async Task<ExperimentInfo> GetExperimentTestResult(Guid experimentId, int testNumber)
         {
-            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), $"{testNumber}");
+            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), $"{testNumber}.json");
             if (!File.Exists(fileName))
             {
                 throw new ArgumentException();
@@ -41,7 +52,7 @@ namespace RequirementsScheduler.BLL.Service
             using (var reader = new StreamReader(fileStream))
             {
                 var text = await reader.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<ExperimentInfo>(text);
+                return JsonConvert.DeserializeObject<ExperimentInfo>(text, SerializerSettings);
             }
         }
     }

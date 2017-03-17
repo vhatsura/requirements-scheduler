@@ -10,29 +10,33 @@ using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
+using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.Library.Extensions;
 using RequirementsScheduler.Library.Worker;
 using RequirementsScheduler2.Extensions;
-using RequirementsScheduler.Core.Worker;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace RequirementsScheduler2.Controllers
+namespace RequirementsScheduler.Controllers
 {
     [Route("api/[controller]")]
     public class ExperimentsController : Controller
     {
         private IExperimentsService Service { get; }
         private IUserService UserService { get; }
+        private IExperimentTestResultService ResultService { get; }
         private IServiceProvider Container { get; }
-
 
         public ExperimentsController(
             IExperimentsService service,
             IUserService userService,
-            IServiceProvider container)
+            IServiceProvider container,
+            IExperimentTestResultService resultService)
         {
             Service = service;
             UserService = userService;
+            ResultService = resultService;
+
             Container = container;
         }
 
@@ -50,9 +54,44 @@ namespace RequirementsScheduler2.Controllers
         // GET api/values/5
         [HttpGet("{id}")]
         [Authorize]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            //var username = UserName;
+            
+            return Ok("value");
+        }
+
+        [HttpGet("{id}/result")]
+        [Authorize]
+        public async Task<IActionResult> Result(Guid id)
+        {
+            var username = UserName;
+
+            var experiment = Service.Get(id, username);
+            if (experiment == null)
+            {
+                return BadRequest();
+            }
+
+            var infos = new List<ExperimentInfo>();
+
+            for (int i = 1; i <= experiment.TestsAmount; i++)
+            {
+                var experimentInfo = await ResultService.GetExperimentTestResult(id, i);
+                infos.Add(experimentInfo);
+            }
+
+            return Ok(infos);
+        }
+
+        [HttpGet("{id}/result/{testNumber}")]
+        [Authorize]
+        public async Task<IActionResult> Result(Guid id, int number)
+        {
+            //var username = UserName;
+            var experimentInfo =  await ResultService.GetExperimentTestResult(id, number);
+
+            return Ok(experimentInfo);
         }
 
         [HttpGet("[action]/{status}")]

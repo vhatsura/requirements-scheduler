@@ -102,9 +102,7 @@ export class ExperimentsComponent implements OnInit {
 
     updateExperiments() {
         this.busy = this.experimentService.getByStatus(this.experimentStatus)
-            .subscribe(experiments => {
-                //console.log(experiments);
-                
+            .subscribe(experiments => {              
                 this.configObject.data = [];
                 this.configObject.data.push(experiments);
                 return this.configObject.data = experiments;

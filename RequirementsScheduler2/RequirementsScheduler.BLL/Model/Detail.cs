@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
@@ -16,6 +17,7 @@ namespace RequirementsScheduler.BLL.Model
 
         }
 
+        [JsonConstructor]
         public Detail(ProcessingTime time, int number)
         {
             if (number <= 0)

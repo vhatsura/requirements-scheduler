@@ -19,6 +19,8 @@ import { TabComponent } from './components/tab/tab.component';
 import { ExperimentFormComponent } from './components/experiment-form/experiment-form.component';
 import { ExperimentsComponent } from './components/experiments/experiments.component';
 import { ExperimentDetailComponent } from './components/experiment-detail/experiment-detail.component';
+import { TestListComponent } from './components/test-list/test-list.component';
+import { TestDetailComponent } from './components/test-detail/test-detail.component';
 
 import { CustomFormsModule } from 'ng2-validation'
 
@@ -66,7 +68,9 @@ if (isBrowser) {
         TabsComponent,
         ExperimentFormComponent,
         ExperimentsComponent,
-        ExperimentDetailComponent
+        ExperimentDetailComponent,
+        TestListComponent,
+        TestDetailComponent
     ],
     imports: imports,
     providers: [

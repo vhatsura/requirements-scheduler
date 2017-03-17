@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
@@ -12,6 +13,15 @@ namespace RequirementsScheduler.BLL.Model
 
         public Detail OnFirst { get; }
         public Detail OnSecond { get; }
+
+        [JsonConstructor]
+        public LaboriousDetail(Detail onFirst, Detail onSecond, int number)
+        {
+            Number = number;
+
+            OnFirst = new Detail(onFirst.Time.A, onFirst.Time.B, this.Number);
+            OnSecond = new Detail(onSecond.Time.A, onSecond.Time.B, this.Number);
+        }
 
         public LaboriousDetail(ProcessingTime onFirst, ProcessingTime onSecond, int number)
         {

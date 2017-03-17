@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.Library.Extensions;
 
 namespace RequirementsScheduler.Core.Worker
 {

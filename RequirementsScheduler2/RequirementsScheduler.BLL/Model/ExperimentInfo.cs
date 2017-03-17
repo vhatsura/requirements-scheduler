@@ -13,7 +13,7 @@ namespace RequirementsScheduler.BLL.Model
             (J12.IsOptimized || (J12Chain != null && J12Chain.IsOptimized)) && 
             (J21.IsOptimized || (J21Chain != null && J21Chain.IsOptimized));
 
-        public ResultInfo Result { get; private set; } = new ResultInfo();
+        public ResultInfo Result { get; } = new ResultInfo();
         
         public DetailList J1 { get; } = new DetailList();
         public DetailList J2 { get; } = new DetailList();

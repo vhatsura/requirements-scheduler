@@ -1,16 +1,16 @@
 ﻿<div class="row">
     <div class="col-sm-12">
         <div class="row">
-            <h4 class="col-10">Detail of experiment</h4>
+            <h4 class="col-10">Detail of experiment {{row.id}}</h4>
             <div class="col-2 text-sm-right">
                 <i class="fa fa-close fa-lg" (click)="$hide()" aria-hidden="true"></i>
             </div>
         </div>
+        <div class="row">
+            <test-list [tests]="tests" [(selected)]="selectedTest" class="col-xs-4"></test-list>
+            <test-detail [test]="selectedTest" class="col-xs-8"></test-detail>
+        </div>
         <!--<div class="row">
-            <div class="form-group col-sm-3">
-                <label class="control-label">First name</label>
-                <div class=\"form-control-static\">{{row.first_name}}</div>\r\n
-            </div>\r\n
             <div class=\"form-group col-sm-3\">\r\n <label class=\"control-label\">Last name</label>\r\n
                 <div class=\"form-control-static\">{{row.last_name}}</div>\r\n
             </div>\r\n

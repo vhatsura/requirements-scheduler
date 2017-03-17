@@ -3,7 +3,7 @@ import { Response } from '@angular/http';
 import { AuthHttp } from 'angular2-jwt';
 import { HttpResponse } from '../models/index';
 import { Observable } from 'rxjs/Observable';
-import { Experiment, ExperimentStatus } from '../models/index';
+import { Experiment, ExperimentStatus, Test } from '../models/index';
 
 @Injectable()
 export class ExperimentService {
@@ -28,6 +28,44 @@ export class ExperimentService {
                 return httpResponse;
             });
     }
+
+    getExperimentResults(id: string) : Observable<Array<Test>> {
+        return Observable.create(observer => {
+            this.authHttp.get(`/api/experiments/${id}/result`)
+            .map((response: Response) => response.json())
+            .subscribe(result => {
+                var tests = new Array<Test>();
+                
+                console.log('Result of experiment');
+                console.log(result);
+
+                for(let r of result) {
+                    tests.push(new Test().deserialize(r));
+                }
+
+                observer.next(tests);
+                observer.complete();
+            });
+        });
+    }
+
+    getExperimentResult(id: string, testNumber: number) : Observable<Array<Test>> {
+        return Observable.create(observer => {
+            this.authHttp.get(`/api/experiments/${id}/result/${testNumber}`)
+            .map((response: Response) => response.json())
+            .subscribe(result => {
+                var tests = new Array<Test>();
+                
+                console.log('Result of experiment');
+                console.log(result);
+
+                tests.push(new Test().deserialize(result));
+
+                observer.next(tests);
+                observer.complete();
+            });
+        });
+    } 
 
     getByStatus(status: ExperimentStatus): Observable<Array<Experiment>> {
         return Observable.create(observer => {
