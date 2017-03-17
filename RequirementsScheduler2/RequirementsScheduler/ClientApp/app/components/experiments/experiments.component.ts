@@ -41,6 +41,12 @@ export class ExperimentsComponent implements OnInit {
                     visible: true,
                     sort: 'enable',
                     columnOrder: 1
+                },
+                {
+                    objectKey: 'requirementsAmount',
+                    visible: true,
+                    sort: 'enable',
+                    columnOrder: 2
                 }
             ],
             fields: [
@@ -54,7 +60,11 @@ export class ExperimentsComponent implements OnInit {
                     name: 'Amount of tests',
                     objectKey: 'testsAmount',
                     classNames: 'sort-numeric',
-                    value: function (row) { return row.testsAmount }
+                },
+                {
+                    name: 'Amount of requirements',
+                    objectKey: 'requirementsAmount',
+                    classNames: 'sort-numeric',
                 }
             ],
             data:[]
