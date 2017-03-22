@@ -12,6 +12,8 @@ export class Test implements Serializable<Test> {
         this.j12 = input.j12Chain;
         this.j21 = input.j21Chain;
 
+        this.result = input.result;
+
         return this;
     }
 
@@ -21,4 +23,5 @@ export class Test implements Serializable<Test> {
     j2: Array<any>;
     j12: Array<any>;
     j21: Array<any>;
+    result: any;
 }

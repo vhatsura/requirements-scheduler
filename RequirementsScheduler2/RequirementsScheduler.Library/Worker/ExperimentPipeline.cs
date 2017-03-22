@@ -54,11 +54,13 @@ namespace RequirementsScheduler.Library.Worker
                     //continue;
                 }
 
-                if (experimentInfo.J12Chain == null)
+                if (experimentInfo.J12Chain == null || 
+                    (experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any()))
                 {
                     experimentInfo.J12Chain = new Chain(experimentInfo.J12.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
                 }
-                if (experimentInfo.J21Chain == null)
+                if (experimentInfo.J21Chain == null ||
+                    (experimentInfo.J12.Any() && !experimentInfo.J21Chain.Any()))
                 {
                     experimentInfo.J21Chain = new Chain(experimentInfo.J21.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
                 }
@@ -671,6 +673,11 @@ namespace RequirementsScheduler.Library.Worker
                 }
             }
 
+            if (!secondChain.Any())
+            {
+                resultChain.AddLast(jConflict);
+            }
+
             return resultChain;
         }
 
@@ -837,6 +844,11 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     }
                 }
+            }
+
+            if (!secondChain.Any())
+            {
+                resultChain.AddLast(jConflict);
             }
 
             return resultChain;

@@ -3,29 +3,50 @@
       <h3 class="panel-title">Select a test</h3>
     </div>
     <div *ngIf="test" class="panel-heading">
-      <h3 class="panel-title">{{test.testNumber}}</h3>
+      <h3 class="panel-title">Test #{{test.testNumber}}</h3>
     </div>
     <ul class="list-group" *ngIf="test">
       <li class="list-group-item">
-        <h4 class="list-group-item-heading">Test number</h4>
-        <p class="list-group-item-text">{{test.testNumber}}</p>
+        <h4 class="list-group-item-heading">Test result</h4>
+        <p class="list-group-item-text">{{test.result.type}}</p>
       </li>
       <li class="list-group-item">
           <h4 class="list-group-item-heading">Test chains</h4>
           <div class="list-group-item-text">
-            <details><summary>J1</summary> 
+            <details open><summary>J1</summary> 
               <template ngFor let-j1Item [ngForOf]="test.j1" let-i="index">
-                {{j1Item.number}} &#10145; <!--(A: {{j1Item.time.a.toFixed(2)}}, B: {{j1Item.time.b.toFixed(2)}}) -->
+                {{j1Item.number}} <!--(A: {{j1Item.time.a.toFixed(2)}}, B: {{j1Item.time.b.toFixed(2)}}) -->
+                <template [ngIf]="i + 1 != test.j1.length">
+                    &#10145;
+                </template>
               </template>
             </details>
-            <details><summary>J2</summary> 
+            <details open><summary>J2</summary> 
               <template ngFor let-j2Item [ngForOf]="test.j2" let-i="index">
-                {{j2Item.number}} &#10145; <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
+                {{j2Item.number}} <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
+                <template [ngIf]="i + 1 != test.j2.length">
+                    &#10145;
+                </template>
               </template>
             </details>
             <details open><summary>J12</summary> 
               <template ngFor let-j12Item [ngForOf]="test.j12" let-i="index">
-                {{j12Item.number}} &#10145; <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
+                <template [ngIf]="j12Item.type == 'Conflict'">
+                  {{ '{' }}
+                    <template ngFor let-conflictItem [ngForOf]="j12Item.details" let-i="index">
+                      {{conflictItem.number}}<template [ngIf]="i + 1 != j12Item.details.length">,</template>
+                    </template>
+                  {{ '}' }} 
+                  <template [ngIf]="i + 1 != test.j12.length">
+                    &#10145;
+                  </template>
+                </template>
+                <template [ngIf]="j12Item.type == 'Detail'">
+                  {{j12Item.number}} <!--(A: {{j12Item.time.a.toFixed(2)}}, B: {{j12Item.time.b.toFixed(2)}}) -->
+                  <template [ngIf]="i + 1 != test.j12.length">
+                    &#10145;
+                  </template>
+                </template>
               </template>
             </details>
             <details open><summary>J21</summary> 
@@ -33,12 +54,18 @@
                 <template [ngIf]="j21Item.type == 'Conflict'">
                   {{ '{' }}
                     <template ngFor let-conflictItem [ngForOf]="j21Item.details" let-i="index">
-                      {{conflictItem.number}},
+                      {{conflictItem.number}}<template [ngIf]="i + 1 != j21Item.details.length">,</template>
                     </template>
-                  {{ '}' }} &#10145;
+                  {{ '}' }} 
+                  <template [ngIf]="i + 1 != test.j21.length">
+                    &#10145;
+                  </template>
                 </template>
                 <template [ngIf]="j21Item.type == 'Detail'">
-                  {{j21Item.number}} &#10145; <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
+                  {{j21Item.number}} <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
+                  <template [ngIf]="i + 1 != test.j21.length">
+                    &#10145;
+                  </template>
                 </template>
               </template>
             </details>

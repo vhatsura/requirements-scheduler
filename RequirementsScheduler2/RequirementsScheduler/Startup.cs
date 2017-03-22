@@ -46,9 +46,11 @@ namespace RequirementsScheduler
             // Add framework services.
             services.AddMvc();
 
+            services.AddApplicationInsightsTelemetry();
+
             var physicalProvider = _hostingEnvironment.ContentRootFileProvider;
 
-            services.AddSingleton<IFileProvider>(physicalProvider);
+            services.AddSingleton(physicalProvider);
 
             services.AddAutoMapper(typeof(MappingProfile));
 

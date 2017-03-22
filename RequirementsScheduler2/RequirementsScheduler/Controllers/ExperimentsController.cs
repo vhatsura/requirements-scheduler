@@ -172,50 +172,46 @@ namespace RequirementsScheduler.Controllers
                         (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, ++number)));
             }
 
-            var minBoundaryRange = Enumerable.Empty<double>()
-                .Append(experimentInfo.J1.Min(detail => detail.Time.A))
-                .Append(experimentInfo.J2.Min(detail => detail.Time.A))
-                .Append(experimentInfo.J12.Min(detail => detail.OnFirst.Time.A))
-                .Append(experimentInfo.J12.Min(detail => detail.OnSecond.Time.A))
-                .Append(experimentInfo.J21.Min(detail => detail.OnFirst.Time.A))
-                .Append(experimentInfo.J21.Min(detail => detail.OnSecond.Time.A))
-                .Min();
+            var detailTimes = Enumerable.Empty<double>()
+                .Concat(experimentInfo.J1.Select(detail => detail.Time.A))
+                .Concat(experimentInfo.J2.Select(detail => detail.Time.A))
+                .Concat(experimentInfo.J12.Select(detail => detail.OnFirst.Time.A))
+                .Concat(experimentInfo.J12.Select(detail => detail.OnSecond.Time.A))
+                .Concat(experimentInfo.J21.Select(detail => detail.OnFirst.Time.A))
+                .Concat(experimentInfo.J21.Select(detail => detail.OnSecond.Time.A))
+                .ToList();
 
-            var maxBoundaryRange = Enumerable.Empty<double>()
-                .Append(experimentInfo.J1.Max(detail => detail.Time.A))
-                .Append(experimentInfo.J2.Max(detail => detail.Time.A))
-                .Append(experimentInfo.J12.Max(detail => detail.OnFirst.Time.A))
-                .Append(experimentInfo.J12.Max(detail => detail.OnSecond.Time.A))
-                .Append(experimentInfo.J21.Max(detail => detail.OnFirst.Time.A))
-                .Append(experimentInfo.J21.Max(detail => detail.OnSecond.Time.A))
-                .Max();
+            var minBoundaryRange = detailTimes.Min();
+            var maxBoundaryRange = detailTimes.Max();
 
-            var minPercentageFromA = Enumerable.Empty<double>()
-                .Append(experimentInfo.J1.Min(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
-                .Append(experimentInfo.J2.Min(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
-                .Append(experimentInfo.J12.Min(detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
-                .Append(experimentInfo.J12.Min(detail => (detail.OnSecond.Time.B - detail.OnFirst.Time.A) / detail.OnSecond.Time.A))
-                .Append(experimentInfo.J21.Min(detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
-                .Append(experimentInfo.J21.Min(detail => (detail.OnSecond.Time.B - detail.OnSecond.Time.A) / detail.OnFirst.Time.A))
-                .Min();
+            var detailTimesPercentage = Enumerable.Empty<double>()
+                .Concat(experimentInfo.J1.Select(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
+                .Concat(experimentInfo.J2.Select(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
+                .Concat(
+                    experimentInfo.J12.Select(
+                        detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
+                .Concat(
+                    experimentInfo.J12.Select(
+                        detail => (detail.OnSecond.Time.B - detail.OnFirst.Time.A) / detail.OnSecond.Time.A))
+                .Concat(
+                    experimentInfo.J21.Select(
+                        detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
+                .Concat(
+                    experimentInfo.J21.Select(
+                        detail => (detail.OnSecond.Time.B - detail.OnSecond.Time.A) / detail.OnFirst.Time.A))
+                .ToList();
 
-            var maxPercentageFromA = Enumerable.Empty<double>()
-                .Append(experimentInfo.J1.Max(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
-                .Append(experimentInfo.J2.Max(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
-                .Append(experimentInfo.J12.Max(detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
-                .Append(experimentInfo.J12.Max(detail => (detail.OnSecond.Time.B - detail.OnFirst.Time.A) / detail.OnSecond.Time.A))
-                .Append(experimentInfo.J21.Max(detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
-                .Append(experimentInfo.J21.Max(detail => (detail.OnSecond.Time.B - detail.OnSecond.Time.A) / detail.OnFirst.Time.A))
-                .Max();
+            var minPercentageFromA = detailTimesPercentage.Min();
+            var maxPercentageFromA = detailTimesPercentage.Max();
 
             var experiment = new Experiment()
             {
                 TestsAmount = 1,
                 RequirementsAmount = number,
-                N1 = (int) Math.Ceiling(number / (double) experimentInfo.J1.Count),
-                N2 = (int)Math.Ceiling(number / (double)experimentInfo.J2.Count),
-                N12 = (int)Math.Ceiling(number / (double)experimentInfo.J12.Count),
-                N21 = (int)Math.Ceiling(number / (double)experimentInfo.J21.Count),
+                N1 = experimentInfo.J1.Count == 0 ? 0 : (int) Math.Ceiling(((double) experimentInfo.J1.Count / number) * 100),
+                N2 = experimentInfo.J2.Count == 0 ? 0 : (int)Math.Ceiling(((double)experimentInfo.J2.Count / number) * 100),
+                N12 = experimentInfo.J12.Count == 0 ? 0 : (int)Math.Ceiling(((double)experimentInfo.J12.Count / number) * 100),
+                N21 = experimentInfo.J21.Count == 0 ? 0 : (int)Math.Ceiling(((double)experimentInfo.J21.Count / number) * 100),
                 MinBoundaryRange = (int)Math.Floor(minBoundaryRange),
                 MaxBoundaryRange = (int)Math.Ceiling(maxBoundaryRange),
                 Status = ExperimentStatus.InProgress,

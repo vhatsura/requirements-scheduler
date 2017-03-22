@@ -14,6 +14,7 @@ namespace RequirementsScheduler.BLL.Model
             (J12.IsOptimized || J12Chain != null && J12Chain.IsOptimized) && 
             (J21.IsOptimized || J21Chain != null && J21Chain.IsOptimized);
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public ResultInfo Result { get; } = new ResultInfo();
         
         public DetailList J1 { get; } = new DetailList();

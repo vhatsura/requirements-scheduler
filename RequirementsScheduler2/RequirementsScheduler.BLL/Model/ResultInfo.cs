@@ -1,5 +1,9 @@
-﻿namespace RequirementsScheduler.BLL.Model
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace RequirementsScheduler.BLL.Model
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum ResultType
     {
         STOP1_1,
