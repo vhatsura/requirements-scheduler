@@ -3,6 +3,8 @@
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
+    <ApplicationInsightsResourceId>/subscriptions/881b4899-680f-4106-8a7c-1afbef680f61/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/requirementsscheduler</ApplicationInsightsResourceId>
+    <ApplicationInsightsAnnotationResourceId>/subscriptions/881b4899-680f-4106-8a7c-1afbef680f61/resourceGroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/requirementsscheduler</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1, IN_MEMORY</DefineConstants>
@@ -11,6 +13,7 @@
     <DefineConstants>TRACE;RELEASE;NETCOREAPP1_1;IN_MEMORY</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
@@ -32,6 +35,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RequirementsScheduler.Library\RequirementsScheduler.Library.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
   <Target Name="RunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
