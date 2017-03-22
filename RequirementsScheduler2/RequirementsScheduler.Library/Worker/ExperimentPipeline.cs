@@ -51,9 +51,18 @@ namespace RequirementsScheduler.Library.Worker
 
                 if (CheckOffline(experimentInfo))
                 {
-                    ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
-                    continue;
+                    //continue;
                 }
+
+                if (experimentInfo.J12Chain == null)
+                {
+                    experimentInfo.J12Chain = new Chain(experimentInfo.J12.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+                }
+                if (experimentInfo.J21Chain == null)
+                {
+                    experimentInfo.J21Chain = new Chain(experimentInfo.J21.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+                }
+                ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
             }
 
             return Task.FromResult(0);
@@ -780,6 +789,7 @@ namespace RequirementsScheduler.Library.Worker
                         }
                         break;
                     }
+                    resultChain.AddLast(chainElement);
                 }
             }
 

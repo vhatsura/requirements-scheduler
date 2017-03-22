@@ -47,6 +47,30 @@ export class ExperimentsComponent implements OnInit {
                     visible: true,
                     sort: 'enable',
                     columnOrder: 2
+                },
+                {
+                    objectKey: 'n1',
+                    visible: true,
+                    sort: 'enable',
+                    columnOrder: 3
+                },
+                {
+                    objectKey: 'n2',
+                    visible: true,
+                    sort: 'enable',
+                    columnOrder: 4
+                },
+                {
+                    objectKey: 'n12',
+                    visible: true,
+                    sort: 'enable',
+                    columnOrder: 5
+                },
+                {
+                    objectKey: 'n21',
+                    visible: true,
+                    sort: 'enable',
+                    columnOrder: 6
                 }
             ],
             fields: [
@@ -64,6 +88,26 @@ export class ExperimentsComponent implements OnInit {
                 {
                     name: 'Amount of requirements',
                     objectKey: 'requirementsAmount',
+                    classNames: 'sort-numeric',
+                },
+                {
+                    name: 'N1, %',
+                    objectKey: 'n1',
+                    classNames: 'sort-numeric',
+                },
+                {
+                    name: 'N2, %',
+                    objectKey: 'n2',
+                    classNames: 'sort-numeric',
+                },
+                {
+                    name: 'N12, %',
+                    objectKey: 'n12',
+                    classNames: 'sort-numeric',
+                },
+                {
+                    name: 'N21, %',
+                    objectKey: 'n21',
                     classNames: 'sort-numeric',
                 }
             ],

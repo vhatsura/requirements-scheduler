@@ -98,10 +98,10 @@ namespace RequirementsScheduler.BLL.Service
             var user = UsersService.GetByUserName(username);
             if (user != null)
             {
+                //todo think about security
                 return Mapper.Map<Experiment>(
                     Repository
-                    .Get(experiment => experiment.UserId == user.Id)
-                    .FirstOrDefault());
+                    .Get(experimentId));
             }
 
             return null;

@@ -6,7 +6,7 @@ namespace RequirementsScheduler.Library.Worker
 {
     public sealed class WorkerJobFactory : IJobFactory
     {
-        protected IServiceProvider Container { get; }
+        private IServiceProvider Container { get; }
 
         public WorkerJobFactory(IServiceProvider container)
         {

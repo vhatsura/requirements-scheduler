@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { Test } from '../../models/index';
-//import { Customer } from './customerService';
 
 @Component({
   selector: 'test-list',
@@ -12,7 +11,7 @@ import { Test } from '../../models/index';
     <ul class="nav nav-pills nav-stacked">
       <template ngFor let-test [ngForOf]="tests" let-i="index">
         <li role="presentation" [class.active]="selected == test">
-          <a (click)="selectedChange.next(test)">{{test.testNumber}}</a>
+          <a (click)="selectedChange.next(test)">Test #{{test.testNumber}}. Is optimized: {{test.isOptimized}}</a>
         </li>
       </template>
     </ul>

@@ -33,7 +33,8 @@ namespace RequirementsScheduler.BLL.Service
         {
             TypeNameHandling = TypeNameHandling.All,
             DefaultValueHandling = DefaultValueHandling.Ignore,
-            TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full,
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
+            
 #if DEBUG
             Formatting = Formatting.Indented
 #endif

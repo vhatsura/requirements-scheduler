@@ -6,6 +6,12 @@ export class Test implements Serializable<Test> {
         this.testNumber = input.testNumber;
         this.isOptimized = input.isOptimized;
 
+        this.j1 = input.j1;
+        this.j2 = input.j2;
+
+        this.j12 = input.j12Chain;
+        this.j21 = input.j21Chain;
+
         return this;
     }
 
@@ -15,6 +21,4 @@ export class Test implements Serializable<Test> {
     j2: Array<any>;
     j12: Array<any>;
     j21: Array<any>;
-    j12Chain: Array<any>;
-    j21Chain: Array<any>;
 }

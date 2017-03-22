@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz.Spi;
+using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
 using RequirementsScheduler2.Identity;
@@ -49,7 +50,7 @@ namespace RequirementsScheduler
 
             services.AddSingleton<IFileProvider>(physicalProvider);
 
-            services.AddAutoMapper();
+            services.AddAutoMapper(typeof(MappingProfile));
 
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IExperimentsService, ExperimentsService>();
@@ -81,7 +82,7 @@ namespace RequirementsScheduler
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
