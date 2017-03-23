@@ -10,6 +10,7 @@ namespace RequirementsScheduler.DAL.Repository
 {
     public class Repository<TEntity, TKey> : IRepository<TEntity, TKey>
         where TEntity : class, IRepositoryModel<TKey>
+        where TKey : IEquatable<TKey>
     {
         private Database Db { get; }
 
@@ -63,6 +64,17 @@ namespace RequirementsScheduler.DAL.Repository
             }
         }
 
+
+        public TEntity AddWithoutIdentity(TEntity entity)
+        {
+            using (var db = Db.Open())
+            {
+                db.Insert(entity);
+
+                return Get(entity.Id);
+            }
+        }
+
         public bool Delete(TKey id)
         {
             using (var db = Db.Open())
@@ -78,8 +90,7 @@ namespace RequirementsScheduler.DAL.Repository
         {
             using (var db = Db.Open())
             {
-                db.GetTable<TEntity>()
-                    .Update(e => Equals(e.Id, id), e => entity);
+                db.Update(entity);
 
                 return Get(id);
             }

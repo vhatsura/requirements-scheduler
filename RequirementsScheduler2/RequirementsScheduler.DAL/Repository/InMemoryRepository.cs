@@ -72,5 +72,13 @@ namespace RequirementsScheduler.DAL.Repository
             ModelsCollection.AddOrUpdate(id, entity, (k, v) => entity);
             return this.Get(id);
         }
+
+        public TEntity AddWithoutIdentity(TEntity entity)
+        {
+            BeforeAdd(entity);
+
+            ModelsCollection.TryAdd(entity.Id, entity);
+            return this.Get(entity.Id);
+        }
     }
 }

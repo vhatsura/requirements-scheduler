@@ -15,6 +15,7 @@ namespace RequirementsScheduler.DAL
 #if DEBUG
             DataConnection.TurnTraceSwitchOn();
             DataConnection.WriteTraceLine = (s, s1) => Debug.WriteLine(s, s1);
+            LinqToDB.Common.Configuration.Linq.GenerateExpressionTest = true;
 #endif
             Settings = settings.Value;
         }

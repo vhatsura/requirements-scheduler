@@ -16,6 +16,7 @@ using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
 using RequirementsScheduler2.Identity;
 using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.DAL;
 using RequirementsScheduler.DAL.Repository;
 using RequirementsScheduler.Extensions;
 using RequirementsScheduler.Library.Worker;
@@ -69,6 +70,11 @@ namespace RequirementsScheduler
             services.AddTransient<IExperimentGenerator, ExperimentGenerator>();
             services.AddSingleton<IWorkerExperimentService, WorkerExperimentService>();
             services.AddSingleton<ExperimentWorker, ExperimentWorker>();
+
+            services.Configure<DbSettings>(options =>
+            {
+                options.ConnectionString = Configuration["ConnectionStrings:RequirementsSchedulerDatabase"];
+            });
         }
 
         private void ConfigureInMemoryRepositories(IServiceCollection services)
@@ -79,6 +85,10 @@ namespace RequirementsScheduler
 
         private void ConfigureRequirementsServices(IServiceCollection services)
         {
+            services.AddSingleton<Database, Database>();
+            //todo change to azure blob storage
+            services.AddSingleton<IExperimentTestResultService, ExperimentTestResultFileService>();
+
             services.AddSingleton<IRepository<DAL.Model.User, int>, Repository<DAL.Model.User, int>>();
             services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, Repository<DAL.Model.Experiment, Guid>>();
         }

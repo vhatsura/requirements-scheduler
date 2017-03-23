@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Experiment]
 (
-	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
+	[Id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(), 
     [TestsAmount] INT NOT NULL, 
     [RequirementsAmount] INT NOT NULL, 
     [N1] INT NOT NULL, 

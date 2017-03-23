@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
@@ -10,19 +11,31 @@ namespace RequirementsScheduler.Library.Worker
 {
     public sealed class WorkerExperimentService : ExperimentsService, IWorkerExperimentService
     {
+        private ILogger Logger { get; }
+
         public WorkerExperimentService(
             IMapper mapper,
             IUserService userService,
-            IRepository<Experiment, Guid> repository) 
+            IRepository<Experiment, Guid> repository,
+            ILogger<WorkerExperimentService> logger) 
             : base(mapper, userService, repository)
         {
+            Logger = logger;
         }
 
         public void StartExperiment(Guid experimentId)
         {
-            var experiment = Repository.Get(experimentId);
-            experiment.Status = (int) ExperimentStatus.InProgress;
-            Repository.Update(experimentId, experiment);
+            try
+            {
+                var experiment = Repository.Get(experimentId);
+                experiment.Status = (int) ExperimentStatus.InProgress;
+                Repository.Update(experimentId, experiment);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(new EventId(), ex, "Error during start experiment");
+            }
+            
         }
 
         public void StopExperiment(Guid experimentId)
