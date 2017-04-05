@@ -11,7 +11,7 @@ module.exports = {
         'main-browser': root('./client/main.browser.ts')
     },
     output: {
-        path: root('./wwwroot/dist'),
+        path: root('./wwwroot/dist')
     },
     target: 'web',
     plugins: [
