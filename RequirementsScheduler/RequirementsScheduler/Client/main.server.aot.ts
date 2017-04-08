@@ -6,7 +6,7 @@ import { createServerRenderer, RenderResult } from 'aspnet-prerendering';
 // Grab the (Node) server-specific NgModule
 import { ServerAppModuleNgFactory } from './ngfactory/app/server-app.module.ngfactory';
 // Temporary * the engine will be on npm soon (`@universal/ng-aspnetcore-engine`)
-import { ngAspnetCoreEngine } from './polyfills/temporary-aspnetcore-engine';
+import { ngAspnetCoreEngineAoT } from './polyfills/temporary-aspnetcore-engine';
 
 enableProdMode();
 
@@ -26,7 +26,7 @@ export default createServerRenderer(params => {
         }
     ];
 
-    return ngAspnetCoreEngine(providers, ServerAppModuleNgFactory).then(response => {
+    return ngAspnetCoreEngineAoT(providers, ServerAppModuleNgFactory).then(response => {
         return ({
             html: response.html,
             globals: response.globals

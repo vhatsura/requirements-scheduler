@@ -289,3 +289,4 @@ __pycache__/
 # Typescript files
 */ClientApp/*/*.js.map
 /RequirementsScheduler2/RequirementsScheduler/ClientApp/app/dist
+RequirementsScheduler/RequirementsScheduler/Client/dist/
