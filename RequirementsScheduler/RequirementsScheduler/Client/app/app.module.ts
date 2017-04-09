@@ -30,6 +30,9 @@ import { AuthHttp, AuthConfig } from 'angular2-jwt';
 import { BusyModule } from 'angular2-busy';
 import { GenericTableModule } from 'angular-generic-table';
 
+import { LinkService } from './shared/link.service';
+import { ORIGIN_URL } from './shared/constants/baseurl.constants';
+
 let imports = [
     // Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
     FormsModule,
@@ -88,7 +91,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         AlertService,
         AuthenticationService,
         UserService,
-        ExperimentService
+        ExperimentService,
+        LinkService
     ],
     entryComponents: [ExperimentDetailComponent]
 })

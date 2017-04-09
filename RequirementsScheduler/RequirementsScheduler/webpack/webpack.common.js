@@ -14,11 +14,11 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.ts$/, loader: '@ngtools/webpack' },
-      { test: /\.css$/, loader: 'raw-loader' },
-      { test: /\.html$/, loader: 'raw-loader' },
-      { test: /\.scss$/, loaders: ['raw-loader', 'sass-loader'] },
-      { test: /\.(woff2?|ttf|eot|svg)$/, loader: 'url-loader?limit=10000' }
+        { test: /\.ts$/, loader: '@ngtools/webpack' },
+        { test: /\.css$/, loaders: ['to-string-loader', 'css-loader'] },
+        { test: /\.html$/, loader: 'html-loader' },
+        { test: /\.scss$/, loaders: ['to-string-loader', 'css-loader', 'sass-loader'] },
+        { test: /\.(woff2?|ttf|eot|svg)$/, loader: 'url-loader?limit=10000' }
     ]
   },
   plugins: []
