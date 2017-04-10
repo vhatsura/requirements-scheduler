@@ -2,9 +2,10 @@
 
 namespace RequirementsScheduler.BLL.Model
 {
-    public interface IChainNode
+    public interface IOnlineChainNode
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        ChainType Type { get; }
+        OnlineChainType Type { get; }
     }
+
 }

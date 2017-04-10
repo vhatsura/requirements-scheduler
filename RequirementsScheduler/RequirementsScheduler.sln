@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Host.Console", "RequirementsScheduler.Host.Console\RequirementsScheduler.Host.Console.csproj", "{2DD39EC2-F419-43E4-A170-41F8DF61C37F}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequirementsScheduler.BLL", "RequirementsScheduler.BLL\RequirementsScheduler.BLL.csproj", "{7E7F1799-E122-4F03-97E2-466E300E8D91}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "RequirementsSchedulerDb", "RequirementsSchedulerDb\RequirementsSchedulerDb.sqlproj", "{71E32A85-CF8F-4F04-AED0-A33E662C798D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequirementsScheduler.Library.Tests", "RequirementsScheduler.Library.Tests\RequirementsScheduler.Library.Tests.csproj", "{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{71E32A85-CF8F-4F04-AED0-A33E662C798D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71E32A85-CF8F-4F04-AED0-A33E662C798D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{71E32A85-CF8F-4F04-AED0-A33E662C798D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

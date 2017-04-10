@@ -1,32 +1,34 @@
-<h1>Experiments' reports</h1>
+<div class="col-md-10 col-md-offset-2">
+    <h1>Experiments' reports</h1>
 
-<p *ngIf="!reports"><em>Loading...</em></p>
+    <p *ngIf="!reports"><em>Loading...</em></p>
 
-<table class='table' *ngIf="reports">
-    <thead>
-        <tr>
-            <th>n1 n2 n3 n4</th>
-            <th>The number of resolved conflicts</th>
-            <th>Stop1, %</th>
-            <th>Stop2, %</th>
-            <th>Stop3, %</th>
-            <th>Stop4, %</th>
-            <th>&#916;Cmax average</th>
-            <th>&#916;Cmax max</th>
-            <th>Execution time</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let report of reports">
-            <td>{{report.nRatio}}</td>
-            <td>{{report.conflictsResolutionAmount}}</td>
-            <td>{{report.stop1}}</td>
-            <td>{{report.stop2}}</td>
-            <td>{{report.stop3}}</td>
-            <td>{{report.stop4}}</td>
-            <td>{{report.deltaCmaxAverage}}</td>
-            <td>{{report.deltaCmaxMax}}</td>
-            <td>{{report.executionTime}}</td>
-        </tr>
-    </tbody>
-</table>
+    <table class='table' *ngIf="reports">
+        <thead>
+            <tr>
+                <th>n1 n2 n3 n4</th>
+                <th>The number of resolved conflicts</th>
+                <th>Stop1, %</th>
+                <th>Stop2, %</th>
+                <th>Stop3, %</th>
+                <th>Stop4, %</th>
+                <th>&#916;Cmax average</th>
+                <th>&#916;Cmax max</th>
+                <th>Execution time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let report of reports">
+                <td>{{report.nRatio}}</td>
+                <td>{{report.conflictsResolutionAmount}}</td>
+                <td>{{report.stop1}}</td>
+                <td>{{report.stop2}}</td>
+                <td>{{report.stop3}}</td>
+                <td>{{report.stop4}}</td>
+                <td>{{report.deltaCmaxAverage}}</td>
+                <td>{{report.deltaCmaxMax}}</td>
+                <td>{{report.executionTime}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

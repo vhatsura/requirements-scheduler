@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
@@ -20,10 +19,7 @@ namespace RequirementsScheduler.Library.Worker
             IWorkerExperimentService service,
             IExperimentTestResultService resultService)
         {
-           if (generator == null)
-               throw new ArgumentNullException(nameof(generator));
-
-            Generator = generator;
+            Generator = generator ?? throw new ArgumentNullException(nameof(generator));
             Service = service;
             ResultService = resultService;
         }
@@ -50,23 +46,39 @@ namespace RequirementsScheduler.Library.Worker
 
                 experimentInfo.TestNumber = i + 1;
 
-                if (CheckOffline(experimentInfo))
-                {
-                    //continue;
-                }
+                var offlineResult = CheckOffline(experimentInfo);
 
-                RunOnlineMode(experimentInfo);
-
-                if (experimentInfo.J12Chain == null || 
-                    (experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any()))
+                if (experimentInfo.J12Chain == null ||
+                    experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any())
                 {
                     experimentInfo.J12Chain = new Chain(experimentInfo.J12.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
                 }
                 if (experimentInfo.J21Chain == null ||
-                    (experimentInfo.J12.Any() && !experimentInfo.J21Chain.Any()))
+                    experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
                 {
                     experimentInfo.J21Chain = new Chain(experimentInfo.J21.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
                 }
+
+                if (!offlineResult)
+                {
+                    experimentInfo.OnlineChainOnFirstMachine = experimentInfo.J12Chain.Select(chainNode =>
+                    {
+                        switch (chainNode.Type)
+                        {
+                            case ChainType.Detail:
+                                return (chainNode as LaboriousDetail).OnFirst;
+                                break;
+                            case ChainType.Conflict:
+                                return (chainNode as Conflict).Details;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }).Append(experimentInfo);
+                    experimentInfo.OnlineChainOnSecondMachine = ;
+                    RunOnlineMode(experimentInfo);
+                } 
+
                 ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
             }
 

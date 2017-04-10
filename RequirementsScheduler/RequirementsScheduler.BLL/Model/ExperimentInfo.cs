@@ -27,5 +27,8 @@ namespace RequirementsScheduler.BLL.Model
 
         public Chain J12Chain { get; set; }
         public Chain J21Chain { get; set; }
+
+        public OnlineChain OnlineChainOnFirstMachine { get; set; }
+        public OnlineChain OnlineChainOnSecondMachine { get; set; }
     }
 }
