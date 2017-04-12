@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.BLL.Model
 {
@@ -7,6 +8,8 @@ namespace RequirementsScheduler.BLL.Model
     {
         public double A { get; }
         public double B { get; }
+
+        public double P { get; private set; }
 
         [JsonConstructor]
         public ProcessingTime(double a, double b)
@@ -16,6 +19,11 @@ namespace RequirementsScheduler.BLL.Model
 
             A = a;
             B = b;
+        }
+
+        public void GenerateP()
+        {
+            P = RandomizeService.GetRandomDouble(A, B);
         }
 
         public override bool Equals(object obj)

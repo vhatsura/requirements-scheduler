@@ -61,21 +61,9 @@ namespace RequirementsScheduler.Library.Worker
 
                 if (!offlineResult)
                 {
-                    experimentInfo.OnlineChainOnFirstMachine = experimentInfo.J12Chain.Select(chainNode =>
-                    {
-                        switch (chainNode.Type)
-                        {
-                            case ChainType.Detail:
-                                return (chainNode as LaboriousDetail).OnFirst;
-                                break;
-                            case ChainType.Conflict:
-                                return (chainNode as Conflict).Details;
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                    }).Append(experimentInfo);
-                    experimentInfo.OnlineChainOnSecondMachine = ;
+                    experimentInfo.OnlineChainOnFirstMachine = GetOnlineChainOnFirstMachine(experimentInfo);
+                    experimentInfo.OnlineChainOnSecondMachine = GetOnlineChainOnSecondMachine(experimentInfo);
+
                     RunOnlineMode(experimentInfo);
                 } 
 
@@ -915,9 +903,140 @@ namespace RequirementsScheduler.Library.Worker
 
         #region Online mode
 
+        private static OnlineChain GetOnlineChainOnFirstMachine(ExperimentInfo experimentInfo)
+        {
+            var onlineChain = new OnlineChain();
+            foreach (var chainNode in experimentInfo.J12Chain)
+            {
+                switch (chainNode.Type)
+                {
+                    case ChainType.Detail:
+                        onlineChain
+                            .AddLast((chainNode as LaboriousDetail).OnFirst);
+                        break;
+                    case ChainType.Conflict:
+                        var onlineConflict = new OnlineConflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnFirst));
+
+                        onlineChain.AddLast(onlineConflict);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            foreach (var j1 in experimentInfo.J1)
+            {
+                onlineChain.AddLast(j1);
+            }
+
+            foreach (var chainNode in experimentInfo.J21Chain)
+            { 
+                switch (chainNode.Type)
+                {
+                    case ChainType.Detail:
+                        onlineChain
+                            .AddLast((chainNode as LaboriousDetail).OnFirst);
+                        break;
+                    case ChainType.Conflict:
+                        var onlineConflict = new OnlineConflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnFirst));
+
+                        onlineChain.AddLast(onlineConflict);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            return onlineChain;
+        }
+
+        private static OnlineChain GetOnlineChainOnSecondMachine(ExperimentInfo experimentInfo)
+        {
+            var onlineChain = new OnlineChain();
+            foreach (var chainNode in experimentInfo.J21Chain)
+            {
+                switch (chainNode.Type)
+                {
+                    case ChainType.Detail:
+                        onlineChain
+                            .AddLast((chainNode as LaboriousDetail).OnSecond);
+                        break;
+                    case ChainType.Conflict:
+                        var onlineConflict = new OnlineConflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnSecond));
+
+                        onlineChain.AddLast(onlineConflict);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            foreach (var j2 in experimentInfo.J2)
+            {
+                onlineChain.AddLast(j2);
+            }
+
+            foreach (var chainNode in experimentInfo.J12Chain)
+            {
+                switch (chainNode.Type)
+                {
+                    case ChainType.Detail:
+                        onlineChain
+                            .AddLast((chainNode as LaboriousDetail).OnSecond);
+                        break;
+                    case ChainType.Conflict:
+                        var onlineConflict = new OnlineConflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnSecond));
+
+                        onlineChain.AddLast(onlineConflict);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            return onlineChain;
+        }
+
+        private static void GeneratePForOnlineChains(ExperimentInfo experimentInfo)
+        {
+            foreach (var onlineChainNode in experimentInfo.OnlineChainOnFirstMachine)
+            {
+                switch (onlineChainNode.Type)
+                {
+                    case OnlineChainType.Detail:
+                        (onlineChainNode as Detail).Time.GenerateP();
+                        break;
+                    case OnlineChainType.Conflict:
+                        (onlineChainNode as OnlineConflict).Details.ForEach(detail => detail.Time.GenerateP());
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            foreach (var onlineChainNode in experimentInfo.OnlineChainOnSecondMachine)
+            {
+                switch (onlineChainNode.Type)
+                {
+                    case OnlineChainType.Detail:
+                        (onlineChainNode as Detail).Time.GenerateP();
+                        break;
+                    case OnlineChainType.Conflict:
+                        (onlineChainNode as OnlineConflict).Details.ForEach(detail => detail.Time.GenerateP());
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
         private static void RunOnlineMode(ExperimentInfo experimentInfo)
         {
-            //var firstMachineChain =     
+            GeneratePForOnlineChains(experimentInfo);
         }
         
         #endregion

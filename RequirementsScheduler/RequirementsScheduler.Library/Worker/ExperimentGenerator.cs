@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Library.Extensions;
 
 namespace RequirementsScheduler.Core.Worker
 {
     public class ExperimentGenerator : IExperimentGenerator
     {
-        private static readonly Random Random = new Random();
-
         public ExperimentInfo GenerateDataForTest(Experiment experiment)
         {
             var firstRequirementsAmount = (int) Math.Round(experiment.RequirementsAmount * experiment.N1 / (double)100);
@@ -73,7 +72,7 @@ namespace RequirementsScheduler.Core.Worker
         private static ICollection<double> GetABoundaries(int min, int max, int amount)
             => Enumerable
                 .Range(0, amount)
-                .Select(i => Random.Next(min, max) + Random.NextDouble())
+                .Select(i => RandomizeService.GetRandomDouble(min, max))
                 .ToList();
 
         private static ICollection<double> GetBBoundaries(
@@ -81,7 +80,7 @@ namespace RequirementsScheduler.Core.Worker
             int minPercentage,
             int maxPercentage) 
                 => aBoundaries
-                    .Select(a => Random.Next(minPercentage, maxPercentage) * a / 100 + a)
+                    .Select(a => RandomizeService.GetRandomDouble(minPercentage, maxPercentage) * a / 100 + a)
                     .ToList();
 
         #region Triangle Distribution
