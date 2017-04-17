@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using RequirementsScheduler.BLL.Model;
@@ -916,8 +915,8 @@ namespace RequirementsScheduler.Library.Worker
                             .AddLast((chainNode as LaboriousDetail).OnFirst);
                         break;
                     case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnFirst));
+                        var onlineConflict = new Conflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details);
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -940,8 +939,8 @@ namespace RequirementsScheduler.Library.Worker
                             .AddLast((chainNode as LaboriousDetail).OnFirst);
                         break;
                     case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnFirst));
+                        var onlineConflict = new Conflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details);
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -965,8 +964,8 @@ namespace RequirementsScheduler.Library.Worker
                             .AddLast((chainNode as LaboriousDetail).OnSecond);
                         break;
                     case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnSecond));
+                        var onlineConflict = new Conflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details);
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -989,8 +988,8 @@ namespace RequirementsScheduler.Library.Worker
                             .AddLast((chainNode as LaboriousDetail).OnSecond);
                         break;
                     case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnSecond));
+                        var onlineConflict = new Conflict();
+                        onlineConflict.Details.AddRange((chainNode as Conflict).Details);
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -1012,7 +1011,7 @@ namespace RequirementsScheduler.Library.Worker
                         (onlineChainNode as Detail).Time.GenerateP();
                         break;
                     case OnlineChainType.Conflict:
-                        (onlineChainNode as OnlineConflict).Details.ForEach(detail => detail.Time.GenerateP());
+                        (onlineChainNode as Conflict).Details.ForEach(detail => detail.OnFirst.Time.GenerateP());
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -1027,7 +1026,7 @@ namespace RequirementsScheduler.Library.Worker
                         (onlineChainNode as Detail).Time.GenerateP();
                         break;
                     case OnlineChainType.Conflict:
-                        (onlineChainNode as OnlineConflict).Details.ForEach(detail => detail.Time.GenerateP());
+                        (onlineChainNode as Conflict).Details.ForEach(detail => detail.OnSecond.Time.GenerateP());
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -1080,6 +1079,8 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     processedDetailNumbersOnFirst.Add((currentDetailOnFirst as Detail).Number);
                     currentDetailOnFirst = nodeOnFirstMachine.Value;
+
+                    var machine = nodeOnSecondMachine;
                     ProcessDetailOnMachine(
                         experimentInfo.OnlineChainOnFirstMachine,
                         nodeOnFirstMachine,
@@ -1090,7 +1091,8 @@ namespace RequirementsScheduler.Library.Worker
                                            d => d is Detail && (d as Detail).Number == detail.Number) as Detail).Time.P - start,
                         processedDetailNumbersOnSecond,
                         ref time1,
-                        isFirstDetail);
+                        isFirstDetail,
+                        (conflict, node, isFirst) => ResolveConflictOnFirst(conflict, node, machine, isFirst, experimentInfo, timeFromMachinesStart));
 
                     processedDetailNumbersOnSecond.Add((currentDetailOnSecond as Detail).Number);
                     currentDetailOnSecond = nodeOnSecondMachine.Value;
@@ -1104,7 +1106,8 @@ namespace RequirementsScheduler.Library.Worker
                                             d => d is Detail && (d as Detail).Number == detail.Number) as Detail).Time.P - start,
                         processedDetailNumbersOnFirst,
                         ref time2,
-                        isFirstDetail);
+                        isFirstDetail,
+                        ResolveConflictOnSecond);
 
                     nodeOnFirstMachine = nodeOnFirstMachine.Next;
                     hasDetailOnFirst = nodeOnFirstMachine != null;
@@ -1116,6 +1119,8 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     processedDetailNumbersOnFirst.Add((currentDetailOnFirst as Detail).Number);
                     currentDetailOnFirst = nodeOnFirstMachine.Value;
+
+                    var machine = nodeOnSecondMachine;
                     ProcessDetailOnMachine(
                         experimentInfo.OnlineChainOnFirstMachine,
                         nodeOnFirstMachine,
@@ -1126,7 +1131,8 @@ namespace RequirementsScheduler.Library.Worker
                                       d => d is Detail && (d as Detail).Number == detail.Number) as Detail).Time.P - start,
                         processedDetailNumbersOnSecond,
                         ref time1,
-                        isFirstDetail);
+                        isFirstDetail,
+                        (conflict, node, isFirst) => ResolveConflictOnFirst(conflict, node, machine, isFirst, experimentInfo, timeFromMachinesStart));
 
                     nodeOnFirstMachine = nodeOnFirstMachine.Next;
                     hasDetailOnFirst = nodeOnFirstMachine != null;
@@ -1145,7 +1151,8 @@ namespace RequirementsScheduler.Library.Worker
                                       d => d is Detail && (d as Detail).Number == detail.Number) as Detail).Time.P - start,
                         processedDetailNumbersOnFirst,
                         ref time2,
-                        isFirstDetail);
+                        isFirstDetail,
+                        ResolveConflictOnSecond);
 
                     nodeOnSecondMachine = nodeOnSecondMachine.Next;
                     hasDetailOnSecond = nodeOnSecondMachine != null;
@@ -1179,7 +1186,8 @@ namespace RequirementsScheduler.Library.Worker
             Func<Detail, double> downtimeCalculationFunc,
             ICollection<int> processedDetailNumbersOnAnotherMachine,
             ref double time,
-            bool isFirstDetail)
+            bool isFirstDetail,
+            Action<Conflict, LinkedListNode<IOnlineChainNode>, bool> conflictResolver)
         {
             var currentDetail = node.Value;
             if (currentDetail.Type != OnlineChainType.Conflict)
@@ -1204,15 +1212,178 @@ namespace RequirementsScheduler.Library.Worker
             }
             else
             {
-                var conflict = currentDetail as OnlineConflict;
-                if (isFirstDetail)
+                var conflict = currentDetail as Conflict;
+                conflictResolver(conflict, node, isFirstDetail);
+                
+            }
+        }
+
+        private static void ResolveConflictOnFirst(
+            Conflict conflict,
+            LinkedListNode<IOnlineChainNode> nodeOnFirst,
+            LinkedListNode<IOnlineChainNode> nodeOnSecond,
+            bool isFirstDetail,
+            ExperimentInfo experimentInfo,
+            double timeFromMachinesStart)
+        {
+            if (!isFirstDetail)
+            {
+                var sumOfPOnFirst = experimentInfo.OnlineChainOnFirstMachine
+                    .TakeWhile(i => !Equals(i, nodeOnFirst.Value))
+                    .Sum(i =>
+                    {
+                        if (i.Type == OnlineChainType.Detail)
+                        {
+                            return (i as Detail).Time.P;
+                        }
+                        if (i.Type == OnlineChainType.Downtime)
+                        {
+                            return (i as Downtime).Time;
+                        }
+
+                        throw new InvalidOperationException();
+                    });
+
+                var sumOfBInConflict = conflict.Details.Sum(d => d.OnFirst.Time.B);
+
+                var sumOfPOnSecond = experimentInfo.OnlineChainOnSecondMachine
+                    .TakeWhile(i => !Equals(i, nodeOnSecond.Value))
+                    .Sum(i =>
+                    {
+                        if (i.Type == OnlineChainType.Detail)
+                        {
+                            return (i as Detail).Time.P;
+                        }
+                        if (i.Type == OnlineChainType.Downtime)
+                        {
+                            return (i as Downtime).Time;
+                        }
+
+                        throw new InvalidOperationException();
+                    });
+
+                double sumOnSecond;
+
+                var l = timeFromMachinesStart - sumOfPOnSecond;
+                if (l <= (nodeOnSecond.Value as Detail).Time.A)
                 {
-                    // todo resolve conflict using Jonson algorithm
+                    sumOnSecond = sumOfPOnSecond + (nodeOnSecond.Value as Detail).Time.A;
                 }
                 else
                 {
-
+                    sumOnSecond = sumOfPOnSecond + l;
                 }
+
+                var conflictOnSecond = experimentInfo.OnlineChainOnSecondMachine
+                    .First(i => i.Type == OnlineChainType.Conflict &&
+                                (i as Conflict).Details
+                                                     .Select(d => d.Number)
+                                                     .SequenceEqual(conflict.Details.Select(d => d.Number))) as Conflict;
+
+                var conflictNodeOnSecond = experimentInfo.OnlineChainOnSecondMachine.Find(conflictOnSecond);
+
+                var sumOfAOnSecond = experimentInfo.OnlineChainOnSecondMachine
+                    .SkipWhile(i => !Equals(i, nodeOnSecond.Value))
+                    .Skip(1)
+                    .TakeWhile(i => !Equals(i, conflictOnSecond))
+                    .Sum(i =>
+                    {
+                        if (i.Type == OnlineChainType.Detail)
+                        {
+                            return (i as Detail).Time.A;
+                        }
+                        if (i.Type == OnlineChainType.Conflict)
+                        {
+                            return (i as Conflict).Details.Sum(d => d.OnSecond.Time.A);
+                        }
+
+                        throw new InvalidOperationException();
+                    });
+
+                var sumOnMFirst = sumOfPOnFirst + sumOfBInConflict;
+                var sumOnMSecond = sumOfPOnSecond + sumOnSecond + sumOfAOnSecond;
+
+                // Check 1
+                if (sumOnMFirst <= sumOnMSecond)
+                {
+                    foreach (var conflictDetail in conflict.Details)
+                    {
+                        experimentInfo.OnlineChainOnFirstMachine.AddBefore(nodeOnFirst, conflictDetail.OnFirst);
+                    }
+                    experimentInfo.OnlineChainOnFirstMachine.Remove(nodeOnFirst);
+
+                    foreach (var conflictDetail in conflictOnSecond.Details)
+                    {
+                        experimentInfo.OnlineChainOnSecondMachine.AddBefore(conflictNodeOnSecond, conflictDetail.OnSecond);
+                    }
+                    experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnSecond);
+
+                    return;
+                }
+
+                // Check 2
+                var x1 = conflict.Details
+                    .Where(d => d.OnSecond.Time.A - d.OnFirst.Time.B >= 0)
+                    .OrderBy(d => d.OnFirst.Time.B);
+
+                var x2 = conflict.Details
+                    .Except(x1)
+                    .OrderByDescending(d => d.OnSecond.Time.A);
+
+                var conflictSequence = x1.Concat(x2);
+
+                var firstSum = sumOfPOnFirst;
+                var secondSum = sumOnMSecond;
+                var isOptimized = true;
+
+                foreach (var laboriousDetail in conflictSequence)
+                {
+                    //todo check all conditions
+                    if (firstSum + laboriousDetail.OnFirst.Time.B <= secondSum)
+                    {
+                        firstSum += laboriousDetail.OnFirst.Time.B;
+                        secondSum += laboriousDetail.OnSecond.Time.A;
+                    }
+                    else
+                    {
+                        isOptimized = false;
+                        break;
+                    }
+                }
+
+                if (isOptimized)
+                {
+                    foreach (var laboriousDetail in conflictSequence)
+                    {
+                        experimentInfo.OnlineChainOnFirstMachine.AddBefore(nodeOnFirst, laboriousDetail.OnFirst);
+                        experimentInfo.OnlineChainOnSecondMachine.AddBefore(conflictNodeOnSecond, laboriousDetail.OnSecond);
+                    }
+
+                    experimentInfo.OnlineChainOnFirstMachine.Remove(nodeOnFirst);
+                    experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnSecond);
+                    return;
+                }
+                // Check 3
+            }
+            else
+            {
+                // Check 3
+                // todo resolve conflict using Jonson algorithm (3rd check)
+            }
+        }
+
+        private static void ResolveConflictOnSecond(
+            Conflict conflict,
+            LinkedListNode<IOnlineChainNode> node,
+            bool isFirstDetail)
+        {
+            if (isFirstDetail)
+            {
+                // todo resolve conflict using Jonson algorithm (3rd check)
+            }
+            else
+            {
+
             }
         }
 
