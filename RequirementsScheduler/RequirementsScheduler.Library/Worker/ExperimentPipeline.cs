@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using RequirementsScheduler.BLL.Model;
@@ -163,7 +162,7 @@ namespace RequirementsScheduler.Library.Worker
 
                     if (sumOfAOnSecond >= sumOfBOnFirst)
                     {
-                        LinkedListNode<IChainNode> insertedNode = node;
+                        var insertedNode = node;
                         foreach (var laboriousDetail in (node.Value as Conflict).Details)
                         {
                             insertedNode = experimentInfo.J12Chain.AddBefore(node, laboriousDetail);
@@ -301,7 +300,7 @@ namespace RequirementsScheduler.Library.Worker
 
                     var yBox = y2Box.Concat(y1Box).ToList();
 
-                    var aOfDetailAfterConflict = 0.0;
+                    double aOfDetailAfterConflict;
 
                     if (node.Next == null)
                     {
@@ -430,7 +429,7 @@ namespace RequirementsScheduler.Library.Worker
 
                     var yBox = y2Box.Concat(y1Box).ToList();
 
-                    var aOfDetailAfterConflict = 0.0;
+                    double aOfDetailAfterConflict;
 
                     if (node.Next == null)
                     {
