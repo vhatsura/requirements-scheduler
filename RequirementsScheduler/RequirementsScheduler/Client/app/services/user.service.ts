@@ -1,20 +1,28 @@
-﻿import { Injectable } from '@angular/core';
+﻿import { Injectable, Inject } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { AuthHttp } from 'angular2-jwt';
 
+import { ORIGIN_URL } from '../shared/constants/baseurl.constants';
+
+import { TransferHttp } from '../../modules/transfer-http/transfer-http';
 import { User }  from '../models/user';
+
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class UserService {
-    constructor(private authHttp: AuthHttp) { }
+    constructor(
+        private authHttp: AuthHttp,
+        private transferHttp: TransferHttp,
+        @Inject(ORIGIN_URL) private baseUrl: string) { }
 
-    getAll() {
-        return this.authHttp.get('/api/users').map((response: Response) => response.json());
+    getAll(): Observable<User[]> {
+        return this.transferHttp.get(`${this.baseUrl}/api/users`);
     }
 
-    getById(id: number) {
-        return this.authHttp.get('/api/users/' + id).map((response: Response) => response.json());
+    getById(id: number): Observable<User> {
+        return this.transferHttp.get(`${this.baseUrl}/api/users/` + id);
     }
 
     create(user: User) {
