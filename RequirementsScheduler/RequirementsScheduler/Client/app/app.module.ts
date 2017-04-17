@@ -32,6 +32,7 @@ import { GenericTableModule } from 'angular-generic-table';
 
 import { LinkService } from './shared/link.service';
 import { ORIGIN_URL } from './shared/constants/baseurl.constants';
+import { TransferHttpModule } from '../modules/transfer-http/transfer-http.module';
 
 let imports = [
     // Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
@@ -42,6 +43,7 @@ let imports = [
     ReactiveFormsModule,
 
     GenericTableModule,
+    TransferHttpModule,
     RouterModule.forRoot([
         { path: '', component: HomeComponent, canActivate: [AuthGuard] },
         //{ path: 'experiment', component: CounterComponent },
@@ -55,8 +57,8 @@ let imports = [
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     return new AuthHttp(new AuthConfig({
-        tokenName: 'id_token',
-        tokenGetter: (() => localStorage.getItem('id_token')),
+        tokenName: 'token',
+        tokenGetter: (() => localStorage.getItem('token')),
         globalHeaders: [{ 'Content-Type': 'application/json' }],
     }), http, options);
 }

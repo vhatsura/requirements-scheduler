@@ -1,31 +1,35 @@
 import { NgModule } from '@angular/core';
 import { ServerModule } from '@angular/platform-server';
 import { BrowserModule } from '@angular/platform-browser';
-import { NoopAnimationsModule  } from '@angular/platform-browser/animations';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppModule } from './app.module';
 import { AppComponent } from './components/app/app.component';
 
+import { ServerTransferStateModule } from '../modules/transfer-state/server-transfer-state.module';
+import { TransferState } from '../modules/transfer-state/transfer-state';
 
 @NgModule({
-    bootstrap: [ AppComponent ],
+    bootstrap: [AppComponent],
     imports: [
         BrowserModule.withServerTransition({
             appId: 'my-app-id' // make sure this matches with your Browser NgModule
         }),
         ServerModule,
         NoopAnimationsModule,
-        
+
+        ServerTransferStateModule,
+
         // Our Common AppModule
-        AppModule 
+        AppModule
     ]
 })
 export class ServerAppModule {
 
-    // constructor(private transferState: TransferState) { }
+    constructor(private transferState: TransferState) { }
 
-    // // Gotcha
-    // ngOnBootstrap = () => {
-    //     this.transferState.inject();
-    // }
+    // Gotcha
+    ngOnBootstrap = () => {
+        this.transferState.inject();
+    }
 }

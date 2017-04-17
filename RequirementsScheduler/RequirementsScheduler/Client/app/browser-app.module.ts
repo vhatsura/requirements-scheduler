@@ -8,8 +8,16 @@ import { ORIGIN_URL } from './shared/constants/baseurl.constants';
 import { AppModule } from './app.module';
 import { AppComponent } from './components/app/app.component';
 
+import { REQUEST } from './shared/constants/request';
+import { BrowserTransferStateModule } from '../modules/transfer-state/browser-transfer-state.module';
+
 export function getOriginUrl() {
     return window.location.origin;
+}
+
+export function getRequest() {
+    // the Request object only lives on the server
+    return { cookie: document.cookie };
 }
 
 @NgModule({
@@ -19,6 +27,7 @@ export function getOriginUrl() {
             appId: 'my-app-id' // make sure this matches with your Server NgModule
         }),
         BrowserAnimationsModule,
+        BrowserTransferStateModule,
         // Our Common AppModule
         AppModule,
         ApplicationInsightsModule.forRoot({
@@ -31,6 +40,10 @@ export function getOriginUrl() {
             // We need this for our Http calls since they'll be using APP_BASE_HREF (since the Server requires Absolute URLs)
             provide: ORIGIN_URL,
             useFactory: (getOriginUrl)
+        },
+        {
+            provide: REQUEST,
+            useFactory: (getRequest)
         },
         AppInsightsService
     ]

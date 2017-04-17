@@ -40,7 +40,7 @@ export class AuthenticationService {
 
     userRole(): string {
         if (isPlatformBrowser(this.platformId)) {
-            var token = localStorage.getItem('id_token');
+            var token = localStorage.getItem('token');
             let decodedToken = this.jwtHelper.decodeToken(token);
             let role = decodedToken.role;
             if (role)
@@ -62,7 +62,7 @@ export class AuthenticationService {
                 if (user && user.access_token) {
                     if (isPlatformBrowser(this.platformId)) {
                         // store user details and jwt token in local storage to keep user logged in between page refreshes
-                        localStorage.setItem('id_token', user.access_token);
+                        localStorage.setItem('token', user.access_token);
                         this._user.next(user);
 
                         return true;
@@ -88,7 +88,7 @@ export class AuthenticationService {
     logout() {
         if (isPlatformBrowser(this.platformId)) {
             // remove user from local storage to log user out
-            localStorage.removeItem('id_token');
+            localStorage.removeItem('token');
             this._user.next(null);
         }
     }

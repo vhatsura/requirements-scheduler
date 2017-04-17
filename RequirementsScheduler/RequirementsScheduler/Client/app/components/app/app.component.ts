@@ -1,13 +1,15 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, Inject } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute, PRIMARY_OUTLET } from '@angular/router';
 import { Meta, Title, DOCUMENT, MetaDefinition } from '@angular/platform-browser';
 import { Subscription } from 'rxjs/Subscription';
 import { LinkService } from '../../shared/link.service';
+import { REQUEST } from '../../shared/constants/request';
 
 @Component({
     selector: 'app',
     template: require('./app.component.html'),
-    styles: [require('./app.component.css').toString()]
+    styles: [require('./app.component.scss')],
+    encapsulation: ViewEncapsulation.None
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -23,8 +25,12 @@ export class AppComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private title: Title,
         private meta: Meta,
-        private linkService: LinkService) {
-        
+        private linkService: LinkService,
+        @Inject(REQUEST) private request)
+    {
+        console.log(`What's our REQUEST Object look like?`);
+        console.log(`The Request object only really exists on the Server, but on the Browser we can at least see Cookies`);
+        console.log(this.request);
     }
 
     ngOnInit() {
