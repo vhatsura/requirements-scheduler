@@ -14,6 +14,9 @@ export class Test implements Serializable<Test> {
 
         this.result = input.result;
 
+        this.machine1 = input.onlineChainOnFirstMachine;
+        this.machine2 = input.onlineChainOnSecondMachine;
+
         return this;
     }
 
