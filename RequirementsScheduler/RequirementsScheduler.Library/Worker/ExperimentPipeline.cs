@@ -1077,7 +1077,7 @@ namespace RequirementsScheduler.Library.Worker
                 // time1 equal to time2
                 if (Math.Abs(time1 - time2) < 0.001)
                 {
-                    if (currentDetailOnFirst != null)
+                    if (currentDetailOnFirst is Detail)
                     {
                         processedDetailNumbersOnFirst.Add((currentDetailOnFirst as Detail).Number);
                     }
@@ -1088,7 +1088,7 @@ namespace RequirementsScheduler.Library.Worker
                     var machinesStart = timeFromMachinesStart;
                     ProcessDetailOnMachine(
                         experimentInfo.OnlineChainOnFirstMachine,
-                        nodeOnFirstMachine,
+                        ref nodeOnFirstMachine,
                         detail => experimentInfo.OnlineChainOnSecondMachine
                                            .TakeWhile(d => (d as Detail).Number != detail.Number)
                                            .Sum(d => (d as Detail).Time.P) +
@@ -1099,7 +1099,7 @@ namespace RequirementsScheduler.Library.Worker
                         isFirstDetail,
                         (conflict, node, isFirst) => ResolveConflictOnFirst(conflict, node, secondMachine, isFirst, experimentInfo, machinesStart));
 
-                    if (currentDetailOnSecond != null)
+                    if (currentDetailOnSecond is Detail)
                     {
                         processedDetailNumbersOnSecond.Add((currentDetailOnSecond as Detail).Number);
                     }
@@ -1108,7 +1108,7 @@ namespace RequirementsScheduler.Library.Worker
                     var firstMachine = nodeOnFirstMachine;
                     ProcessDetailOnMachine(
                         experimentInfo.OnlineChainOnSecondMachine,
-                        nodeOnSecondMachine,
+                        ref nodeOnSecondMachine,
                         detail => experimentInfo.OnlineChainOnFirstMachine
                                             .TakeWhile(d => (d as Detail).Number != detail.Number)
                                             .Sum(d => (d as Detail).Time.P) +
@@ -1134,7 +1134,7 @@ namespace RequirementsScheduler.Library.Worker
                     var machinesStart = timeFromMachinesStart;
                     ProcessDetailOnMachine(
                         experimentInfo.OnlineChainOnFirstMachine,
-                        nodeOnFirstMachine,
+                        ref nodeOnFirstMachine,
                         detail => experimentInfo.OnlineChainOnSecondMachine
                                       .TakeWhile(d => (d as Detail).Number != detail.Number)
                                       .Sum(d => (d as Detail).Time.P) +
@@ -1156,7 +1156,7 @@ namespace RequirementsScheduler.Library.Worker
                     var firstMachine = nodeOnFirstMachine;
                     ProcessDetailOnMachine(
                         experimentInfo.OnlineChainOnSecondMachine,
-                        nodeOnSecondMachine,
+                        ref nodeOnSecondMachine,
                         detail => experimentInfo.OnlineChainOnFirstMachine
                                       .TakeWhile(d => (d as Detail).Number != detail.Number)
                                       .Sum(d => (d as Detail).Time.P) +
@@ -1195,7 +1195,7 @@ namespace RequirementsScheduler.Library.Worker
 
         private static void ProcessDetailOnMachine(
             OnlineChain chain,
-            LinkedListNode<IOnlineChainNode> node,
+            ref LinkedListNode<IOnlineChainNode> node,
             Func<Detail, double> downtimeCalculationFunc,
             ICollection<int> processedDetailNumbersOnAnotherMachine,
             ref double time,
@@ -1217,7 +1217,7 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     var downTime = downtimeCalculationFunc(detail);
 
-                    chain.AddBefore(node, new Downtime(downTime));
+                    node = chain.AddBefore(node, new Downtime(downTime));
                     
                     time += downTime;
                 }

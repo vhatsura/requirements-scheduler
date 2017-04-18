@@ -34,6 +34,8 @@ export class ExperimentFormComponent implements OnInit {
         J1: [],
         J2: [],
         J12: {
+            //OnFirst: [{ A: 5, B: 7 }, { A: 2, B: 4 }, { A: 8, B: 11 }, { A: 7, B: 10 }, { A: 10, B: 13 }],
+            //OnSecond: [{ A: 8, B: 10 }, { A: 6, B: 9 }, { A: 7, B: 10 }, { A: 7, B: 9 }, { A: 5, B: 8 }]
             OnFirst: [],
             OnSecond: []
         },
