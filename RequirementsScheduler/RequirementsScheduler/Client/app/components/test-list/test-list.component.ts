@@ -11,7 +11,7 @@ import { Test } from '../../models/index';
     <ul class="nav nav-pills nav-stacked">
       <ng-template ngFor let-test [ngForOf]="tests" let-i="index">
         <li role="presentation" [class.active]="selected == test">
-          <a (click)="selectedChange.next(test)">Test #{{test.testNumber}}. Is optimized: {{test.isOptimized}}</a>
+          <a (click)="selectedChange.next(test)">Test #{{test.testNumber}}. Is optimized on offline mode: {{test.isOptimized}}</a>
         </li>
       </ng-template>
     </ul>
@@ -20,6 +20,6 @@ import { Test } from '../../models/index';
 })
 export class TestListComponent {
   @Input() tests: Test[];
-  @Input() selected: Test
+  @Input() selected: Test;
   @Output() selectedChange: EventEmitter<Test> = new EventEmitter();
 }

@@ -1,83 +1,97 @@
 <div class="panel panel-default">
     <div *ngIf="!test" class="panel-heading">
-      <h3 class="panel-title">Select a test</h3>
+        <h3 class="panel-title">Select a test</h3>
     </div>
     <div *ngIf="test" class="panel-heading">
-      <h3 class="panel-title">Test #{{test.testNumber}}</h3>
+        <h3 class="panel-title">Test #{{test.testNumber}}</h3>
     </div>
     <ul class="list-group" *ngIf="test">
-      <li class="list-group-item">
-        <h4 class="list-group-item-heading">Test result</h4>
-        <p class="list-group-item-text">{{test.result.type}}</p>
-      </li>
-      <li class="list-group-item">
-          <h4 class="list-group-item-heading">Test chains</h4>
-          <div class="list-group-item-text">
-            <details open><summary>J1</summary> 
-              <ng-template ngFor let-j1Item [ngForOf]="test.j1" let-i="index">
-                {{j1Item.number}} <!--(A: {{j1Item.time.a.toFixed(2)}}, B: {{j1Item.time.b.toFixed(2)}}) -->
-                <ng-template [ngIf]="i + 1 != test.j1.length">
-                    &#10145;
-                </ng-template>
-              </ng-template>
-            </details>
-            <details open><summary>J2</summary> 
-              <ng-template ngFor let-j2Item [ngForOf]="test.j2" let-i="index">
-                {{j2Item.number}} <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
-                <ng-template [ngIf]="i + 1 != test.j2.length">
-                    &#10145;
-                </ng-template>
-              </ng-template>
-            </details>
-            <details open><summary>J12</summary> 
-              <ng-template ngFor let-j12Item [ngForOf]="test.j12" let-i="index">
-                <ng-template [ngIf]="j12Item.type == 'Conflict'">
-                  {{ '{' }}
-                    <ng-template ngFor let-conflictItem [ngForOf]="j12Item.details" let-i="index">
-                      {{conflictItem.number}}<ng-template [ngIf]="i + 1 != j12Item.details.length">,</ng-template>
-                    </ng-template>
-                  {{ '}' }} 
-                  <ng-template [ngIf]="i + 1 != test.j12.length">
-                    &#10145;
-                  </ng-template>
-                </ng-template>
-                <ng-template [ngIf]="j12Item.type == 'Detail'">
-                  {{j12Item.number}} <!--(A: {{j12Item.time.a.toFixed(2)}}, B: {{j12Item.time.b.toFixed(2)}}) -->
-                  <ng-template [ngIf]="i + 1 != test.j12.length">
-                    &#10145;
-                  </ng-template>
-                </ng-template>
-              </ng-template>
-            </details>
-            <details open><summary>J21</summary> 
-              <ng-template ngFor let-j21Item [ngForOf]="test.j21" let-i="index">
-                <ng-template [ngIf]="j21Item.type == 'Conflict'">
-                  {{ '{' }}
-                    <ng-template ngFor let-conflictItem [ngForOf]="j21Item.details" let-i="index">
-                      {{conflictItem.number}}<ng-template [ngIf]="i + 1 != j21Item.details.length">,</ng-template>
-                    </ng-template>
-                  {{ '}' }} 
-                  <ng-template [ngIf]="i + 1 != test.j21.length">
-                    &#10145;
-                  </ng-template>
-                </ng-template>
-                <ng-template [ngIf]="j21Item.type == 'Detail'">
-                  {{j21Item.number}} <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
-                  <ng-template [ngIf]="i + 1 != test.j21.length">
-                    &#10145;
-                  </ng-template>
-                </ng-template>
-              </ng-template>
-            </details>
-          </div>
-      </li>
-      <!--<li class="list-group-item">
-        <h4 class="list-group-item-heading">Last Name</h4>
-        <p class="list-group-item-text">{{customer.name.last}}</p>
-      </li>-->
-      <!--<li class="list-group-item">
-        <h4 class="list-group-item-heading">First Name</h4>
-        <p class="list-group-item-text">{{customer.email}}</p>
-      </li>-->
-  </ul>
-  </div>
+        <li class="list-group-item">
+            <h4 class="list-group-item-heading">Test result</h4>
+            <p class="list-group-item-text">{{test.result.type}}</p>
+        </li>
+        <li class="list-group-item">
+            <h4 class="list-group-item-heading">Test chains</h4>
+            <div class="list-group-item-text">
+                <details open>
+                    <summary>Chains on offline mode</summary>
+                    <!-- J1 -->
+                    <details open>
+                        <summary>J1</summary>
+                        <ng-template ngFor let-j1Item [ngForOf]="test.j1" let-i="index">
+                            {{j1Item.number}} <!--(A: {{j1Item.time.a.toFixed(2)}}, B: {{j1Item.time.b.toFixed(2)}}) -->
+                            <ng-template [ngIf]="i + 1 != test.j1.length">
+                                &#10145;
+                            </ng-template>
+                        </ng-template>
+                    </details>
+                    <!-- J2 -->
+                    <details open>
+                        <summary>J2</summary>
+                        <ng-template ngFor let-j2Item [ngForOf]="test.j2" let-i="index">
+                            {{j2Item.number}} <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
+                            <ng-template [ngIf]="i + 1 != test.j2.length">
+                                &#10145;
+                            </ng-template>
+                        </ng-template>
+                    </details>
+                    <!-- J12 -->
+                    <details open>
+                        <summary>J12</summary>
+                        <ng-template ngFor let-j12Item [ngForOf]="test.j12" let-i="index">
+                            <ng-template [ngIf]="j12Item.type == 'Conflict'">
+                                {{ '{' }}
+                                <ng-template ngFor let-conflictItem [ngForOf]="j12Item.details" let-i="index">
+                                    {{conflictItem.number}}<ng-template [ngIf]="i + 1 != j12Item.details.length">,</ng-template>
+                                </ng-template>
+                                {{ '}' }}
+                                <ng-template [ngIf]="i + 1 != test.j12.length">
+                                    &#10145;
+                                </ng-template>
+                            </ng-template>
+                            <ng-template [ngIf]="j12Item.type == 'Detail'">
+                                {{j12Item.number}} <!--(A: {{j12Item.time.a.toFixed(2)}}, B: {{j12Item.time.b.toFixed(2)}}) -->
+                                <ng-template [ngIf]="i + 1 != test.j12.length">
+                                    &#10145;
+                                </ng-template>
+                            </ng-template>
+                        </ng-template>
+                    </details>
+                    <!-- J21 -->
+                    <details open>
+                        <summary>J21</summary>
+                        <ng-template ngFor let-j21Item [ngForOf]="test.j21" let-i="index">
+                            <ng-template [ngIf]="j21Item.type == 'Conflict'">
+                                {{ '{' }}
+                                <ng-template ngFor let-conflictItem [ngForOf]="j21Item.details" let-i="index">
+                                    {{conflictItem.number}}<ng-template [ngIf]="i + 1 != j21Item.details.length">,</ng-template>
+                                </ng-template>
+                                {{ '}' }}
+                                <ng-template [ngIf]="i + 1 != test.j21.length">
+                                    &#10145;
+                                </ng-template>
+                            </ng-template>
+                            <ng-template [ngIf]="j21Item.type == 'Detail'">
+                                {{j21Item.number}} <!--(A: {{j2Item.time.a.toFixed(2)}}, B: {{j2Item.time.b.toFixed(2)}}) -->
+                                <ng-template [ngIf]="i + 1 != test.j21.length">
+                                    &#10145;
+                                </ng-template>
+                            </ng-template>
+                        </ng-template>
+                    </details>
+                </details>
+                <details>
+                    <summary>Chains on online mode</summary>
+                </details>
+            </div>
+        </li>
+        <!--<li class="list-group-item">
+          <h4 class="list-group-item-heading">Last Name</h4>
+          <p class="list-group-item-text">{{customer.name.last}}</p>
+        </li>-->
+        <!--<li class="list-group-item">
+          <h4 class="list-group-item-heading">First Name</h4>
+          <p class="list-group-item-text">{{customer.email}}</p>
+        </li>-->
+    </ul>
+</div>
