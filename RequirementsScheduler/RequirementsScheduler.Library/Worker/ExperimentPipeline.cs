@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
@@ -1101,6 +1102,19 @@ namespace RequirementsScheduler.Library.Worker
                         isFirstDetail,
                         (Conflict conflict, ref LinkedListNode<IOnlineChainNode> node, bool isFirst) => ResolveConflictOnFirst(conflict, ref node, secondMachine, isFirst, experimentInfo, machinesStart));
 
+                    if (currentDetailOnFirst is Conflict)
+                    {
+                        currentDetailOnFirst = nodeOnFirstMachine.Value;
+                    }
+
+                    if (nodeOnFirstMachine.Value is Downtime)
+                    {
+                        currentDetailOnFirst = null;
+                    }
+                    
+                    nodeOnFirstMachine = nodeOnFirstMachine.Next;
+                    hasDetailOnFirst = nodeOnFirstMachine != null;
+
                     if (currentDetailOnSecond is Detail)
                     {
                         processedDetailNumbersOnSecond.Add((currentDetailOnSecond as Detail).Number);
@@ -1124,13 +1138,10 @@ namespace RequirementsScheduler.Library.Worker
                             experimentInfo,
                             machinesStart));
 
-                    if (nodeOnFirstMachine.Value is Downtime)
+                    if (currentDetailOnSecond is Conflict)
                     {
-                        currentDetailOnFirst = null;
+                        currentDetailOnSecond = nodeOnSecondMachine.Value;
                     }
-
-                    nodeOnFirstMachine = nodeOnFirstMachine.Next;
-                    hasDetailOnFirst = nodeOnFirstMachine != null;
 
                     if (nodeOnSecondMachine.Value is Downtime)
                     {
@@ -1166,6 +1177,11 @@ namespace RequirementsScheduler.Library.Worker
                             bool isFirst) => ResolveConflictOnFirst(conflict, ref node, machine, isFirst,
                             experimentInfo, machinesStart));
 
+                    if (currentDetailOnFirst is Conflict)
+                    {
+                        currentDetailOnFirst = nodeOnFirstMachine.Value;
+                    }
+
                     if (nodeOnFirstMachine.Value is Downtime)
                     {
                         currentDetailOnFirst = null;
@@ -1196,6 +1212,11 @@ namespace RequirementsScheduler.Library.Worker
                         ref time2,
                         isFirstDetail,
                         (Conflict conflict, ref LinkedListNode<IOnlineChainNode> node, bool isFirst) => ResolveConflictOnSecond(conflict, ref node, firstMachine, isFirst, experimentInfo, machinesStart));
+
+                    if (currentDetailOnSecond is Conflict)
+                    {
+                        currentDetailOnSecond = nodeOnSecondMachine.Value;
+                    }
 
                     if (nodeOnSecondMachine.Value is Downtime)
                     {
@@ -1238,31 +1259,33 @@ namespace RequirementsScheduler.Library.Worker
             ConflictResolverDelegate conflictResolver)
         {
             var currentDetail = node.Value;
-            if (currentDetail.Type != OnlineChainType.Conflict)
-            {
-                var detail = currentDetail as Detail;
-                if (detail == null)
-                    throw new InvalidCastException($"Try cast {currentDetail.GetType().FullName} to {typeof(Detail).FullName}");
 
-                if (processedDetailNumbersOnAnotherMachine.Contains(detail.Number))
-                {
-                    time += detail.Time.P;
-                }
-                else
-                {
-                    var downTime = downtimeCalculationFunc(detail);
-
-                    node = chain.AddBefore(node, new Downtime(downTime));
-                    
-                    time += downTime;
-                }
-
-            }
-            else
+            if (currentDetail.Type == OnlineChainType.Conflict)
             {
                 var conflict = currentDetail as Conflict;
                 conflictResolver(conflict, ref node, isFirstDetail);
-                
+
+                if(node.Value.Type != OnlineChainType.Detail)
+                    throw new InvalidOperationException("Conflict resolver don't change current node");
+
+                currentDetail = node.Value;
+            }
+
+            var detail = currentDetail as Detail;
+            if (detail == null)
+                throw new InvalidCastException($"Try cast {currentDetail.GetType().FullName} to {typeof(Detail).FullName}");
+
+            if (processedDetailNumbersOnAnotherMachine.Contains(detail.Number))
+            {
+                time += detail.Time.P;
+            }
+            else
+            {
+                var downTime = downtimeCalculationFunc(detail);
+
+                node = chain.AddBefore(node, new Downtime(downTime));
+
+                time += downTime;
             }
         }
 
@@ -1370,6 +1393,8 @@ namespace RequirementsScheduler.Library.Worker
                     }
                     experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnSecond);
 
+                    nodeOnFirst = nodeOnFirst.Next;
+
                     return;
                 }
 
@@ -1415,6 +1440,9 @@ namespace RequirementsScheduler.Library.Worker
 
                     experimentInfo.OnlineChainOnFirstMachine.Remove(nodeOnFirstToRemove);
                     experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnSecond);
+
+                    nodeOnFirst = nodeOnFirst.Next;
+
                     return;
                 }
                 // Check 3
@@ -1438,6 +1466,9 @@ namespace RequirementsScheduler.Library.Worker
 
                 experimentInfo.OnlineChainOnFirstMachine.Remove(nodeOnFirstToRemove);
                 experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnSecond);
+
+                nodeOnFirst = nodeOnFirst.Next;
+
                 return;
             }
             else
@@ -1482,7 +1513,7 @@ namespace RequirementsScheduler.Library.Worker
                             .Select(d => d.Number)
                             .SequenceEqual(conflict.Details.Select(d => d.Number))) as Conflict;
 
-            var conflictNodeOnFirst = experimentInfo.OnlineChainOnSecondMachine.Find(conflictOnFirst);
+            var conflictNodeOnFirst = experimentInfo.OnlineChainOnFirstMachine.Find(conflictOnFirst);
 
             var nodeOnSecondToRemove = nodeOnSecond;
 
@@ -1572,6 +1603,8 @@ namespace RequirementsScheduler.Library.Worker
                     }
                     experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnFirst);
 
+                    nodeOnSecond = nodeOnSecond.Next;
+
                     return;
                 }
 
@@ -1617,6 +1650,9 @@ namespace RequirementsScheduler.Library.Worker
 
                     experimentInfo.OnlineChainOnFirstMachine.Remove(conflictNodeOnFirst);
                     experimentInfo.OnlineChainOnSecondMachine.Remove(nodeOnSecondToRemove);
+
+                    nodeOnSecond = nodeOnSecond.Next;
+
                     return;
                 }
                 // Check 3
@@ -1640,6 +1676,9 @@ namespace RequirementsScheduler.Library.Worker
 
                 experimentInfo.OnlineChainOnFirstMachine.Remove(nodeOnSecondToRemove);
                 experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnFirst);
+
+                nodeOnSecond = nodeOnSecond.Next;
+
                 return;
             }
             else
@@ -1661,8 +1700,8 @@ namespace RequirementsScheduler.Library.Worker
                     experimentInfo.OnlineChainOnFirstMachine.AddBefore(conflictNodeOnFirst, laboriousDetail.OnFirst);
                 }
 
-                experimentInfo.OnlineChainOnFirstMachine.Remove(nodeOnSecondToRemove);
-                experimentInfo.OnlineChainOnSecondMachine.Remove(conflictNodeOnFirst);
+                experimentInfo.OnlineChainOnSecondMachine.Remove(nodeOnSecondToRemove);
+                experimentInfo.OnlineChainOnFirstMachine.Remove(conflictNodeOnFirst);
 
                 nodeOnSecond = experimentInfo.OnlineChainOnSecondMachine.First;
 
