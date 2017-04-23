@@ -18,8 +18,8 @@ namespace RequirementsScheduler.BLL
                 .ForMember(dest => dest.N2Percentage, opt => opt.MapFrom(src => src.Experiment.N2))
                 .ForMember(dest => dest.N12Percentage, opt => opt.MapFrom(src => src.Experiment.N12))
                 .ForMember(dest => dest.N21Percentage, opt => opt.MapFrom(src => src.Experiment.N21))
-                .ForMember(dest => dest.ABorder, opt => opt.MapFrom(src => src.Experiment.MinBoundaryRange))
-                .ForMember(dest => dest.BBorder, opt => opt.MapFrom(src => src.Experiment.MaxBoundaryRange))
+                .ForMember(dest => dest.ABorder, opt => opt.MapFrom(src => src.Experiment.MinPercentageFromA))
+                .ForMember(dest => dest.BBorder, opt => opt.MapFrom(src => src.Experiment.MaxPercentageFromA))
                 .ForMember(dest => dest.RequirementsAmount, opt => opt.MapFrom(src => src.Experiment.RequirementsAmount));
 
             CreateMap<BLL.Model.ExperimentReport, DAL.Model.ExperimentResult>();

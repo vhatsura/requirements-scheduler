@@ -122,7 +122,7 @@ export class ReportsComponent implements OnInit {
                     value:function(row){ return `${row.n1Percentage}, ${row.n2Percentage}, ${row.n12Percentage}, ${row.n21Percentage}`; }
                 },
                 {
-                    name: 'L',
+                    name: 'L, %',
                     objectKey: 'borders',
                     classNames: 'sort-string',
                     value:function(row){ return `[${row.aBorder}; ${row.bBorder}]`;}
