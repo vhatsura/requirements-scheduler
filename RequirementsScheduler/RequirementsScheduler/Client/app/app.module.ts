@@ -28,7 +28,7 @@ import { CustomFormsModule } from 'ng2-validation'
 import { AuthHttp, AuthConfig } from 'angular2-jwt';
 
 import { BusyModule } from 'angular2-busy';
-import { GenericTableModule } from 'angular-generic-table';
+import { GenericTableModule } from '@angular-generic-table/core';
 
 import { LinkService } from './shared/link.service';
 import { ORIGIN_URL } from './shared/constants/baseurl.constants';
