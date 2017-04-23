@@ -13,10 +13,10 @@ namespace RequirementsScheduler.DAL.Model
         public int OnlineResolvedConflictAmount { get; set; }
         public int OnlineUnResolvedConflictAmount { get; set; }
 
-        public int Stop1Percentage { get; set; }
-        public int Stop2Percentage { get; set; }
-        public int Stop3Percentage { get; set; }
-        public int Stop4Percentage { get; set; }
+        public float Stop1Percentage { get; set; }
+        public float Stop2Percentage { get; set; }
+        public float Stop3Percentage { get; set; }
+        public float Stop4Percentage { get; set; }
 
         public float DeltaCmaxMax { get; set; }
         public float DeltaCmaxAverage { get; set; }

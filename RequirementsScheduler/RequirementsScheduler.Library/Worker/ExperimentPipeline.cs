@@ -118,10 +118,10 @@ namespace RequirementsScheduler.Library.Worker
                 ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
             }
 
-            experimentReport.Stop1Percentage = stop1 / (float) experiment.TestsAmount * 100;
-            experimentReport.Stop2Percentage = stop2 / (float)experiment.TestsAmount * 100;
-            experimentReport.Stop3Percentage = stop3 / (float)experiment.TestsAmount * 100;
-            experimentReport.Stop4Percentage = stop4 / (float)experiment.TestsAmount * 100;
+            experimentReport.Stop1Percentage = (float) Math.Round(stop1 / (float) experiment.TestsAmount * 100, 1);
+            experimentReport.Stop2Percentage = (float) Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop3Percentage = (float) Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop4Percentage = (float) Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
 
             if (wasThereStop4)
             {

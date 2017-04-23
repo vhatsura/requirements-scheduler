@@ -1,10 +1,10 @@
 ﻿CREATE TABLE [dbo].[ExperimentResult]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
-	[Stop1Percentage] INT NULL, 
-	[Stop2Percentage] INT NULL, 
-	[Stop3Percentage] INT NULL, 
-	[Stop4Percentage] INT NULL, 
+	[Stop1Percentage] FLOAT NULL, 
+	[Stop2Percentage] FLOAT NULL, 
+	[Stop3Percentage] FLOAT NULL, 
+	[Stop4Percentage] FLOAT NULL, 
 	[OnlineExecutionTime] TIME NULL, 
 	[ExperimentId] UNIQUEIDENTIFIER NULL, 
 	[OfflineResolvedConflictAmount] INT NULL, 

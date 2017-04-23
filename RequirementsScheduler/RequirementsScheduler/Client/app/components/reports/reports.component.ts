@@ -134,7 +134,7 @@ export class ReportsComponent implements OnInit {
                     value:function(row) { 
                         if(row.onlineResolvedConflictAmount == 0)
                             return 0;
-                        return (row.onlineResolvedConflictAmount / (row.onlineResolvedConflictAmount + row.onlineUnResolvedConflictAmount)) * 100;
+                        return ((row.onlineResolvedConflictAmount / (row.onlineResolvedConflictAmount + row.onlineUnResolvedConflictAmount)) * 100).toFixed(1);
                     }
                 },
                 {
