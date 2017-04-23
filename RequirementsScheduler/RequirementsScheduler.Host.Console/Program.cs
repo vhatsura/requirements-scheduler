@@ -81,7 +81,7 @@ namespace RequirementsScheduler.Host.Console
                 Mock.Of<IWorkerExperimentService>(),
                 new ExperimentTestResultFileService(),
                 reportsServiceMock.Object,
-                Mock.Of<ILogger>());
+                Mock.Of<ILogger<ExperimentPipeline>>());
 
             var stopwatch = Stopwatch.StartNew();
             pipeline.Run(new List<Experiment>() {experiment}).ConfigureAwait(false);

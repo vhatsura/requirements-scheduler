@@ -226,13 +226,13 @@ namespace RequirementsScheduler.Controllers
 
             generatorMock.Setup(g => g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id)))
                 .Returns(() => experimentInfo);
-
+                                     
             var experimentPipeline = new ExperimentPipeline(
                 generatorMock.Object,
                 Container.GetService<IWorkerExperimentService>(),
                 Container.GetService<IExperimentTestResultService>(),
                 Container.GetService<IReportsService>(),
-                Container.GetService<ILogger>());
+                Container.GetService<ILogger<ExperimentPipeline>>());
 
             Task.Factory.StartNew(
                 () => experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment)));
