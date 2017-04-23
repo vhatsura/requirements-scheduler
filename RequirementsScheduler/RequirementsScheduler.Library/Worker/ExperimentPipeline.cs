@@ -1492,6 +1492,12 @@ namespace RequirementsScheduler.Library.Worker
             {
                 var downTime = downtimeCalculationFunc(detail);
 
+                if (Math.Abs(downTime) < 0.000000000000001)
+                {
+                    node = node.Previous;
+                    return;
+                }
+
                 node = chain.AddBefore(node, new Downtime(downTime));
 
                 time += downTime;

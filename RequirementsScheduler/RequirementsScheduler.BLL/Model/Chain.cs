@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace RequirementsScheduler.BLL.Model
 {
+    [DebuggerDisplay("IsOptimized: {" + nameof(IsOptimized) + "}, Count: {this." + nameof(Count) + "}")]
     public class Chain : LinkedList<IChainNode>, IMachine
     {
         public Chain()

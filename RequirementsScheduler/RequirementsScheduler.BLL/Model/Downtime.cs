@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace RequirementsScheduler.BLL.Model
 {
+    [DebuggerDisplay("Time: {Time.ToString(\"0.###\")}")]
     public sealed class Downtime : IOnlineChainNode, IEquatable<Downtime>
     {
         public double Time { get; }
