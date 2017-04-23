@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
-import { GtConfig, GenericTableComponent } from 'angular-generic-table';
+import { GtConfig, GenericTableComponent } from '@angular-generic-table/core';
 
 import { ExperimentDetailComponent } from '../experiment-detail/experiment-detail.component';
 
