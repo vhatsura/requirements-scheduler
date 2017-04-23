@@ -57,6 +57,7 @@ namespace RequirementsScheduler
 
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IExperimentsService, ExperimentsService>();
+            services.AddSingleton<IReportsService, ReportsService>();
 
 #if IN_MEMORY
             ConfigureInMemoryRepositories(services);
@@ -81,6 +82,8 @@ namespace RequirementsScheduler
         {
             services.AddSingleton<IRepository<DAL.Model.User, int>, UsersInMemoryRepository>();
             services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, ExperimentsInMemoryRepository>();
+            services.AddSingleton<IRepository<DAL.Model.ExperimentResult, int>, ExperimentReportsInMemoryRepository>();
+
         }
 
         private void ConfigureRequirementsServices(IServiceCollection services)
@@ -91,6 +94,9 @@ namespace RequirementsScheduler
 
             services.AddSingleton<IRepository<DAL.Model.User, int>, Repository<DAL.Model.User, int>>();
             services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, Repository<DAL.Model.Experiment, Guid>>();
+            services
+                .AddSingleton<IRepository<DAL.Model.ExperimentResult, int>, Repository<DAL.Model.ExperimentResult, int>
+                >();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

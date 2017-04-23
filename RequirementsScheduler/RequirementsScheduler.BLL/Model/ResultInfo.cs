@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace RequirementsScheduler.BLL.Model
@@ -15,5 +16,17 @@ namespace RequirementsScheduler.BLL.Model
     public class ResultInfo
     {
         public ResultType? Type { get; set; }
+
+        public int OfflineResolvedConflictAmount { get; set; }
+        public int OnlineResolvedConflictAmount { get; set; }
+        public int OnlineUnResolvedConflictAmount { get; set; }
+        
+        public bool IsResolvedOnCheck3InOnline { get; set; }
+
+        public bool IsStop3OnOnline { get; set; }
+
+        public float DeltaCmax { get; set; }
+
+        public TimeSpan OnlineExecutionTime { get; set; }
     }
 }

@@ -27,6 +27,16 @@ namespace RequirementsScheduler.DAL.Repository
             }
         }
 
+        public IEnumerable<TEntity> GetWith(Expression<Func<TEntity, object>> selector)
+        {
+            using (var db = Db.Open())
+            {
+                return db.GetTable<TEntity>()
+                    .LoadWith(selector)
+                    .ToList();
+            }
+        }
+
         public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
         {
             using (var db = Db.Open())
@@ -59,6 +69,12 @@ namespace RequirementsScheduler.DAL.Repository
             using (var db = Db.Open())
             {
                 var key = db.InsertWithIdentity(entity);
+
+                if (typeof(TKey) == typeof(int) && key is decimal)
+                {
+                    var k = (TKey) Convert.ChangeType(key, typeof(TKey));
+                    return Get(k);
+                }
 
                 return Get((TKey) key);
             }

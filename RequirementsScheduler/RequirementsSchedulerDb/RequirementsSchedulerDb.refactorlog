@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="2a434bf0-1ce4-48b9-a52c-064a7b7a1d23" ChangeDateTime="04/22/2017 18:00:02">
+    <Property Name="ElementName" Value="[dbo].[ExperimentResult].[Stop12Percentage]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ExperimentResult]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Stop3Percentage" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="889e6910-1ff8-4270-a84d-6bddcb3c5d6a" ChangeDateTime="04/22/2017 18:00:06">
+    <Property Name="ElementName" Value="[dbo].[ExperimentResult].[Stop21Percentage]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ExperimentResult]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Stop4Percentage" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="211ed4b9-d1f4-479d-a7e2-edae35f4c7ca" ChangeDateTime="04/22/2017 18:00:12">
+    <Property Name="ElementName" Value="[dbo].[ExperimentResult].[ExecutionTime]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ExperimentResult]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="OnlineExecutionTime" />
+  </Operation>
+</Operations>

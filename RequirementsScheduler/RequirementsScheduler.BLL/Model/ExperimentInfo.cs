@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
@@ -13,6 +14,10 @@ namespace RequirementsScheduler.BLL.Model
             J2.IsOptimized && 
             (J12.IsOptimized || J12Chain != null && J12Chain.IsOptimized) && 
             (J21.IsOptimized || J21Chain != null && J21Chain.IsOptimized);
+
+        [JsonIgnore]
+        public int OfflineConflictCount => J12Chain?.Where(node => node is Conflict).Count() ?? 0 + 
+                                           J21Chain?.Where(node => node is Conflict).Count() ?? 0;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public ResultInfo Result { get; } = new ResultInfo();

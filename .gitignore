@@ -290,3 +290,4 @@ __pycache__/
 */ClientApp/*/*.js.map
 /RequirementsScheduler2/RequirementsScheduler/ClientApp/app/dist
 RequirementsScheduler/RequirementsScheduler/Client/dist/
+RequirementsScheduler/.vscode/

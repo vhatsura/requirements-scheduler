@@ -11,6 +11,8 @@ namespace RequirementsScheduler.BLL.Model
 
         public double P { get; private set; }
 
+        public double Average => (B + A) / 2;
+
         [JsonConstructor]
         public ProcessingTime(double a, double b)
         {

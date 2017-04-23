@@ -9,7 +9,7 @@ import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
 import { UsersComponent } from './components/users/users.component';
 import { AlertComponent } from './components/alert/alert.component';
-import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
+import { ReportsComponent } from './components/reports/reports.component';
 import { CounterComponent } from './components/counter/counter.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
@@ -48,7 +48,7 @@ let imports = [
         { path: '', component: HomeComponent, canActivate: [AuthGuard] },
         //{ path: 'experiment', component: CounterComponent },
         { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
-        { path: 'reports', component: FetchDataComponent },
+        { path: 'reports', component: ReportsComponent },
         { path: 'login', component: LoginComponent },
         { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
         { path: '**', redirectTo: '' }
@@ -71,7 +71,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         //CounterComponent,
         HomeComponent,
         UsersComponent,
-        FetchDataComponent,
+        ReportsComponent,
         LoginComponent,
         RegisterComponent,
         TabComponent,

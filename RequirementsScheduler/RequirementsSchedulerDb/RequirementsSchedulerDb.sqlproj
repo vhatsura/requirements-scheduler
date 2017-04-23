@@ -63,4 +63,7 @@
     <Build Include="Experiment.sql" />
     <Build Include="ExperimentResult.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="RequirementsSchedulerDb.refactorlog" />
+  </ItemGroup>
 </Project>

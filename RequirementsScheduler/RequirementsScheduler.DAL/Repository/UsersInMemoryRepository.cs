@@ -12,16 +12,8 @@ namespace RequirementsScheduler.DAL.Repository
             );
         }
 
-        private int id = 3;
+        private int _id = 3;
 
-        protected override int NextId
-        {
-            get
-            {
-                var rId = id;
-                Interlocked.Increment(ref rId);
-                return rId;
-            }
-        }
+        protected override int NextId => Interlocked.Increment(ref _id);
     }
 }

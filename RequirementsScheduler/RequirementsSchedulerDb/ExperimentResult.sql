@@ -1,11 +1,16 @@
 ﻿CREATE TABLE [dbo].[ExperimentResult]
 (
-	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
 	[Stop1Percentage] INT NULL, 
 	[Stop2Percentage] INT NULL, 
-	[Stop12Percentage] INT NULL, 
-	[Stop21Percentage] INT NULL, 
-	[ExecutionTime] TIME NULL, 
+	[Stop3Percentage] INT NULL, 
+	[Stop4Percentage] INT NULL, 
+	[OnlineExecutionTime] TIME NULL, 
 	[ExperimentId] UNIQUEIDENTIFIER NULL, 
+	[OfflineResolvedConflictAmount] INT NULL, 
+	[OnlineResolvedConflictAmount] INT NULL, 
+	[OnlineUnResolvedConflictAmount] INT NULL, 
+	[DeltaCmaxMax] FLOAT NULL, 
+	[DeltaCmaxAverage] FLOAT NULL, 
 	CONSTRAINT [FK_ExperimentResult_Experiment] FOREIGN KEY ([ExperimentId]) REFERENCES [dbo].[Experiment]([Id])
 )

@@ -1,9 +1,8 @@
-<div class="col-md-10 col-md-offset-2">
+<div *ngIf="isBrowser()" class="col-md-10 col-md-offset-2">
     <h1>Experiments' reports</h1>
-
-    <p *ngIf="!reports"><em>Loading...</em></p>
-
-    <table class='table' *ngIf="reports">
+    <generic-table [gtClasses]="'table-hover'" #myTable [gtSettings]="configObject.settings" [gtFields]="configObject.fields" [(gtData)]="configObject.data" [gtOptions]="{stack:false, highlightSearch:true, rowSelection:true}">
+    </generic-table>
+    <!--<table class='table' *ngIf="reports">
         <thead>
             <tr>
                 <th>n1 n2 n3 n4</th>
@@ -30,5 +29,5 @@
                 <td>{{report.executionTime}}</td>
             </tr>
         </tbody>
-    </table>
+    </table>-->
 </div>

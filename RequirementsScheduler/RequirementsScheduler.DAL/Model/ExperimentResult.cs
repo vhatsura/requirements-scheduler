@@ -4,16 +4,24 @@ using RequirementsScheduler.DAL.Repository;
 
 namespace RequirementsScheduler.DAL.Model
 {
-    public class ExperimentResult : IRepositoryModel<Guid>
+    public class ExperimentResult : IRepositoryModel<int>
     {
         [PrimaryKey, Identity]
-        public Guid Id { get; set; }
+        public int Id { get; set; }
+
+        public int OfflineResolvedConflictAmount { get; set; }
+        public int OnlineResolvedConflictAmount { get; set; }
+        public int OnlineUnResolvedConflictAmount { get; set; }
 
         public int Stop1Percentage { get; set; }
         public int Stop2Percentage { get; set; }
-        public int Stop12Percentage { get; set; }
-        public int Stop21Percentage { get; set; }
-        public TimeSpan ExecutionTime { get; set; }
+        public int Stop3Percentage { get; set; }
+        public int Stop4Percentage { get; set; }
+
+        public float DeltaCmaxMax { get; set; }
+        public float DeltaCmaxAverage { get; set; }
+
+        public TimeSpan OnlineExecutionTime { get; set; }
 
         public Guid ExperimentId { get; set; }
         [Association(ThisKey = nameof(ExperimentId), OtherKey = nameof(Model.Experiment.Id))]

@@ -42,7 +42,10 @@ namespace RequirementsScheduler.Host.Console
 
         public static Experiment ReadExperimentFromConsole()
         {
-            var experiment = new Experiment();
+            var experiment = new Experiment()
+            {
+                Id = Guid.NewGuid()
+            };
 
             ReadFromConsole<int>(result => experiment.TestsAmount = result, "Enter amount of tests: ");
             ReadFromConsole<int>(result => experiment.RequirementsAmount = result, "Enter amount of requirements: ");
@@ -63,13 +66,20 @@ namespace RequirementsScheduler.Host.Console
 
         public static void Main(string[] args)
         {
+            var experiment = ReadExperimentFromConsole();
+            if (experiment == null) return;
+            
+            var reportsServiceMock = new Mock<IReportsService>();
+            ExperimentReport report = null;
+            reportsServiceMock
+                .Setup(r => r.Save(It.Is<ExperimentReport>(e => e.ExperimentId == experiment.Id)))
+                .Callback<ExperimentReport>(rep => report = rep);
+
             var pipeline = new ExperimentPipeline(
                 new ExperimentGenerator(),
                 Mock.Of<IWorkerExperimentService>(),
-                new ExperimentTestResultFileService());
-
-            var experiment = ReadExperimentFromConsole();
-            if (experiment == null) return;
+                new ExperimentTestResultFileService(),
+                reportsServiceMock.Object);
 
             var stopwatch = Stopwatch.StartNew();
             pipeline.Run(new List<Experiment>() {experiment}).ConfigureAwait(false);
@@ -81,15 +91,11 @@ namespace RequirementsScheduler.Host.Console
             System.Console.WriteLine($"Time of execution experiments: {TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds):%m' minute(s) '%s' second(s)'}\n\n");
 
             System.Console.WriteLine($"Amounts of tests: {experiment.TestsAmount}");
-            var stop11Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_1);
-            var stop12Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_2);
-            var stop13Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_3);
-            var stop14Count = experiment.Results.Count(result => result.Result.Type == ResultType.STOP1_4);
             System.Console.WriteLine($"Amounts of resolved tests in offline mode: {experiment.Results.Count}, {(experiment.Results.Count * 100 / (double)experiment.TestsAmount):0.###}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.1: {stop11Count}, {(stop11Count * 100 / (double)experiment.TestsAmount):0.###}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.2: {stop12Count}, {(stop12Count * 100 / (double)experiment.TestsAmount):###}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.3: {stop13Count}, {(stop13Count * 100 / (double)experiment.TestsAmount):0.###}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.4: {stop14Count}, {(stop14Count * 100 / (double)experiment.TestsAmount):0.###}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.1: {report?.Stop1Percentage}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.2: {report?.Stop2Percentage}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.3: {report?.Stop3Percentage}%");
+            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.4: {report?.Stop4Percentage}%");
 
             System.Console.ReadKey();
 

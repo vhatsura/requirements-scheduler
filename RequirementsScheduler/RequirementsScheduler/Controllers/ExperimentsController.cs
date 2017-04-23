@@ -229,7 +229,8 @@ namespace RequirementsScheduler.Controllers
             var experimentPipeline = new ExperimentPipeline(
                 generatorMock.Object,
                 Container.GetService<IWorkerExperimentService>(),
-                Container.GetService<IExperimentTestResultService>());
+                Container.GetService<IExperimentTestResultService>(),
+                Container.GetService<IReportsService>());
 
             Task.Factory.StartNew(
                 () => experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment)));
