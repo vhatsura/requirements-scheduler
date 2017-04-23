@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
@@ -17,30 +18,41 @@ namespace RequirementsScheduler.Library.Worker
         private IWorkerExperimentService Service { get; }
         private IExperimentTestResultService ResultService { get; }
         private IReportsService ReportService { get; }
+        private ILogger Logger { get; }
 
         public ExperimentPipeline(
             IExperimentGenerator generator,
             IWorkerExperimentService service,
             IExperimentTestResultService resultService,
-            IReportsService reportService)
+            IReportsService reportService,
+            ILogger logger)
         {
             Generator = generator ?? throw new ArgumentNullException(nameof(generator));
             Service = service;
             ResultService = resultService;
             ReportService = reportService;
+            Logger = logger;
         }
 
         public async Task Run(IEnumerable<Experiment> experiments)
         {
             foreach (var experiment in experiments)
             {
-                experiment.Status = ExperimentStatus.InProgress;
-                Service.StartExperiment(experiment.Id);
+                try
+                {
 
-                await RunTests(experiment);
+                    experiment.Status = ExperimentStatus.InProgress;
+                    Service.StartExperiment(experiment.Id);
 
-                experiment.Status = ExperimentStatus.Completed;
-                Service.StopExperiment(experiment.Id);
+                    await RunTests(experiment);
+
+                    experiment.Status = ExperimentStatus.Completed;
+                    Service.StopExperiment(experiment.Id);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(new EventId(), ex, $"Error during run experiment {experiment.Id}");
+                }
             }
         }
 
@@ -91,7 +103,8 @@ namespace RequirementsScheduler.Library.Worker
                     if (!experimentInfo.Result.IsResolvedOnCheck3InOnline)
                     {
                         stop2++;
-                    } else if (experimentInfo.Result.IsStop3OnOnline)
+                    }
+                    else if (experimentInfo.Result.IsStop3OnOnline)
                     {
                         stop3++;
                     }
@@ -107,7 +120,7 @@ namespace RequirementsScheduler.Library.Worker
                     stop1++;
                 }
 
-                experimentReport.OnlineExecutionTime =  experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
+                experimentReport.OnlineExecutionTime = experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
 
                 experimentReport.OfflineResolvedConflictAmount += experimentInfo.Result.OfflineResolvedConflictAmount;
                 experimentReport.OnlineResolvedConflictAmount += experimentInfo.Result.OnlineResolvedConflictAmount;
@@ -118,20 +131,20 @@ namespace RequirementsScheduler.Library.Worker
                 ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
             }
 
-            experimentReport.Stop1Percentage = (float) Math.Round(stop1 / (float) experiment.TestsAmount * 100, 1);
-            experimentReport.Stop2Percentage = (float) Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop3Percentage = (float) Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop4Percentage = (float) Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop1Percentage = (float)Math.Round(stop1 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop2Percentage = (float)Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop3Percentage = (float)Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop4Percentage = (float)Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
 
             if (wasThereStop4)
             {
-                experimentReport.DeltaCmaxAverage = (float) sumOfDeltaCmax / experiment.TestsAmount;
+                experimentReport.DeltaCmaxAverage = (float)sumOfDeltaCmax / experiment.TestsAmount;
             }
             else
             {
                 experimentReport.DeltaCmaxAverage = 0;
             }
-            
+
 
             ReportService.Save(experimentReport);
 
@@ -140,7 +153,7 @@ namespace RequirementsScheduler.Library.Worker
 
         private static void RunTest()
         {
-            
+
         }
 
         #region Offline mode
@@ -1205,7 +1218,7 @@ namespace RequirementsScheduler.Library.Worker
             var hasDetailOnSecond = nodeOnSecondMachine != null;
 
             // details are on two machines
-            while (hasDetailOnFirst && hasDetailOnSecond || 
+            while (hasDetailOnFirst && hasDetailOnSecond ||
                 time1 > time2 && hasDetailOnSecond ||
                 time2 > time1 && hasDetailOnFirst)
             {
@@ -1287,7 +1300,7 @@ namespace RequirementsScheduler.Library.Worker
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
 
-                    time1 += ((Detail) node.Value).Time.P;
+                    time1 += ((Detail)node.Value).Time.P;
                 }
             }
             else
@@ -1298,7 +1311,7 @@ namespace RequirementsScheduler.Library.Worker
                     if (!(node.Value is Detail))
                         throw new InvalidOperationException("There can be no conflicts and downtimes when one of machine finished work");
 
-                    time2 += ((Detail) node.Value).Time.P;
+                    time2 += ((Detail)node.Value).Time.P;
                 }
             }
 
@@ -1356,7 +1369,7 @@ namespace RequirementsScheduler.Library.Worker
                         }
                     }
 
-                    if(jOfMaxSumOfP == 0)
+                    if (jOfMaxSumOfP == 0)
                         throw new InvalidOperationException("Wrong finding algorithm of maxCfact");
 
                     var l = j12OnFirstMachine.Take(jOfMaxSumOfP).Sum(detail => detail.Time.P) - j12OnSecondMachine.Take(jOfMaxSumOfP - 1).Sum(detail => detail.Time.P);
@@ -1441,7 +1454,7 @@ namespace RequirementsScheduler.Library.Worker
                 experimentInfo.Result.IsStop3OnOnline = true;
             }
 
-            experimentInfo.Result.DeltaCmax = (float) ((cMax - cOpt) / cOpt * 100);
+            experimentInfo.Result.DeltaCmax = (float)((cMax - cOpt) / cOpt * 100);
 
         }
 
@@ -1461,7 +1474,7 @@ namespace RequirementsScheduler.Library.Worker
                 var conflict = currentDetail as OnlineConflict;
                 conflictResolver(conflict, ref node, isFirstDetail);
 
-                if(node.Value.Type != OnlineChainType.Detail)
+                if (node.Value.Type != OnlineChainType.Detail)
                     throw new InvalidOperationException("Conflict resolver don't change current node");
 
                 currentDetail = node.Value;
@@ -1501,7 +1514,7 @@ namespace RequirementsScheduler.Library.Worker
                             .Select(d => d.Number)
                             .SequenceEqual(conflict.Details.Select(d => d.Number))) as OnlineConflict;
 
-            if(conflictOnAnotherMachine == null)
+            if (conflictOnAnotherMachine == null)
                 throw new InvalidOperationException("Not found conflict on another machine");
 
             var conflictNodeOnAnotherMachine = chainOnAnotherMachine.Find(conflictOnAnotherMachine);

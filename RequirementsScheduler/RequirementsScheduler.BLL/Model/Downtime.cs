@@ -9,7 +9,7 @@ namespace RequirementsScheduler.BLL.Model
         public Downtime(double time)
         {
             if (time <= 0)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(time), $"Unable to create downtime with {time} value");
 
             Time = time;
         }

@@ -17,7 +17,7 @@ namespace RequirementsScheduler.Library.Worker
             IMapper mapper,
             IUserService userService,
             IRepository<Experiment, Guid> repository,
-            ILogger<WorkerExperimentService> logger) 
+            ILogger logger) 
             : base(mapper, userService, repository)
         {
             Logger = logger;
