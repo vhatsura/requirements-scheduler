@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
@@ -79,7 +80,8 @@ namespace RequirementsScheduler.Host.Console
                 new ExperimentGenerator(),
                 Mock.Of<IWorkerExperimentService>(),
                 new ExperimentTestResultFileService(),
-                reportsServiceMock.Object);
+                reportsServiceMock.Object,
+                Mock.Of<ILogger>());
 
             var stopwatch = Stopwatch.StartNew();
             pipeline.Run(new List<Experiment>() {experiment}).ConfigureAwait(false);

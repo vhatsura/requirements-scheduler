@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
@@ -230,7 +231,8 @@ namespace RequirementsScheduler.Controllers
                 generatorMock.Object,
                 Container.GetService<IWorkerExperimentService>(),
                 Container.GetService<IExperimentTestResultService>(),
-                Container.GetService<IReportsService>());
+                Container.GetService<IReportsService>(),
+                Container.GetService<ILogger>());
 
             Task.Factory.StartNew(
                 () => experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment)));
