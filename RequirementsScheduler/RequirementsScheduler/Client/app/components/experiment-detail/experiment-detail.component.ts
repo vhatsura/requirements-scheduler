@@ -1,7 +1,7 @@
 ﻿import { Component, OnInit, Input } from '@angular/core';
-import { GtExpandedRow } from '@angular-generic-table/core';
+import { GtExpandedRow } from 'angular-generic-table';
 
-import { Experiment, Test } from '../../models/index';
+import { Test } from '../../models/index';
 
 import { ExperimentService } from '../../services/index';
 

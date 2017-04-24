@@ -25,9 +25,11 @@ namespace RequirementsScheduler.Controllers
             // Here we can pass any Custom Data we want !
 
             // By default we're passing down Cookies, Headers, Host from the Request object here
-            TransferData transferData = new TransferData();
-            transferData.request = AbstractHttpContextRequestInfo(Request);
-            transferData.thisCameFromDotNET = "Hi Angular it's asp.net :)";
+            TransferData transferData = new TransferData
+            {
+                request = AbstractHttpContextRequestInfo(Request),
+                thisCameFromDotNET = "Hi Angular it's asp.net :)"
+            };
             // Add more customData here, add it to the TransferData class
 
             // Prerender / Serialize application (with Universal)
@@ -38,7 +40,7 @@ namespace RequirementsScheduler.Controllers
                 unencodedAbsoluteUrl,
                 unencodedPathAndQuery,
                 transferData, // Our simplified Request object & any other CustommData you want to send!
-                30000,
+                40000,
                 Request.PathBase.ToString()
             );
 
@@ -60,10 +62,12 @@ namespace RequirementsScheduler.Controllers
         private IRequest AbstractHttpContextRequestInfo(HttpRequest request)
         {
 
-            IRequest requestSimplified = new IRequest();
-            requestSimplified.cookies = request.Cookies;
-            requestSimplified.headers = request.Headers;
-            requestSimplified.host = request.Host;
+            IRequest requestSimplified = new IRequest
+            {
+                cookies = request.Cookies,
+                headers = request.Headers,
+                host = request.Host
+            };
 
             return requestSimplified;
         }

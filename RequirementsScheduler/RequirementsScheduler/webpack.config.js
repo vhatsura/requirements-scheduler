@@ -17,8 +17,8 @@ module.exports = function (options, webpackOptions) {
   const serverConfig = webpackMerge({}, commonPartial, serverPartial, {
       entry: options.aot ? { 'main-server': './Client/main.server.aot.ts'} : serverPartial.entry, // Temporary
     plugins: [
-        getAotPlugin('server', !!options.aot),
-    ]
+          getAotPlugin('server', !!options.aot)
+      ]
   });
 
   let clientConfig = webpackMerge({}, commonPartial, clientPartial, {
