@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Inject, ViewChild } from '@angular/core';
 import { Http } from '@angular/http';
 
 import { PLATFORM_ID } from '@angular/core';
@@ -8,12 +8,32 @@ import { GtConfig, GenericTableComponent } from 'angular-generic-table';
 
 @Component({
     selector: 'reports',
+    styles: [`
+    .margin-bottom {
+        margin-bottom:10px;
+    }
+    `],
     template: require('./reports.component.html')
 })
 export class ReportsComponent implements OnInit {
-     public configObject: GtConfig<any>;
+
+    public configObject: GtConfig<any>;
+
+    public testsAmountFilter: number;
+    public requirementsAmountFilter: number;
+    
+    public n1Filter: number;
+    public n2Filter: number;
+    public n12Filter: number;
+    public n21Filter: number;
+
+    public aBorderFilter: number;
+    public bBorderFilter: number;
 
     @Output() data = new EventEmitter();
+
+    @ViewChild(GenericTableComponent)
+    private myTable: GenericTableComponent<any, any>;
 
     constructor(
         @Inject(PLATFORM_ID) private platformId: Object,
@@ -109,30 +129,30 @@ export class ReportsComponent implements OnInit {
                 {
                     name: 'Tests amount',
                     objectKey: 'n',
-                    classNames: 'sort-numeric',
+                    classNames: 'sort-numeric'
                 },
                 {
                     name: 'Requirements amount',
                     objectKey: 'requirementsAmount',
-                    classNames: 'sort-numeric',
+                    classNames: 'sort-numeric'
                 },
                 {
                     name: 'n1, n2, n12, n21, %',
                     objectKey: 'percentages',
-                    value:function(row){ return `${row.n1Percentage}, ${row.n2Percentage}, ${row.n12Percentage}, ${row.n21Percentage}`; }
+                    value: function(row){ return `${row.n1Percentage}, ${row.n2Percentage}, ${row.n12Percentage}, ${row.n21Percentage}`; }
                 },
                 {
                     name: 'L, %',
                     objectKey: 'borders',
                     classNames: 'sort-string',
-                    value:function(row){ return `[${row.aBorder}; ${row.bBorder}]`;}
+                    value: function(row){ return `[${row.aBorder}; ${row.bBorder}]`; }
                 },
                 {
                     name: 'Conflicts resolved on on-line, %',
                     objectKey: 'onlineResolvedConflictPercentage',
                     classNames: 'sort-numeric',
-                    value:function(row) { 
-                        if(row.onlineResolvedConflictAmount == 0)
+                    value: function(row) { 
+                        if (row.onlineResolvedConflictAmount === 0)
                             return 0;
                         return ((row.onlineResolvedConflictAmount / (row.onlineResolvedConflictAmount + row.onlineUnResolvedConflictAmount)) * 100).toFixed(1);
                     }
@@ -140,12 +160,12 @@ export class ReportsComponent implements OnInit {
                 {
                     name: 'STOP1, %',
                     objectKey: 'stop1Percentage',
-                    classNames: 'sort-numeric',
+                    classNames: 'sort-numeric'
                 },
                 {
                     name: 'STOP2, %',
                     objectKey: 'stop2Percentage',
-                    classNames: 'sort-numeric',
+                    classNames: 'sort-numeric'
                 },
                 {
                     name: 'STOP3, %',
@@ -175,6 +195,51 @@ export class ReportsComponent implements OnInit {
             ],
             data: []
         };    
+    }
+
+    public applyFilters() {
+        let filterObject = {};
+        if (this.testsAmountFilter !== undefined) {
+            filterObject['n'] = [this.testsAmountFilter];
+        }
+        if (this.requirementsAmountFilter !== undefined) {
+            filterObject['requirementsAmount'] = [this.requirementsAmountFilter];
+        }
+        if (this.n1Filter !== undefined) {
+           filterObject['n1Percentage'] = [this.n1Filter]; 
+        }
+        if (this.n2Filter !== undefined) {
+           filterObject['n2Percentage'] = [this.n2Filter]; 
+        }
+        if (this.n12Filter !== undefined) {
+           filterObject['n12Percentage'] = [this.n12Filter]; 
+        }
+        if (this.n21Filter !== undefined) {
+           filterObject['n21Percentage'] = [this.n21Filter]; 
+        }
+        if (this.aBorderFilter !== undefined) {
+            filterObject['aBorder'] = [this.aBorderFilter];
+        }
+        if (this.bBorderFilter !== undefined) {
+            filterObject['bBorder'] = [this.bBorderFilter];
+        }
+
+        this.myTable.gtApplyFilter(filterObject);
+    }
+
+    public removeFilters() {
+        this.testsAmountFilter = undefined; 
+        this.requirementsAmountFilter = undefined;
+        
+        this.n1Filter = undefined;
+        this.n2Filter = undefined;
+        this.n12Filter = undefined;
+        this.n21Filter = undefined;
+
+        this.aBorderFilter = undefined;
+        this.bBorderFilter = undefined;
+
+        this.myTable.gtClearFilter();
     }
 
     ngOnInit(): void {
