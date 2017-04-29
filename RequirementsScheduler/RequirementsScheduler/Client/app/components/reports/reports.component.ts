@@ -35,12 +35,10 @@ export class ReportsComponent implements OnInit {
     public isChartsVisible: boolean = false;
     public isFilterApplied: boolean = false;
 
-    public filterObject: any;
-
     public lineChartOptions = {
         chartType: 'LineChart',
         dataTable: [ ],
-        options: {'title': 'Example Chart'}
+        options: {'title': 'Chart'}
     };
 
     @Output() data = new EventEmitter();
@@ -250,11 +248,9 @@ export class ReportsComponent implements OnInit {
         }
 
         this.myTable.gtClearFilter();
-        this.filterObject = filterObject;
 
         if (Object.keys(filterObject).length !== 0) {
             this.myTable.gtApplyFilter(filterObject);
-            this.filterObject = filterObject;
             this.isFilterApplied = true;
         }
     }
@@ -290,15 +286,27 @@ export class ReportsComponent implements OnInit {
             
             return;
         }
-        console.log(this.myTable.gtInfo);
-        let filteredData = this.myTable.gtData;
-        this.lineChartOptions.dataTable = [
-            ['n', 'STOP1', 'STOP2', 'STOP3', 'STOP4'],
-            ['2004', 1000, 400, 600, 700],
-            ['2005', 1170, 460, 600, 700],
-            ['2006', 660, 1120, 600, 700],
-            ['2007', 1030, 540, 600, 700]
+        // console.log(this.myTable.gtInfo);
+        
+        let filteredData = this.getFilteredData();
+        console.log(filteredData);
+        
+        let dataTable = [
+            ['n', 'STOP1', 'STOP2', 'STOP3', 'STOP4']
         ];
+
+        filteredData.forEach(element => {
+            dataTable.push([
+                element.n,
+                element.stop1Percentage,
+                element.stop2Percentage,
+                element.stop3Percentage,
+                element.stop4Percentage]);
+        });
+
+        console.log(dataTable);
+
+        this.lineChartOptions.dataTable = dataTable;
         this.isChartsVisible = true;
     }
 
@@ -312,6 +320,26 @@ export class ReportsComponent implements OnInit {
 
     isBrowser() {
         return isPlatformBrowser(this.platformId);
+    }
+
+    private getFilteredData() {
+     let output = [];
+     let filterBy = this.myTable.gtInfo.filter;
+        for (let i = 0; i < this.configObject.data.length; i++) {
+            let rowObject = this.configObject.data[i];
+            let match = true;
+            for (let property in filterBy) {
+                if (filterBy.hasOwnProperty(property)) {
+                    if (filterBy[property].indexOf(rowObject[property]) === -1) {
+                        match = false;
+                    }
+                }
+            }
+            if (match) {
+                output.push(rowObject);
+            }
+        }
+        return output;   
     }
 }
 
