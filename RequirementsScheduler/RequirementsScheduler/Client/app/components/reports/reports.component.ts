@@ -292,12 +292,12 @@ export class ReportsComponent implements OnInit {
         console.log(filteredData);
         
         let dataTable = [
-            ['n', 'STOP1', 'STOP2', 'STOP3', 'STOP4']
+            ['Requirements amount', 'STOP1', 'STOP2', 'STOP3', 'STOP4']
         ];
 
         filteredData.forEach(element => {
             dataTable.push([
-                element.n,
+                element.requirementsAmount,
                 element.stop1Percentage,
                 element.stop2Percentage,
                 element.stop3Percentage,
