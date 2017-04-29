@@ -35,7 +35,16 @@ export class ReportsComponent implements OnInit {
     public isChartsVisible: boolean = false;
     public isFilterApplied: boolean = false;
 
-    public lineChartOptions = {
+    public firstLineChartOptions = {
+        chartType: 'LineChart',
+        dataTable: [ ],
+        options: {
+            'title': 'Chart',
+            'pointSize': 3
+        }
+    };
+
+    public secondLineChartOptions = {
         chartType: 'LineChart',
         dataTable: [ ],
         options: {
@@ -297,22 +306,35 @@ export class ReportsComponent implements OnInit {
         let filteredData = this.getFilteredData();
         console.log(filteredData);
         
-        let dataTable = [
+        let firstDataTable = [
             ['Requirements amount', 'STOP1', 'STOP2', 'STOP3', 'STOP4']
         ];
 
+        let secondDataTable = [
+            ['Requirements amount', 'STOP1+2+3+4', 'STOP1+2+3', 'STOP1+2', 'STOP1']
+        ];
+
         filteredData.forEach(element => {
-            dataTable.push([
+            firstDataTable.push([
                 element.requirementsAmount,
                 element.stop1Percentage,
                 element.stop2Percentage,
                 element.stop3Percentage,
                 element.stop4Percentage]);
+
+            secondDataTable.push([
+                element.requirementsAmount,
+                element.stop1Percentage + element.stop2Percentage + element.stop3Percentage + element.stop4Percentage,
+                element.stop1Percentage + element.stop2Percentage + element.stop3Percentage,
+                element.stop1Percentage + element.stop2Percentage,
+                element.stop1Percentage
+            ]);
         });
 
-        console.log(dataTable);
+        console.log(firstDataTable);
 
-        this.lineChartOptions.dataTable = dataTable;
+        this.firstLineChartOptions.dataTable = firstDataTable;
+        this.secondLineChartOptions.dataTable = secondDataTable;
         this.isChartsVisible = true;
     }
 
@@ -363,6 +385,9 @@ interface ExperimentReport {
     
     aBorder: number;
     bBorder: number;
+
+    minPercentageFromA: number;
+    maxPercentageFromA: number;
     
     offlineResolvedConflictAmount: number;
     onlineResolvedConflictAmount: number;
