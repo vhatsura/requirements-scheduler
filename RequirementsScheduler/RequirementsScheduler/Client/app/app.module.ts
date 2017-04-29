@@ -33,6 +33,8 @@ import { LinkService } from './shared/link.service';
 import { ORIGIN_URL } from './shared/constants/baseurl.constants';
 import { TransferHttpModule } from '../modules/transfer-http/transfer-http.module';
 
+import { Ng2GoogleChartsModule } from 'ng2-google-charts';
+
 // import { ChartMockComponent } from './components/chartMock/chartMock.component';
 
 import { PLATFORM_ID } from '@angular/core';
@@ -71,6 +73,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         HttpModule,
         CustomFormsModule,
         ReactiveFormsModule,
+
+        Ng2GoogleChartsModule,
 
         GenericTableModule,
         TransferHttpModule,

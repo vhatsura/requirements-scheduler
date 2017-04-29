@@ -6,6 +6,8 @@ import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
 import { GtConfig, GenericTableComponent } from 'angular-generic-table';
 
+import { AlertService } from '../../services/alert.service';
+
 @Component({
     selector: 'reports',
     styles: [`
@@ -31,19 +33,14 @@ export class ReportsComponent implements OnInit {
     public bBorderFilter: number;
 
     public isChartsVisible: boolean = false;
+    public isFilterApplied: boolean = false;
 
-    public lineChartData = [
-        ['Year', 'Sales', 'Expenses'],
-        ['2004', 1000, 400],
-        ['2005', 1170, 460],
-        ['2006', 660, 1120],
-        ['2007', 1030, 540]];
+    public filterObject: any;
+
     public lineChartOptions = {
-        title: 'Company Performance',
-        curveType: 'function',
-        legend: {
-            position: 'bottom'
-        }
+        chartType: 'LineChart',
+        dataTable: [ ],
+        options: {'title': 'Example Chart'}
     };
 
     @Output() data = new EventEmitter();
@@ -53,7 +50,8 @@ export class ReportsComponent implements OnInit {
 
     constructor(
         @Inject(PLATFORM_ID) private platformId: Object,
-        private http: Http) {
+        private http: Http,
+        private alertService: AlertService) {
         this.configObject = {
             settings: [
                 {
@@ -214,7 +212,8 @@ export class ReportsComponent implements OnInit {
     }
 
     public applyFilters() {
-        this.isChartsVisible = false;        
+        this.isChartsVisible = false;     
+
         let filterObject = {};
 
         if (this.testsAmountFilter !== undefined &&
@@ -251,13 +250,18 @@ export class ReportsComponent implements OnInit {
         }
 
         this.myTable.gtClearFilter();
+        this.filterObject = filterObject;
+
         if (Object.keys(filterObject).length !== 0) {
             this.myTable.gtApplyFilter(filterObject);
+            this.filterObject = filterObject;
+            this.isFilterApplied = true;
         }
     }
 
     public removeFilters() {
         this.isChartsVisible = false;
+        this.isFilterApplied = false;
 
         this.testsAmountFilter = undefined; 
         this.requirementsAmountFilter = undefined;
@@ -274,6 +278,27 @@ export class ReportsComponent implements OnInit {
     }
 
     public drawCharts() {
+        if (this.testsAmountFilter === undefined ||
+            this.n1Filter === undefined ||
+            this.n2Filter === undefined ||
+            this.n12Filter === undefined ||
+            this.n21Filter === undefined ||
+            this.aBorderFilter === undefined ||
+            this.bBorderFilter === undefined) {
+
+            this.alertService.error('Not all required fileds are filled');
+            
+            return;
+        }
+        console.log(this.myTable.gtInfo);
+        let filteredData = this.myTable.gtData;
+        this.lineChartOptions.dataTable = [
+            ['n', 'STOP1', 'STOP2', 'STOP3', 'STOP4'],
+            ['2004', 1000, 400, 600, 700],
+            ['2005', 1170, 460, 600, 700],
+            ['2006', 660, 1120, 600, 700],
+            ['2007', 1030, 540, 600, 700]
+        ];
         this.isChartsVisible = true;
     }
 

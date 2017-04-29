@@ -42,11 +42,11 @@
         </form>
         <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="applyFilters()">Apply filters</button>
         <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="removeFilters()">Remove filters</button>
-        <button class="btn btn-secondary btn-sm col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="drawCharts()">Draw charts</button>
+        <button class="btn btn-secondary btn-sm col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="drawCharts()" *ngIf="isFilterApplied">Draw charts</button>
     </div>
     <!-- Charts -->
     <div *ngIf="isChartsVisible">
-
+        <google-chart [data]="lineChartOptions"></google-chart>
     </div>
     <div class="table-responsive">
         <generic-table [gtClasses]="'table-hover'" #myTable [gtSettings]="configObject.settings" [gtFields]="configObject.fields" [(gtData)]="configObject.data" [gtOptions]="{stack:false, highlightSearch:true, rowSelection:true}">
