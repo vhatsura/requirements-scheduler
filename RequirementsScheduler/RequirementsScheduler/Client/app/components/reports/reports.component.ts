@@ -40,7 +40,7 @@ export class ReportsComponent implements OnInit {
         dataTable: [ ],
         options: {
             'title': 'Chart',
-            'pointSize': 1
+            'pointSize': 3
         }
     };
 
