@@ -38,7 +38,10 @@ export class ReportsComponent implements OnInit {
     public lineChartOptions = {
         chartType: 'LineChart',
         dataTable: [ ],
-        options: {'title': 'Chart'}
+        options: {
+            'title': 'Chart',
+            'pointSize': 1
+        }
     };
 
     @Output() data = new EventEmitter();
