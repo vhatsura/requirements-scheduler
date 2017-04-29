@@ -30,6 +30,22 @@ export class ReportsComponent implements OnInit {
     public aBorderFilter: number;
     public bBorderFilter: number;
 
+    public isChartsVisible: boolean = false;
+
+    public lineChartData = [
+        ['Year', 'Sales', 'Expenses'],
+        ['2004', 1000, 400],
+        ['2005', 1170, 460],
+        ['2006', 660, 1120],
+        ['2007', 1030, 540]];
+    public lineChartOptions = {
+        title: 'Company Performance',
+        curveType: 'function',
+        legend: {
+            position: 'bottom'
+        }
+    };
+
     @Output() data = new EventEmitter();
 
     @ViewChild(GenericTableComponent)
@@ -198,36 +214,51 @@ export class ReportsComponent implements OnInit {
     }
 
     public applyFilters() {
+        this.isChartsVisible = false;        
         let filterObject = {};
-        if (this.testsAmountFilter !== undefined) {
+
+        if (this.testsAmountFilter !== undefined &&
+            this.testsAmountFilter != null) {
             filterObject['n'] = [this.testsAmountFilter];
         }
-        if (this.requirementsAmountFilter !== undefined) {
+        if (this.requirementsAmountFilter !== undefined &&
+            this.requirementsAmountFilter != null) {
             filterObject['requirementsAmount'] = [this.requirementsAmountFilter];
         }
-        if (this.n1Filter !== undefined) {
+        if (this.n1Filter !== undefined &&
+            this.n1Filter != null) {
            filterObject['n1Percentage'] = [this.n1Filter]; 
         }
-        if (this.n2Filter !== undefined) {
+        if (this.n2Filter !== undefined &&
+            this.n2Filter != null) {
            filterObject['n2Percentage'] = [this.n2Filter]; 
         }
-        if (this.n12Filter !== undefined) {
+        if (this.n12Filter !== undefined &&
+            this.n12Filter != null) {
            filterObject['n12Percentage'] = [this.n12Filter]; 
         }
-        if (this.n21Filter !== undefined) {
+        if (this.n21Filter !== undefined &&
+            this.n21Filter != null) {
            filterObject['n21Percentage'] = [this.n21Filter]; 
         }
-        if (this.aBorderFilter !== undefined) {
+        if (this.aBorderFilter !== undefined &&
+            this.aBorderFilter != null) {
             filterObject['aBorder'] = [this.aBorderFilter];
         }
-        if (this.bBorderFilter !== undefined) {
+        if (this.bBorderFilter !== undefined &&
+            this.bBorderFilter != null) {
             filterObject['bBorder'] = [this.bBorderFilter];
         }
 
-        this.myTable.gtApplyFilter(filterObject);
+        this.myTable.gtClearFilter();
+        if (Object.keys(filterObject).length !== 0) {
+            this.myTable.gtApplyFilter(filterObject);
+        }
     }
 
     public removeFilters() {
+        this.isChartsVisible = false;
+
         this.testsAmountFilter = undefined; 
         this.requirementsAmountFilter = undefined;
         
@@ -240,6 +271,10 @@ export class ReportsComponent implements OnInit {
         this.bBorderFilter = undefined;
 
         this.myTable.gtClearFilter();
+    }
+
+    public drawCharts() {
+        this.isChartsVisible = true;
     }
 
     ngOnInit(): void {

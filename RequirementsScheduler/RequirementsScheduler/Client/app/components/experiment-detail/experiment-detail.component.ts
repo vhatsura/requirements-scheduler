@@ -14,11 +14,11 @@ export class ExperimentDetailComponent extends GtExpandedRow<any> implements OnI
     selectedTest: Test;
     tests: Test[];
 
-    constructor(private _experimentService: ExperimentService) { super() }
+    constructor(private _experimentService: ExperimentService) { super(); }
 
     ngOnInit() {
         console.log(this.row);
         this._experimentService.getExperimentResults(this.row.id)
-            .subscribe(tests => {this.tests = tests;});
+            .subscribe(tests => {this.tests = tests; });
     }
 }

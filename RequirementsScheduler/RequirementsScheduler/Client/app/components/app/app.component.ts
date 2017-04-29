@@ -26,8 +26,7 @@ export class AppComponent implements OnInit, OnDestroy {
         private title: Title,
         private meta: Meta,
         private linkService: LinkService,
-        @Inject(REQUEST) private request)
-    {
+        @Inject(REQUEST) private request) {
         console.log(`What's our REQUEST Object look like?`);
         console.log(`The Request object only really exists on the Server, but on the Browser we can at least see Cookies`);
         console.log(this.request);
@@ -49,7 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.routerSub$ = this.router.events
             .filter(event => event instanceof NavigationEnd)
             .map(() => this.activatedRoute)
-            .map((route : ActivatedRoute) => {
+            .map((route: ActivatedRoute) => {
                 while (route.firstChild) route = route.firstChild;
                 return route;
             })

@@ -27,6 +27,7 @@ export function getRequest() {
             appId: 'my-app-id' // make sure this matches with your Server NgModule
         }),
         BrowserAnimationsModule,
+
         BrowserTransferStateModule,
         // Our Common AppModule
         AppModule,

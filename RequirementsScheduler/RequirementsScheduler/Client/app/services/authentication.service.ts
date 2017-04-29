@@ -20,7 +20,7 @@ export class AuthenticationService {
     private jwtHelper = new JwtHelper();
 
     // Observable navItem source
-    private _user : BehaviorSubject<string> = new BehaviorSubject<string>(null);
+    private _user: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
     user = this._user.asObservable();
 
@@ -40,15 +40,15 @@ export class AuthenticationService {
 
     userRole(): string {
         if (isPlatformBrowser(this.platformId)) {
-            var token = localStorage.getItem('token');
+            let token = localStorage.getItem('token');
             let decodedToken = this.jwtHelper.decodeToken(token);
             let role = decodedToken.role;
             if (role)
                 return role.toLowerCase();
             else
-                return "";
+                return '';
         }
-        return "";
+        return '';
     }
 
     login(username: string, password: string) {

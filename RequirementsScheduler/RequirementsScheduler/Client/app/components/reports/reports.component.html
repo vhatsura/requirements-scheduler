@@ -1,45 +1,53 @@
 <div *ngIf="isBrowser()" class="col-md-10 col-md-offset-2">
     <h1>Experiments' reports</h1>
-    <form class="form-inline margin-bottom">
-        <div class="form-group form-group-sm">
-            <label for="testsAmountFilter">Tests amount</label>
-            <input class="form-control" id="testsAmountFilter" type="number" [(ngModel)]="testsAmountFilter" name="testsAmountFilter" min="1">
-        </div>
-        <div class="form-group form-group-sm">
-            <label for="requirementsAmountFilter">Requirements amount</label>
-            <input id="requirementsAmountFilter" class="form-control" type="number" [(ngModel)]="requirementsAmountFilter" name="requirementsAmountFilter" min="1">
-        </div>
-    </form>
-    <form class="form-inline margin-bottom">
-        <div class="form-group form-group-sm">
-            <label for="n1Filter">N1, %</label>
-            <input class="form-control" id="n1Filter" type="number" [(ngModel)]="n1Filter" name="n1Filter" min="1" max="100">
-        </div>
-        <div class="form-group form-group-sm">
-            <label for="n2Filter">N2, %</label>
-            <input class="form-control" id="n2Filter" type="number" [(ngModel)]="n2Filter" name="n2Filter" min="1" max="100">
-        </div>
-        <div class="form-group form-group-sm">
-            <label for="n12Filter">N12, %</label>
-            <input class="form-control" id="n12Filter" type="number" [(ngModel)]="n12Filter" name="n12Filter" min="1" max="100">
-        </div>
-        <div class="form-group form-group-sm">
-            <label for="n21Filter">N21, %</label>
-            <input class="form-control" id="n21Filter" type="number" [(ngModel)]="n21Filter" name="n21Filter" min="1" max="100">
-        </div>
-    </form>
-    <form class="form-inline margin-bottom">
-        <div class="form-group form-group-sm">
-            <label for="aBorderFilter">A border</label>
-            <input id="aBorderFilter" class="form-control" type="number" [(ngModel)]="aBorderFilter" name="aBorderFilter" min="1">
-        </div>
-        <div class="form-group form-group-sm">
-            <label for="bBorderFilter">B border</label>
-            <input id="bBorderFilter" class="form-control" type="number" [(ngModel)]="bBorderFilter" name="bBorderFilter" min="1">
-        </div>
-    </form>
-    <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="applyFilters()">Apply filters</button>
-    <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="removeFilters()">Remove filters</button>
+    <!-- Filter forms -->
+    <div class="text-right">
+        <form class="form-inline margin-bottom">
+            <div class="form-group form-group-sm">
+                <label for="testsAmountFilter">Tests amount</label>
+                <input class="form-control" id="testsAmountFilter" type="number" [(ngModel)]="testsAmountFilter" name="testsAmountFilter" min="1">
+            </div>
+            <div class="form-group form-group-sm">
+                <label for="requirementsAmountFilter">Requirements amount</label>
+                <input id="requirementsAmountFilter" class="form-control" type="number" [(ngModel)]="requirementsAmountFilter" name="requirementsAmountFilter" min="1">
+            </div>
+        </form>
+        <form class="form-inline margin-bottom">
+            <div class="form-group form-group-sm">
+                <label for="n1Filter">N1, %</label>
+                <input class="form-control" id="n1Filter" type="number" [(ngModel)]="n1Filter" name="n1Filter" min="1" max="100">
+            </div>
+            <div class="form-group form-group-sm">
+                <label for="n2Filter">N2, %</label>
+                <input class="form-control" id="n2Filter" type="number" [(ngModel)]="n2Filter" name="n2Filter" min="1" max="100">
+            </div>
+            <div class="form-group form-group-sm">
+                <label for="n12Filter">N12, %</label>
+                <input class="form-control" id="n12Filter" type="number" [(ngModel)]="n12Filter" name="n12Filter" min="1" max="100">
+            </div>
+            <div class="form-group form-group-sm">
+                <label for="n21Filter">N21, %</label>
+                <input class="form-control" id="n21Filter" type="number" [(ngModel)]="n21Filter" name="n21Filter" min="1" max="100">
+            </div>
+        </form>
+        <form class="form-inline margin-bottom">
+            <div class="form-group form-group-sm">
+                <label for="aBorderFilter">A border</label>
+                <input id="aBorderFilter" class="form-control" type="number" [(ngModel)]="aBorderFilter" name="aBorderFilter" min="1">
+            </div>
+            <div class="form-group form-group-sm">
+                <label for="bBorderFilter">B border</label>
+                <input id="bBorderFilter" class="form-control" type="number" [(ngModel)]="bBorderFilter" name="bBorderFilter" min="1">
+            </div>
+        </form>
+        <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="applyFilters()">Apply filters</button>
+        <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="removeFilters()">Remove filters</button>
+        <button class="btn btn-secondary btn-sm col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="drawCharts()">Draw charts</button>
+    </div>
+    <!-- Charts -->
+    <div *ngIf="isChartsVisible">
+
+    </div>
     <div class="table-responsive">
         <generic-table [gtClasses]="'table-hover'" #myTable [gtSettings]="configObject.settings" [gtFields]="configObject.fields" [(gtData)]="configObject.data" [gtOptions]="{stack:false, highlightSearch:true, rowSelection:true}">
         </generic-table>
