@@ -46,7 +46,8 @@
     </div>
     <!-- Charts -->
     <div *ngIf="isChartsVisible">
-        <google-chart [data]="lineChartOptions"></google-chart>
+        <google-chart [data]="firstLineChartOptions"></google-chart>
+        <google-chart [data]="secondLineChartOptions"></google-chart>
     </div>
     <div class="table-responsive">
         <generic-table [gtClasses]="'table-hover'" #myTable [gtSettings]="configObject.settings" [gtFields]="configObject.fields" [(gtData)]="configObject.data" [gtOptions]="{stack:false, highlightSearch:true, rowSelection:true}">
