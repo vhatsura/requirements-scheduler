@@ -32,6 +32,9 @@ export class ReportsComponent implements OnInit {
     public aBorderFilter: number;
     public bBorderFilter: number;
 
+    public minPercentageFromA: number;
+    public maxPercentageFromA: number;
+
     public isChartsVisible: boolean = false;
     public isFilterApplied: boolean = false;
 
@@ -101,52 +104,58 @@ export class ReportsComponent implements OnInit {
                     columnOrder: 4
                 },
                 {
-                    objectKey: 'onlineResolvedConflictPercentage',
+                    objectKey: 'percentageBorders',
                     visible: true,
                     sort: 'enable',
                     columnOrder: 5
                 },
                 {
-                    objectKey: 'stop1Percentage',
+                    objectKey: 'onlineResolvedConflictPercentage',
                     visible: true,
                     sort: 'enable',
                     columnOrder: 6
                 },
                 {
-                    objectKey: 'stop2Percentage',
+                    objectKey: 'stop1Percentage',
                     visible: true,
                     sort: 'enable',
                     columnOrder: 7
                 },
                 {
-                    objectKey: 'stop3Percentage',
+                    objectKey: 'stop2Percentage',
                     visible: true,
-                    sort: 'desc',
+                    sort: 'enable',
                     columnOrder: 8
                 },
                 {
-                    objectKey: 'stop4Percentage',
+                    objectKey: 'stop3Percentage',
                     visible: true,
                     sort: 'desc',
                     columnOrder: 9
                 },
                 {
-                    objectKey: 'deltaCmaxMax',
+                    objectKey: 'stop4Percentage',
                     visible: true,
                     sort: 'desc',
                     columnOrder: 10
                 },
                 {
-                    objectKey: 'deltaCmaxAverage',
+                    objectKey: 'deltaCmaxMax',
                     visible: true,
                     sort: 'desc',
                     columnOrder: 11
                 },
                 {
-                    objectKey: 'onlineExecutionTime',
+                    objectKey: 'deltaCmaxAverage',
                     visible: true,
                     sort: 'desc',
                     columnOrder: 12
+                },
+                {
+                    objectKey: 'onlineExecutionTime',
+                    visible: true,
+                    sort: 'desc',
+                    columnOrder: 13
                 }
             ],
             fields: [
@@ -162,7 +171,7 @@ export class ReportsComponent implements OnInit {
                     classNames: 'sort-numeric'
                 },
                 {
-                    name: 'Requirements amount',
+                    name: 'Requir. amount',
                     objectKey: 'requirementsAmount',
                     classNames: 'sort-numeric'
                 },
@@ -172,10 +181,16 @@ export class ReportsComponent implements OnInit {
                     value: function(row){ return `${row.n1Percentage}, ${row.n2Percentage}, ${row.n12Percentage}, ${row.n21Percentage}`; }
                 },
                 {
-                    name: 'L, %',
+                    name: 'L',
                     objectKey: 'borders',
                     classNames: 'sort-string',
                     value: function(row){ return `[${row.aBorder}; ${row.bBorder}]`; }
+                },
+                {
+                    name: 'L, %',
+                    objectKey: 'percentageBorders',
+                    classNames: 'sort-string',
+                    value: function(row){ return `[${row.minPercentageFromA}; ${row.maxPercentageFromA}]`; }
                 },
                 {
                     name: 'Conflicts resolved on on-line, %',
@@ -208,12 +223,12 @@ export class ReportsComponent implements OnInit {
                     classNames: 'clickable sort-string'
                 },
                 {
-                    name: 'DeltaCmax max',
+                    name: 'ΔCmax max',
                     objectKey: 'deltaCmaxMax',
                     classNames: 'clickable sort-numeric'
                 },
                 {
-                    name: 'DeltaCmax average',
+                    name: 'ΔCmax average',
                     objectKey: 'deltaCmaxAverage',
                     classNames: 'clickable sort-numeric'
                 },
@@ -264,6 +279,14 @@ export class ReportsComponent implements OnInit {
             this.bBorderFilter != null) {
             filterObject['bBorder'] = [this.bBorderFilter];
         }
+        if (this.minPercentageFromA !== undefined &&
+            this.minPercentageFromA != null) {
+                filterObject['minPercentageFromA'] = [this.minPercentageFromA];
+        }
+        if (this.maxPercentageFromA !== undefined &&
+            this.maxPercentageFromA != null) {
+                filterObject['maxPercentageFromA'] = [this.maxPercentageFromA];
+        }
 
         this.myTable.gtClearFilter();
 
@@ -287,6 +310,9 @@ export class ReportsComponent implements OnInit {
 
         this.aBorderFilter = undefined;
         this.bBorderFilter = undefined;
+        
+        this.minPercentageFromA = undefined;
+        this.maxPercentageFromA = undefined;
 
         this.myTable.gtClearFilter();
     }
@@ -298,7 +324,9 @@ export class ReportsComponent implements OnInit {
             this.n12Filter === undefined ||
             this.n21Filter === undefined ||
             this.aBorderFilter === undefined ||
-            this.bBorderFilter === undefined) {
+            this.bBorderFilter === undefined ||
+            this.minPercentageFromA === undefined ||
+            this.maxPercentageFromA === undefined) {
 
             this.alertService.error('Not all required fileds are filled');
             

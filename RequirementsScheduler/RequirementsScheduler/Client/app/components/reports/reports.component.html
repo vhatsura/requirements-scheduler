@@ -40,6 +40,16 @@
                 <input id="bBorderFilter" class="form-control" type="number" [(ngModel)]="bBorderFilter" name="bBorderFilter" min="1">
             </div>
         </form>
+        <form class="form-inline margin-bottom">
+            <div class="form-group form-group-sm">
+                <label for="minPercentageFromA">Min percentage from A</label>
+                <input id="minPercentageFromA" class="form-control" type="number" [(ngModel)]="minPercentageFromA" name="minPercentageFromA" min="1">
+            </div>
+            <div class="form-group form-group-sm">
+                <label for="maxPercentageFromA">Max percentage from A</label>
+                <input id="maxPercentageFromA" class="form-control" type="number" [(ngModel)]="maxPercentageFromA" name="maxPercentageFromA" min="1">
+            </div>
+        </form>
         <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="applyFilters()">Apply filters</button>
         <button class="btn btn-secondary btn-sm col-12 col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="removeFilters()">Remove filters</button>
         <button class="btn btn-secondary btn-sm col-sm-auto mb-2 mr-sm-2 mb-lg-0" (click)="drawCharts()" *ngIf="isFilterApplied">Draw charts</button>
