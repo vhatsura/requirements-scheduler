@@ -1,6 +1,6 @@
 import { NgModule, Inject } from '@angular/core';
 import { CommonModule, APP_BASE_HREF  } from '@angular/common';
-import { Http, RequestOptions, HttpModule } from '@angular/http';
+import { Http, RequestOptions, HttpModule, BrowserXhr } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -39,6 +39,8 @@ import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+
+import { NgProgressCustomBrowserXhr, NgProgressModule } from "ng2-progressbar";
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     return new AuthHttp(new AuthConfig({
@@ -85,7 +87,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
             { path: 'login', component: LoginComponent },
             { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
             { path: '**', redirectTo: '' }
-        ])
+        ]),
+        NgProgressModule
     ],
     providers: [
         {
@@ -98,7 +101,10 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         AuthenticationService,
         UserService,
         ExperimentService,
-        LinkService
+        LinkService,
+        {
+            provide: BrowserXhr, useClass: NgProgressCustomBrowserXhr
+        }
     ],
     entryComponents: [ExperimentDetailComponent]
 })
