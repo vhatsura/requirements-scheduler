@@ -40,7 +40,10 @@ export class ReportsComponent implements OnInit {
         dataTable: [ ],
         options: {
             'title': 'Chart',
-            'pointSize': 3
+            'pointSize': 3,
+            'legend': {
+                position: 'bottom'
+            }
         }
     };
 
@@ -49,7 +52,10 @@ export class ReportsComponent implements OnInit {
         dataTable: [ ],
         options: {
             'title': 'Chart',
-            'pointSize': 3
+            'pointSize': 3,
+            'legend': {
+                position: 'bottom'
+            }
         }
     };
 
