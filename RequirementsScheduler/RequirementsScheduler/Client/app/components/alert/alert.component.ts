@@ -4,7 +4,7 @@ import { AlertService } from '../../services/alert.service';
 
 @Component({
     selector: 'alert',
-    template: require('./alert.component.html')
+    templateUrl: './alert.component.html'
 })
 
 export class AlertComponent implements OnInit {

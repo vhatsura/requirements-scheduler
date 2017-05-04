@@ -1,7 +1,7 @@
-﻿import { Component, Input, OnInit, Output, Inject, EventEmitter, ViewChild } from "@angular/core";
+﻿import { Component, Input, OnInit, Output, Inject, EventEmitter, ViewChild } from '@angular/core';
 
-import { Experiment, ExperimentStatus } from "../../models/index";
-import { ExperimentService } from "../../services/index";
+import { Experiment, ExperimentStatus } from '../../models/index';
+import { ExperimentService } from '../../services/index';
 
 import { Subscription } from 'rxjs';
 
@@ -13,10 +13,10 @@ import { GtConfig, GenericTableComponent } from 'angular-generic-table';
 import { ExperimentDetailComponent } from '../experiment-detail/experiment-detail.component';
 
 @Component({
-    selector: "experiments",
+    selector: 'experiments',
     styles: [`
   `],
-    template: require("./experiments.component.html")
+    templateUrl: './experiments.component.html'
 })
 export class ExperimentsComponent implements OnInit {
     public configObject: GtConfig<any>;

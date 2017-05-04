@@ -7,7 +7,7 @@ import { REQUEST } from '../../shared/constants/request';
 
 @Component({
     selector: 'app',
-    template: require('./app.component.html'),
+    templateUrl: './app.component.html',
     styles: [require('./app.component.scss')],
     encapsulation: ViewEncapsulation.None
 })

@@ -15,7 +15,7 @@ import { AlertService } from '../../services/alert.service';
         margin-bottom:10px;
     }
     `],
-    template: require('./reports.component.html')
+    templateUrl: './reports.component.html'
 })
 export class ReportsComponent implements OnInit {
 

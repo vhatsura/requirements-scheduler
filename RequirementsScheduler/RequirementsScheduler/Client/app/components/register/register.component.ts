@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { UserService, AlertService } from '../../services/index';
 
 @Component({
-    template: require('./register.component.html')
+    templateUrl: './register.component.html'
 })
 
 export class RegisterComponent {

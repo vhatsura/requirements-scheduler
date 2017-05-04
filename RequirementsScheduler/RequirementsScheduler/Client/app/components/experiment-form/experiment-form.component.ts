@@ -1,13 +1,13 @@
-﻿import { Component, OnInit } from "@angular/core";
+﻿import { Component, OnInit } from '@angular/core';
 
-import { Experiment } from "../../models/index";
-import { ExperimentService } from "../../services/index";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Experiment } from '../../models/index';
+import { ExperimentService } from '../../services/index';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { CustomValidators } from "ng2-validation";
+import { CustomValidators } from 'ng2-validation';
 
 @Component({
-    selector: "experiment-form",
+    selector: 'experiment-form',
     styles: [`
     .ng-valid[required], .ng-valid.required  {
         border-left: 5px solid #42A948; /* green */
@@ -21,21 +21,21 @@ import { CustomValidators } from "ng2-validation";
         float: none;
     }
     `],
-    template: require("./experiment-form.component.html")
+    templateUrl: './experiment-form.component.html'
 })
 
 export class ExperimentFormComponent implements OnInit {
-    error = "";
+    error = '';
     isTesting = false;
-    success = "";
+    success = '';
     loading = false;
     f: FormGroup;
     model: any = {
         J1: [],
         J2: [],
         J12: {
-            //OnFirst: [{ A: 5, B: 7 }, { A: 2, B: 4 }, { A: 8, B: 11 }, { A: 7, B: 10 }, { A: 10, B: 13 }],
-            //OnSecond: [{ A: 8, B: 10 }, { A: 6, B: 9 }, { A: 7, B: 10 }, { A: 7, B: 9 }, { A: 5, B: 8 }]
+            // OnFirst: [{ A: 5, B: 7 }, { A: 2, B: 4 }, { A: 8, B: 11 }, { A: 7, B: 10 }, { A: 10, B: 13 }],
+            // OnSecond: [{ A: 8, B: 10 }, { A: 6, B: 9 }, { A: 7, B: 10 }, { A: 7, B: 9 }, { A: 5, B: 8 }]
             OnFirst: [],
             OnSecond: []
         },
@@ -43,7 +43,7 @@ export class ExperimentFormComponent implements OnInit {
             OnFirst: [],
             OnSecond: []
         }
-    }
+    };
 
     trackByIndex(index: number, obj: any): any {
         return index;
@@ -73,7 +73,7 @@ export class ExperimentFormComponent implements OnInit {
         console.log(this.model);
         this.experimentService.createTest(this.model)
             .subscribe(result => {
-                if(result.status == 200) {
+                if (result.status === 200) {
                     this.success = `Experiment with ${result.response.id} id was submitted successfully`;
                     this.error = '';
                     this.model = {
@@ -87,7 +87,7 @@ export class ExperimentFormComponent implements OnInit {
                             OnFirst: [],
                             OnSecond: []
                         }
-                    }
+                    };
                 } else {
                     this.error = result.response;
                 }

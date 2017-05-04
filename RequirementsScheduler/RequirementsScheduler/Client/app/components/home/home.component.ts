@@ -1,13 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { User, Experiment } from "../../models/index";
-import { ExperimentService, AlertService } from "../../services/index";
+import { User, Experiment } from '../../models/index';
+import { ExperimentService, AlertService } from '../../services/index';
 
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
 @Component({
     selector: 'home',
-    template: require('./home.component.html')
+    templateUrl: './home.component.html'
 })
 
 export class HomeComponent implements OnInit {

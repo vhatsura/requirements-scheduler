@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     selector: 'users',
-    template: require('./users.component.html')
+    templateUrl: './users.component.html'
 })
 export class UsersComponent implements OnInit {
 

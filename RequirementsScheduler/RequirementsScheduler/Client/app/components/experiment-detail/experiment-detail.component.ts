@@ -7,7 +7,7 @@ import { ExperimentService } from '../../services/index';
 
 @Component({
     selector: 'experiment-detail',
-    template: require('./experiment-detail.component.html')
+    templateUrl: './experiment-detail.component.html'
 })
 export class ExperimentDetailComponent extends GtExpandedRow<any> implements OnInit {
 

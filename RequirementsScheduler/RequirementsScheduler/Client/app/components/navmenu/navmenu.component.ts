@@ -6,7 +6,7 @@ import { JwtHelper } from 'angular2-jwt';
 
 @Component({
     selector: 'nav-menu',
-    template: require('./navmenu.component.html'),
+    templateUrl: './navmenu.component.html',
     styles: [require('./navmenu.component.css')]
 })
 export class NavMenuComponent implements OnInit, OnDestroy {
@@ -23,7 +23,7 @@ export class NavMenuComponent implements OnInit, OnDestroy {
             .subscribe(item => {
                 if (this.authService.loggedIn()) {
                     this.isLogged = true;
-                    this.isAdmin = this.authService.userRole() === "admin";
+                    this.isAdmin = this.authService.userRole() === 'admin';
                 } else {
                     this.isLogged = false;
                 }
@@ -31,7 +31,7 @@ export class NavMenuComponent implements OnInit, OnDestroy {
 
         if (this.authService.loggedIn()) {
             this.isLogged = true;
-            this.isAdmin = this.authService.userRole() === "admin";
+            this.isAdmin = this.authService.userRole() === 'admin';
         } else {
             this.isLogged = false;
         }
