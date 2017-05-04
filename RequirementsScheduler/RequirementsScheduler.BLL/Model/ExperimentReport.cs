@@ -17,6 +17,8 @@ namespace RequirementsScheduler.BLL.Model
 
         public int ABorder { get; set; }
         public int BBorder { get; set; }
+        public int MinPercentageFromA { get; set; }
+        public int MaxPercentageFromA { get; set; }
 
         public int OfflineResolvedConflictAmount { get; set; }
         public int OnlineResolvedConflictAmount { get; set; }
