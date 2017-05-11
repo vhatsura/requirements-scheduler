@@ -68,8 +68,6 @@ namespace RequirementsScheduler.Library.Worker
             var stop3 = 0;
             var stop4 = 0;
 
-            var wasThereStop4 = false;
-
             var sumOfDeltaCmax = 0.0;
 
             for (var i = 0; i < experiment.TestsAmount; i++)
@@ -110,9 +108,10 @@ namespace RequirementsScheduler.Library.Worker
                     }
                     else
                     {
-                        wasThereStop4 = true;
                         stop4++;
                         sumOfDeltaCmax += experimentInfo.Result.DeltaCmax;
+
+                        experimentReport.DeltaCmaxMax = Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
                     }
                 }
                 else
@@ -125,9 +124,7 @@ namespace RequirementsScheduler.Library.Worker
                 experimentReport.OfflineResolvedConflictAmount += experimentInfo.Result.OfflineResolvedConflictAmount;
                 experimentReport.OnlineResolvedConflictAmount += experimentInfo.Result.OnlineResolvedConflictAmount;
                 experimentReport.OnlineUnResolvedConflictAmount += experimentInfo.Result.OnlineUnResolvedConflictAmount;
-
-                experimentReport.DeltaCmaxMax = Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
-
+                
                 ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
             }
 
@@ -136,7 +133,7 @@ namespace RequirementsScheduler.Library.Worker
             experimentReport.Stop3Percentage = (float)Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
             experimentReport.Stop4Percentage = (float)Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
 
-            if (wasThereStop4)
+            if (stop4 != 0)
             {
                 experimentReport.DeltaCmaxAverage = (float)sumOfDeltaCmax / experiment.TestsAmount;
             }

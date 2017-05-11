@@ -335,6 +335,9 @@ export class ReportsComponent implements OnInit {
         // console.log(this.myTable.gtInfo);
         
         let filteredData = this.getFilteredData();
+        filteredData.sort((a, b) => {
+            return a.requirementsAmount - b.requirementsAmount;
+        });
         console.log(filteredData);
         
         let firstDataTable = [

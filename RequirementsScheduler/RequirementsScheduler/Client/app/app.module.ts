@@ -40,7 +40,7 @@ import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
-import { NgProgressCustomBrowserXhr, NgProgressModule } from "ng2-progressbar";
+import { NgProgressCustomBrowserXhr, NgProgressModule } from 'ng2-progressbar';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     return new AuthHttp(new AuthConfig({
