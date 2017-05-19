@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Quartz;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Core.Service;
 
 namespace RequirementsScheduler.Library.Worker
 {
@@ -19,8 +20,19 @@ namespace RequirementsScheduler.Library.Worker
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var experimentsForProcessing = Service.GetByStatus(ExperimentStatus.New, "worker");
-            await Pipeline.Run(experimentsForProcessing);
+            try
+            {
+                var experimentsForProcessing = Service.GetByStatus(ExperimentStatus.New, "worker");
+                await Pipeline.Run(experimentsForProcessing);
+            }
+            catch (Exception ex)
+            {
+                var telemetry = new TelemetryClient();
+
+                // Send the exception telemetry:
+                telemetry.TrackException(ex);
+            }
+            
         }
     }
 }

@@ -45,8 +45,8 @@
   <Target Name="RunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec Command="npm install" />
-    <Exec Command="node node_modules/webpack/bin/webpack.js --env.client" />
-    <Exec Command="node node_modules/webpack/bin/webpack.js --env.server" />
+    <Exec Command="node node_modules/webpack/bin/webpack.js --env.aot --env.client" />
+    <Exec Command="node node_modules/webpack/bin/webpack.js --env.aot --env.server" />
     
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>

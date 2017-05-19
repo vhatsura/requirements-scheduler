@@ -44,7 +44,7 @@ namespace RequirementsScheduler
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            var builder = services.AddMvc();
             services.AddNodeServices();
 
             services.AddApplicationInsightsTelemetry();
@@ -99,6 +99,7 @@ namespace RequirementsScheduler
                 >();
         }
 
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -106,6 +107,8 @@ namespace RequirementsScheduler
             loggerFactory.AddDebug();
 
             loggerFactory.AddApplicationInsights(app.ApplicationServices);
+
+            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
             if (env.IsDevelopment())
             {

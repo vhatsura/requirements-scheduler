@@ -38,114 +38,120 @@ namespace RequirementsScheduler.Library.Worker
         {
             foreach (var experiment in experiments)
             {
+                experiment.Status = ExperimentStatus.InProgress;
+                Service.StartExperiment(experiment.Id);
+
                 try
                 {
-
-                    experiment.Status = ExperimentStatus.InProgress;
-                    Service.StartExperiment(experiment.Id);
-
                     await RunTests(experiment);
-
+                }
+                finally
+                {
                     experiment.Status = ExperimentStatus.Completed;
                     Service.StopExperiment(experiment.Id);
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogCritical(new EventId(), ex, $"Error during run experiment {experiment.Id}");
-                }
+                
             }
         }
 
         private Task RunTests(Experiment experiment)
         {
-            var experimentReport = new ExperimentReport()
+            ExperimentInfo experimentInfo = null;
+            try
             {
-                ExperimentId = experiment.Id,
-            };
-
-            var stop1 = 0;
-            var stop2 = 0;
-            var stop3 = 0;
-            var stop4 = 0;
-
-            var sumOfDeltaCmax = 0.0;
-
-            for (var i = 0; i < experiment.TestsAmount; i++)
-            {
-                var experimentInfo = Generator.GenerateDataForTest(experiment);
-
-                experimentInfo.TestNumber = i + 1;
-
-                var offlineResult = CheckOffline(experimentInfo);
-
-                if (experimentInfo.J12Chain == null ||
-                    experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any())
+                var experimentReport = new ExperimentReport()
                 {
-                    experimentInfo.J12Chain = new Chain(experimentInfo.J12
-                        .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
-                }
-                if (experimentInfo.J21Chain == null ||
-                    experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
+                    ExperimentId = experiment.Id,
+                };
+
+                var stop1 = 0;
+                var stop2 = 0;
+                var stop3 = 0;
+                var stop4 = 0;
+
+                var sumOfDeltaCmax = 0.0;
+
+                for (var i = 0; i < experiment.TestsAmount; i++)
                 {
-                    experimentInfo.J21Chain = new Chain(experimentInfo.J21
-                        .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
-                }
+                    experimentInfo = Generator.GenerateDataForTest(experiment);
 
-                if (!offlineResult)
-                {
-                    experimentInfo.OnlineChainOnFirstMachine = GetOnlineChainOnFirstMachine(experimentInfo);
-                    experimentInfo.OnlineChainOnSecondMachine = GetOnlineChainOnSecondMachine(experimentInfo);
+                    experimentInfo.TestNumber = i + 1;
 
-                    RunOnlineMode(experimentInfo);
+                    var offlineResult = CheckOffline(experimentInfo);
 
-                    if (!experimentInfo.Result.IsResolvedOnCheck3InOnline)
+                    if (experimentInfo.J12Chain == null ||
+                        experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any())
                     {
-                        stop2++;
+                        experimentInfo.J12Chain = new Chain(experimentInfo.J12
+                            .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
                     }
-                    else if (experimentInfo.Result.IsStop3OnOnline)
+                    if (experimentInfo.J21Chain == null ||
+                        experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
                     {
-                        stop3++;
+                        experimentInfo.J21Chain = new Chain(experimentInfo.J21
+                            .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+                    }
+
+                    if (!offlineResult)
+                    {
+                        experimentInfo.OnlineChainOnFirstMachine = GetOnlineChainOnFirstMachine(experimentInfo);
+                        experimentInfo.OnlineChainOnSecondMachine = GetOnlineChainOnSecondMachine(experimentInfo);
+
+                        RunOnlineMode(experimentInfo);
+
+                        if (!experimentInfo.Result.IsResolvedOnCheck3InOnline)
+                        {
+                            stop2++;
+                        }
+                        else if (experimentInfo.Result.IsStop3OnOnline)
+                        {
+                            stop3++;
+                        }
+                        else
+                        {
+                            stop4++;
+                            sumOfDeltaCmax += experimentInfo.Result.DeltaCmax;
+
+                            experimentReport.DeltaCmaxMax = Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
+                        }
                     }
                     else
                     {
-                        stop4++;
-                        sumOfDeltaCmax += experimentInfo.Result.DeltaCmax;
-
-                        experimentReport.DeltaCmaxMax = Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
+                        stop1++;
                     }
+
+                    experimentReport.OnlineExecutionTime = experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
+
+                    experimentReport.OfflineResolvedConflictAmount += experimentInfo.Result.OfflineResolvedConflictAmount;
+                    experimentReport.OnlineResolvedConflictAmount += experimentInfo.Result.OnlineResolvedConflictAmount;
+                    experimentReport.OnlineUnResolvedConflictAmount += experimentInfo.Result.OnlineUnResolvedConflictAmount;
+                   
+                }
+
+                experimentReport.Stop1Percentage = (float)Math.Round(stop1 / (float)experiment.TestsAmount * 100, 1);
+                experimentReport.Stop2Percentage = (float)Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
+                experimentReport.Stop3Percentage = (float)Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
+                experimentReport.Stop4Percentage = (float)Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
+
+                if (stop4 != 0)
+                {
+                    experimentReport.DeltaCmaxAverage = (float)sumOfDeltaCmax / experiment.TestsAmount;
                 }
                 else
                 {
-                    stop1++;
+                    experimentReport.DeltaCmaxAverage = 0;
                 }
 
-                experimentReport.OnlineExecutionTime = experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
 
-                experimentReport.OfflineResolvedConflictAmount += experimentInfo.Result.OfflineResolvedConflictAmount;
-                experimentReport.OnlineResolvedConflictAmount += experimentInfo.Result.OnlineResolvedConflictAmount;
-                experimentReport.OnlineUnResolvedConflictAmount += experimentInfo.Result.OnlineUnResolvedConflictAmount;
-                
-                ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+                ReportService.Save(experimentReport);
+
+                return Task.FromResult(0);
             }
-
-            experimentReport.Stop1Percentage = (float)Math.Round(stop1 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop2Percentage = (float)Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop3Percentage = (float)Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop4Percentage = (float)Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
-
-            if (stop4 != 0)
+            finally
             {
-                experimentReport.DeltaCmaxAverage = (float)sumOfDeltaCmax / experiment.TestsAmount;
+                if(experimentInfo != null)
+                    ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
             }
-            else
-            {
-                experimentReport.DeltaCmaxAverage = 0;
-            }
-
-
-            ReportService.Save(experimentReport);
-
-            return Task.FromResult(0);
         }
 
         private static void RunTest()
