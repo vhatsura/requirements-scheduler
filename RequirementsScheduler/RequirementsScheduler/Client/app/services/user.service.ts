@@ -29,13 +29,13 @@ export class UserService {
         return this.authHttp.post('/api/users', user).map((response: Response) => response.json());
     }
 
-    //update(user: User) {
+    // update(user: User) {
     //    return this.http.put('/api/users/' + user.id, user, this.jwt()).map((response: Response) => response.json());
-    //}
+    // }
 
-    //delete(id: number) {
+    // delete(id: number) {
     //    return this.http.delete('/api/users/' + id, this.jwt()).map((response: Response) => response.json());
-    //}
+    // }
 
     // private helper methods
 }

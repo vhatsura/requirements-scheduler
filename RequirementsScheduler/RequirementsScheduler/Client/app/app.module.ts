@@ -42,6 +42,10 @@ import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
 import { NgProgressCustomBrowserXhr, NgProgressModule } from 'ng2-progressbar';
 
+import { NameComponent, RoleComponent, EmailComponent } from './components/users/users.component';
+
+import { UserDetailComponent } from './components/user-detail/user-detail.component';
+
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     return new AuthHttp(new AuthConfig({
         tokenName: 'token',
@@ -66,7 +70,11 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ExperimentsComponent,
         ExperimentDetailComponent,
         TestListComponent,
-        TestDetailComponent
+        TestDetailComponent,
+        UserDetailComponent,
+        NameComponent,
+        RoleComponent,
+        EmailComponent
     ],
     imports: [
         CommonModule,
@@ -106,7 +114,13 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
             provide: BrowserXhr, useClass: NgProgressCustomBrowserXhr
         }
     ],
-    entryComponents: [ExperimentDetailComponent]
+    entryComponents: [
+        ExperimentDetailComponent,
+        UserDetailComponent,
+        NameComponent,
+        RoleComponent,
+        EmailComponent
+    ]
 })
 export class AppModule {
 }

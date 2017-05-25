@@ -1,9 +1,9 @@
-﻿<div class="col-md-6 col-md-offset-3">
+﻿<div class="col-md-10 col-md-offset-2">
     <div>
-        Users:
-        <ul>
-            <li *ngFor="let user of users">{{user.username}}</li>
-        </ul>
+        <generic-table [gtClasses]="'table-hover'" #myTable [gtSettings]="configObject.settings" [gtFields]="configObject.fields" [(gtData)]="configObject.data" [gtRowComponent]="expandedRow" [gtOptions]="{stack:false, highlightSearch:true, rowSelection:true}"></generic-table>
+        <div class="text-center">
+            <gt-pagination [gtClasses]="'justify-content-center'" [genericTable]="myTable"></gt-pagination>
+        </div>
     </div>
     <p><a [routerLink]="['/register']">Add user</a></p>
 </div>

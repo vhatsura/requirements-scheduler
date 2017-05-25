@@ -63,5 +63,8 @@
         <generic-table [gtClasses]="'table-hover'" #myTable [gtSettings]="configObject.settings" [gtFields]="configObject.fields" [(gtData)]="configObject.data" [gtOptions]="{stack:false, highlightSearch:true, rowSelection:true}">
         </generic-table>
     </div>
+    <div class="text-center">
+        <gt-pagination [gtClasses]="'justify-content-center'" [genericTable]="myTable"></gt-pagination>
+    </div>
 
 </div>
