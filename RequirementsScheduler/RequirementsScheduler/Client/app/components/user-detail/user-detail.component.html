@@ -6,16 +6,6 @@
                 <i class="fa fa-close fa-lg" (click)="$hide()" aria-hidden="true"></i>
             </div>
         </div>
-        <div class="row alert alert-danger">
-            <div class="col-sm-10">
-                After user registration not all settings were specified. The user will not be added until you complete all necessary settings
-            </div>
-            <div class="col-sm-2">
-                <button type="button" class="close" aria-label="Close" (click)="message = undefined">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            </div>
-        </div>
         <form name="form" [formGroup]="f" novalidate>
             <div class="row">
                 <div class="form-group col-sm-2">
@@ -33,15 +23,15 @@
                 <div class="form-group col-sm-4">
                     <label class="control-label">Authentication service settings</label>
 
-                    <div class="form-group" [ngClass]="{'has-error': f.submitted && !f.controls.issuerName.valid}">
+                    <div class="form-group" [ngClass]="{'has-error': submitted && !f.controls.issuerName.valid}">
                         <label>Issuer name</label>
                         <input formControlName="issuerName" type="text" class="form-control" required />
                     </div>
-                    <div class="form-group" [ngClass]="{'has-error': f.submitted && !f.controls.expTime.valid}">
+                    <div class="form-group" [ngClass]="{'has-error': submitted && !f.controls.expTime.valid}">
                         <label>Expiration token time</label>
                         <input formControlName="expTime" type="time" class="form-control" required />
                     </div>
-                    <div class="form-group" [ngClass]="{'has-error': f.submitted && !f.controls.signKey.valid}">
+                    <div class="form-group" [ngClass]="{'has-error': submitted && !f.controls.signKey.valid}">
                         <label>Signing key id</label>
                         <div class="row">
                             <div class="col-sm-10 padding-0">
