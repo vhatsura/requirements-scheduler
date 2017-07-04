@@ -45,6 +45,9 @@ import { NgProgressCustomBrowserXhr, NgProgressModule } from 'ng2-progressbar';
 import { NameComponent, RoleComponent, EmailComponent } from './components/users/users.component';
 
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
+
+import { Ng2BootstrapModule } from 'ngx-bootstrap';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     return new AuthHttp(new AuthConfig({
@@ -74,7 +77,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         UserDetailComponent,
         NameComponent,
         RoleComponent,
-        EmailComponent
+        EmailComponent,
+        NotFoundComponent
     ],
     imports: [
         CommonModule,
@@ -86,6 +90,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
 
         Ng2GoogleChartsModule,
 
+        Ng2BootstrapModule.forRoot(), // You could also split this up if you don't want the Entire Module imported
+
         GenericTableModule,
         TransferHttpModule,
         RouterModule.forRoot([
@@ -94,7 +100,18 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
             { path: 'reports', component: ReportsComponent },
             { path: 'login', component: LoginComponent },
             { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
-            { path: '**', redirectTo: '' }
+            { path: '**', redirectTo: '' },
+            {
+                 path: '**', component: NotFoundComponent,
+                 data: {
+                     title: '404 - Not found',
+                     meta: [{ name: 'description', content: '404 - Error' }],
+                     links: [
+                         { rel: 'canonical', href: 'http://blogs.example.com/bootstrap/something' },
+                         { rel: 'alternate', hreflang: 'es', href: 'http://es.example.com/bootstrap-demo' }
+                     ]
+                 }
+             }
         ]),
         NgProgressModule
     ],
