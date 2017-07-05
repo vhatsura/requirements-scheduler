@@ -154,7 +154,7 @@ namespace RequirementsScheduler.Controllers
 
             if (value.J2.Any())
             {
-                experimentInfo.J2.AddRange(value.J1.Select(time => new Detail(time.A, time.B, ++number)));
+                experimentInfo.J2.AddRange(value.J2.Select(time => new Detail(time.A, time.B, ++number)));
             }
 
             if (value.J12 != null)
