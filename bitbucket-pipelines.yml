@@ -9,6 +9,6 @@ pipelines:
   default:
     - step:
         script: # Modify the commands below to build your repository.
-          - dotnet restore
+          - dotnet restore ~/Requirements Scheduler/RequirementsScheduler/RequirementsScheduler.sln
           - dotnet msbuild RequirementsScheduler
 #          - dotnet test TestName
