@@ -14,8 +14,6 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AlertService, AuthenticationService, UserService, ExperimentService } from './services/index';
-import { TabsComponent } from './components/tabs/tabs.component';
-import { TabComponent } from './components/tab/tab.component';
 import { ExperimentFormComponent } from './components/experiment-form/experiment-form.component';
 import { ExperimentsComponent } from './components/experiments/experiments.component';
 import { ExperimentDetailComponent } from './components/experiment-detail/experiment-detail.component';
@@ -47,7 +45,7 @@ import { NameComponent, RoleComponent, EmailComponent } from './components/users
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 
-import { Ng2BootstrapModule } from 'ngx-bootstrap';
+import { Ng2BootstrapModule, TabsModule  } from 'ngx-bootstrap';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     return new AuthHttp(new AuthConfig({
@@ -67,8 +65,6 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ReportsComponent,
         LoginComponent,
         RegisterComponent,
-        TabComponent,
-        TabsComponent,
         ExperimentFormComponent,
         ExperimentsComponent,
         ExperimentDetailComponent,
@@ -91,6 +87,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         Ng2GoogleChartsModule,
 
         Ng2BootstrapModule.forRoot(), // You could also split this up if you don't want the Entire Module imported
+        TabsModule.forRoot(),
 
         GenericTableModule,
         TransferHttpModule,

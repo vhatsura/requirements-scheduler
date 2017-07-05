@@ -1,13 +1,13 @@
 <div class="col-md-10 col-md-offset-2">
-    <tabs>
-        <tab tabTitle="New Experiment" class="col-md-12">
+    <tabset [justified]="true">
+        <tab heading="New Experiment" class="col-md-12">
             <experiment-form></experiment-form>
         </tab>
-        <tab tabTitle="Experiments in progress">
+        <tab heading="Experiments in progress">
             <experiments experimentStatus="InProgress"></experiments>
         </tab>
-        <tab tabTitle="Completed Experiments">
+        <tab heading="Completed Experiments">
             <experiments experimentStatus="Completed"></experiments>
         </tab>
-    </tabs>
+    </tabset>
 </div>
