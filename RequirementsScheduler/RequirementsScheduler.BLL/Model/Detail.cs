@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
-    [DebuggerDisplay("Number: {Number} A: {Time.A.ToString(\"0.###\")} B: {Time.B.ToString(\"0.###\")} P: {Time.P.ToString(\"0.###\")}")]
+    [DebuggerDisplay("Number: {Number} A: {Time.A:0.###} B: {Time.B:0.###} P: {Time.P:0.###}")]
     public class Detail : IOnlineChainNode
     {
         public ProcessingTime Time { get; }
@@ -28,5 +28,10 @@ namespace RequirementsScheduler.BLL.Model
         }
 
         public OnlineChainType Type => OnlineChainType.Detail;
+
+        public override string ToString()
+        {
+            return $"Number: {Number} A: {Time.A:0.###} B: {Time.B:0.###} P: {Time.P:0.###}";
+        }
     }
 }

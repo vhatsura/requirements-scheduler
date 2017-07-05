@@ -1211,10 +1211,9 @@ namespace RequirementsScheduler.Library.Worker
             var time1 = 0.0;
             var time2 = 0.0;
 
-            bool isFirstDetail = true;
+            var isFirstDetail = true;
 
             var nodeOnFirstMachine = experimentInfo.OnlineChainOnFirstMachine.First;
-
             var nodeOnSecondMachine = experimentInfo.OnlineChainOnSecondMachine.First;
 
             var hasDetailOnFirst = nodeOnFirstMachine != null;
@@ -1241,6 +1240,12 @@ namespace RequirementsScheduler.Library.Worker
                         out hasDetailOnFirst,
                         isFirstDetail,
                         experimentInfo.Result);
+
+                    if (nodeOnSecondMachine?.List == null)
+                    {
+                        if (isFirstDetail)
+                            nodeOnSecondMachine = experimentInfo.OnlineChainOnSecondMachine.First;
+                    }
 
                     ProcessDetailOnMachine(
                         ref currentDetailOnSecond,

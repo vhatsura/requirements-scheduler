@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
-    [DebuggerDisplay("Number: {" + nameof(Number) + "}")]
+    [DebuggerDisplay("Number: {" + nameof(Number) + "}, OnFirst: {" + nameof(OnFirst) + "}, OnSecond: {" + nameof(OnSecond) + "}")]
     public class LaboriousDetail : IChainNode, IEquatable<LaboriousDetail>
     {
         public ChainType Type => ChainType.Detail;
