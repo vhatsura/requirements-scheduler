@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
-    [DebuggerDisplay("Number: {Number} A: {Time.A:0.###} B: {Time.B:0.###} P: {Time.P:0.###}")]
     public class Detail : IOnlineChainNode
     {
         public ProcessingTime Time { get; }
@@ -31,7 +29,7 @@ namespace RequirementsScheduler.BLL.Model
 
         public override string ToString()
         {
-            return $"Number: {Number} A: {Time.A:0.###} B: {Time.B:0.###} P: {Time.P:0.###}";
+            return $"Number: {Number} Time: ({Time})";
         }
     }
 }

@@ -50,5 +50,10 @@ namespace RequirementsScheduler.BLL.Model
                 return (A.GetHashCode() * 397) ^ B.GetHashCode();
             }
         }
+
+        public override string ToString()
+        {
+            return $"A: {A:0.###} B: {B:0.###} P: {P:0.###}";
+        }
     }
 }
