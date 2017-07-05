@@ -10,5 +10,6 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
            - dotnet restore ./RequirementsScheduler/
+           - dotner build
 #          - dotnet msbuild RequirementsScheduler
 #          - dotnet test TestName
