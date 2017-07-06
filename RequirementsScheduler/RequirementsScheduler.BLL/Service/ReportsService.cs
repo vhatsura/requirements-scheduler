@@ -28,6 +28,9 @@ namespace RequirementsScheduler.BLL.Service
         {
                 return ResultRepository
                 .GetWith(e => e.Experiment)
+#if IN_MEMORY
+                .Select(r => r.Experiment = ExperimentRepository.Get(r.ExperimentId))
+#endif
                 .Select(r => Mapper.Map<ExperimentReport>(r));
         }
 
