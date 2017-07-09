@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6;IN_MEMORY</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6;NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

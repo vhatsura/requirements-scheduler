@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -50,108 +51,103 @@ namespace RequirementsScheduler.Library.Worker
                     experiment.Status = ExperimentStatus.Completed;
                     Service.StopExperiment(experiment.Id);
                 }
-                
+
             }
         }
 
         private Task RunTests(Experiment experiment)
         {
             ExperimentInfo experimentInfo = null;
-            try
+
+            var experimentReport = new ExperimentReport()
             {
-                var experimentReport = new ExperimentReport()
+                ExperimentId = experiment.Id,
+            };
+
+            var stop1 = 0;
+            var stop2 = 0;
+            var stop3 = 0;
+            var stop4 = 0;
+
+            var sumOfDeltaCmax = 0.0;
+
+            for (var i = 0; i < experiment.TestsAmount; i++)
+            {
+                experimentInfo = Generator.GenerateDataForTest(experiment);
+
+                experimentInfo.TestNumber = i + 1;
+
+                var offlineResult = CheckOffline(experimentInfo);
+
+                if (experimentInfo.J12Chain == null ||
+                    experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any())
                 {
-                    ExperimentId = experiment.Id,
-                };
-
-                var stop1 = 0;
-                var stop2 = 0;
-                var stop3 = 0;
-                var stop4 = 0;
-
-                var sumOfDeltaCmax = 0.0;
-
-                for (var i = 0; i < experiment.TestsAmount; i++)
+                    experimentInfo.J12Chain = new Chain(experimentInfo.J12
+                        .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+                }
+                if (experimentInfo.J21Chain == null ||
+                    experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
                 {
-                    experimentInfo = Generator.GenerateDataForTest(experiment);
+                    experimentInfo.J21Chain = new Chain(experimentInfo.J21
+                        .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+                }
 
-                    experimentInfo.TestNumber = i + 1;
+                if (!offlineResult)
+                {
+                    experimentInfo.OnlineChainOnFirstMachine = GetOnlineChainOnFirstMachine(experimentInfo);
+                    experimentInfo.OnlineChainOnSecondMachine = GetOnlineChainOnSecondMachine(experimentInfo);
 
-                    var offlineResult = CheckOffline(experimentInfo);
+                    RunOnlineMode(experimentInfo);
 
-                    if (experimentInfo.J12Chain == null ||
-                        experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any())
+                    if (!experimentInfo.Result.IsResolvedOnCheck3InOnline)
                     {
-                        experimentInfo.J12Chain = new Chain(experimentInfo.J12
-                            .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+                        stop2++;
                     }
-                    if (experimentInfo.J21Chain == null ||
-                        experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
+                    else if (experimentInfo.Result.IsStop3OnOnline)
                     {
-                        experimentInfo.J21Chain = new Chain(experimentInfo.J21
-                            .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
-                    }
-
-                    if (!offlineResult)
-                    {
-                        experimentInfo.OnlineChainOnFirstMachine = GetOnlineChainOnFirstMachine(experimentInfo);
-                        experimentInfo.OnlineChainOnSecondMachine = GetOnlineChainOnSecondMachine(experimentInfo);
-
-                        RunOnlineMode(experimentInfo);
-
-                        if (!experimentInfo.Result.IsResolvedOnCheck3InOnline)
-                        {
-                            stop2++;
-                        }
-                        else if (experimentInfo.Result.IsStop3OnOnline)
-                        {
-                            stop3++;
-                        }
-                        else
-                        {
-                            stop4++;
-                            sumOfDeltaCmax += experimentInfo.Result.DeltaCmax;
-
-                            experimentReport.DeltaCmaxMax = Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
-                        }
+                        stop3++;
                     }
                     else
                     {
-                        stop1++;
+                        stop4++;
+                        sumOfDeltaCmax += experimentInfo.Result.DeltaCmax;
+
+                        experimentReport.DeltaCmaxMax = Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
                     }
-
-                    experimentReport.OnlineExecutionTime = experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
-
-                    experimentReport.OfflineResolvedConflictAmount += experimentInfo.Result.OfflineResolvedConflictAmount;
-                    experimentReport.OnlineResolvedConflictAmount += experimentInfo.Result.OnlineResolvedConflictAmount;
-                    experimentReport.OnlineUnResolvedConflictAmount += experimentInfo.Result.OnlineUnResolvedConflictAmount;
-                   
-                }
-
-                experimentReport.Stop1Percentage = (float)Math.Round(stop1 / (float)experiment.TestsAmount * 100, 1);
-                experimentReport.Stop2Percentage = (float)Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
-                experimentReport.Stop3Percentage = (float)Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
-                experimentReport.Stop4Percentage = (float)Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
-
-                if (stop4 != 0)
-                {
-                    experimentReport.DeltaCmaxAverage = (float)sumOfDeltaCmax / experiment.TestsAmount;
                 }
                 else
                 {
-                    experimentReport.DeltaCmaxAverage = 0;
+                    stop1++;
                 }
 
+                experimentReport.OnlineExecutionTime = experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
 
-                ReportService.Save(experimentReport);
+                experimentReport.OfflineResolvedConflictAmount += experimentInfo.Result.OfflineResolvedConflictAmount;
+                experimentReport.OnlineResolvedConflictAmount += experimentInfo.Result.OnlineResolvedConflictAmount;
+                experimentReport.OnlineUnResolvedConflictAmount += experimentInfo.Result.OnlineUnResolvedConflictAmount;
 
-                return Task.FromResult(0);
+                ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
             }
-            finally
+
+            experimentReport.Stop1Percentage = (float)Math.Round(stop1 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop2Percentage = (float)Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop3Percentage = (float)Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop4Percentage = (float)Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
+
+            if (stop4 != 0)
             {
-                if(experimentInfo != null)
-                    ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+                experimentReport.DeltaCmaxAverage = (float)sumOfDeltaCmax / experiment.TestsAmount;
             }
+            else
+            {
+                experimentReport.DeltaCmaxAverage = 0;
+            }
+
+
+            ReportService.Save(experimentReport);
+
+            return Task.FromResult(0);
+
         }
 
         private static void RunTest()
@@ -1326,8 +1322,24 @@ namespace RequirementsScheduler.Library.Worker
             timeFromMachinesStart = Math.Max(time1, time2);
 
             var cMax = timeFromMachinesStart;
-            double cOpt;
+            double cOpt = CalculateCOpt(time1, time2, experimentInfo, cMax);
 
+            if (Math.Abs(cOpt - cMax) < 0.0001)
+            {
+                experimentInfo.Result.IsStop3OnOnline = true;
+            }
+
+            experimentInfo.Result.DeltaCmax = (float)((cMax - cOpt) / cOpt * 100);
+
+        }
+
+        private static double CalculateCOpt(
+            double time1,
+            double time2,
+            ExperimentInfo experimentInfo,
+            double cMax)
+        {
+            double cOpt;
             if (time2 >= time1 && !experimentInfo.OnlineChainOnSecondMachine.Any(node => node is Downtime) ||
                 time1 >= time2 && !experimentInfo.OnlineChainOnFirstMachine.Any(node => node is Downtime))
             {
@@ -1356,6 +1368,20 @@ namespace RequirementsScheduler.Library.Worker
                         throw new InvalidOperationException("Wrong get J12 from online chains");
                     }
 
+                    var x1 = j12OnFirstMachine
+                        .Where(detail => detail.Time.P <= j12OnSecondMachine.First(d => d.Number == detail.Number).Time.P)
+                        .OrderBy(detail => detail.Time.P);
+
+                    var x2 = j12OnFirstMachine
+                        .Except(x1)
+                        .OrderByDescending(detail => j12OnSecondMachine.First(d => d.Number == detail.Number).Time.P);
+
+                    j12OnFirstMachine = x1.Concat(x2).ToList();
+                    j12OnSecondMachine = j12OnSecondMachine
+                        .OrderBy(detail => detail.Number,
+                            new CustomComparer(j12OnFirstMachine.Select(detail => detail.Number)))
+                            .ToList();
+
                     var sumOfPOnFirst = j12OnFirstMachine.First().Time.P;
                     var sumOfPOnSecond = j12OnSecondMachine.Sum(detail => detail.Time.P);
                     var maxSumOfP = 0.0;
@@ -1380,7 +1406,9 @@ namespace RequirementsScheduler.Library.Worker
                     if (jOfMaxSumOfP == 0)
                         throw new InvalidOperationException("Wrong finding algorithm of maxCfact");
 
-                    var l = j12OnFirstMachine.Take(jOfMaxSumOfP).Sum(detail => detail.Time.P) - j12OnSecondMachine.Take(jOfMaxSumOfP - 1).Sum(detail => detail.Time.P);
+                    var l = j12OnFirstMachine
+                        .Take(jOfMaxSumOfP)
+                        .Sum(detail => detail.Time.P) - j12OnSecondMachine.Take(jOfMaxSumOfP - 1).Sum(detail => detail.Time.P);
                     var q = experimentInfo.OnlineChainOnSecondMachine
                         .OfType<Detail>()
                         .Where(detail => !j12Numbers.Contains(detail.Number))
@@ -1415,6 +1443,20 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         throw new InvalidOperationException("Wrong get J21 from online chains");
                     }
+
+                    var x1 = j21OnFirstMachine
+                        .Where(detail => j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P <= detail.Time.P)
+                        .OrderBy(detail => j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P);
+
+                    var x2 = j21OnFirstMachine
+                        .Except(x1)
+                        .OrderByDescending(detail => detail.Time.P);
+
+                    j21OnFirstMachine = x1.Concat(x2).ToList();
+                    j21OnSecondMachine = j21OnSecondMachine
+                        .OrderBy(detail => detail.Number,
+                            new CustomComparer(j21OnFirstMachine.Select(detail => detail.Number)))
+                        .ToList();
 
                     var sumOfPOnFirst = j21OnFirstMachine.Sum(detail => detail.Time.P);
                     var sumOfPOnSecond = j21OnSecondMachine.First().Time.P;
@@ -1457,13 +1499,7 @@ namespace RequirementsScheduler.Library.Worker
                 }
             }
 
-            if (Math.Abs(cOpt - cMax) < 0.0001)
-            {
-                experimentInfo.Result.IsStop3OnOnline = true;
-            }
-
-            experimentInfo.Result.DeltaCmax = (float)((cMax - cOpt) / cOpt * 100);
-
+            return cOpt;
         }
 
         private static void ProcessDetailOnMachine(
@@ -1739,5 +1775,19 @@ namespace RequirementsScheduler.Library.Worker
         }
 
         #endregion
+
+        internal class CustomComparer : IComparer<int>
+        {
+            private readonly List<int> _numbers;
+            public CustomComparer(IEnumerable<int> numbers)
+            {
+                _numbers = numbers.ToList();
+            }
+
+            public int Compare(int x, int y)
+            {
+                return _numbers.IndexOf(x).CompareTo(_numbers.IndexOf(y));
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@
     <ApplicationInsightsAnnotationResourceId>/subscriptions/881b4899-680f-4106-8a7c-1afbef680f61/resourceGroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/requirementsscheduler</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1;NETCOREAPP1_1;NETCOREAPP1_1;NETCOREAPP1_1;NETCOREAPP1_1;IN_MEMORY</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1;NETCOREAPP1_1;NETCOREAPP1_1;NETCOREAPP1_1;NETCOREAPP1_1;NETCOREAPP1_1</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;RELEASE;NETCOREAPP1_1;RELEASE;NETCOREAPP1_1</DefineConstants>
