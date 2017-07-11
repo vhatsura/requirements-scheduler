@@ -1,8 +1,10 @@
 using System;
 using System.Text;
 using AutoMapper;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,8 @@ using RequirementsScheduler.DAL;
 using RequirementsScheduler.DAL.Repository;
 using RequirementsScheduler.Extensions;
 using RequirementsScheduler.Library.Worker;
+using RequirementsScheduler.Middleware;
+using RequirementsScheduler.Telemetry;
 
 namespace RequirementsScheduler
 {
@@ -48,6 +52,8 @@ namespace RequirementsScheduler
             services.AddNodeServices();
 
             services.AddApplicationInsightsTelemetry();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var physicalProvider = _hostingEnvironment.ContentRootFileProvider;
 
@@ -108,7 +114,13 @@ namespace RequirementsScheduler
 
             loggerFactory.AddApplicationInsights(app.ApplicationServices);
 
+            app.UseMiddleware<EnableRequestRewindMiddleware>();
             app.UseMiddleware<CustomExceptionHandlerMiddleware>();
+
+            var initialzer =
+                new RequestBodyTelemetryInitializer(app.ApplicationServices.GetService<IHttpContextAccessor>());
+            var configuration = app.ApplicationServices.GetService<TelemetryConfiguration>();
+            configuration.TelemetryInitializers.Add(initialzer);
 
             if (env.IsDevelopment())
             {

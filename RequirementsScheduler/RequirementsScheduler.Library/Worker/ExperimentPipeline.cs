@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
@@ -46,12 +47,17 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     await RunTests(experiment);
                 }
+                catch (Exception ex)    
+                {
+                    var telemetry = new TelemetryClient();
+
+                    telemetry.TrackException(new ExceptionTelemetry(ex));
+                }
                 finally
                 {
                     experiment.Status = ExperimentStatus.Completed;
                     Service.StopExperiment(experiment.Id);
                 }
-
             }
         }
 
