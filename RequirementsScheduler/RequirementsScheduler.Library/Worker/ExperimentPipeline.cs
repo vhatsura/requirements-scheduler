@@ -1139,7 +1139,7 @@ namespace RequirementsScheduler.Library.Worker
             ICollection<int> processedDetailNumbersOnCurrentMachine,
             ICollection<int> processedDetailNumbersOnAnotherMachine,
             ref LinkedListNode<IOnlineChainNode> nodeOnCurrentMachine,
-            LinkedListNode<IOnlineChainNode> nodeOnAnotherMachine,
+            ref LinkedListNode<IOnlineChainNode> nodeOnAnotherMachine,
             double timeFromMachinesStart,
             OnlineChain chainOnCurrentMachine,
             OnlineChain chainOnAnotherMachine,
@@ -1173,7 +1173,7 @@ namespace RequirementsScheduler.Library.Worker
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
 
-                    ResolveConflictOnMachine(conflict, ref node, anotherMachine, isFirst, chainOnCurrentMachine,
+                    ResolveConflictOnMachine(conflict, ref node, ref anotherMachine, isFirst, chainOnCurrentMachine,
                         chainOnAnotherMachine, machinesStart, result);
 
                     stopwatch.Stop();
@@ -1181,6 +1181,8 @@ namespace RequirementsScheduler.Library.Worker
                     result.OnlineExecutionTime =
                         result.OnlineExecutionTime.Add(TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds));
                 });
+
+            nodeOnAnotherMachine = anotherMachine;
 
             if (currentDetail is OnlineConflict)
             {
@@ -1234,7 +1236,7 @@ namespace RequirementsScheduler.Library.Worker
                         processedDetailNumbersOnFirst,
                         processedDetailNumbersOnSecond,
                         ref nodeOnFirstMachine,
-                        nodeOnSecondMachine,
+                        ref nodeOnSecondMachine,
                         timeFromMachinesStart,
                         experimentInfo.OnlineChainOnFirstMachine,
                         experimentInfo.OnlineChainOnSecondMachine,
@@ -1254,7 +1256,7 @@ namespace RequirementsScheduler.Library.Worker
                         processedDetailNumbersOnSecond,
                         processedDetailNumbersOnFirst,
                         ref nodeOnSecondMachine,
-                        nodeOnFirstMachine,
+                        ref nodeOnFirstMachine,
                         timeFromMachinesStart,
                         experimentInfo.OnlineChainOnSecondMachine,
                         experimentInfo.OnlineChainOnFirstMachine,
@@ -1270,7 +1272,7 @@ namespace RequirementsScheduler.Library.Worker
                         processedDetailNumbersOnFirst,
                         processedDetailNumbersOnSecond,
                         ref nodeOnFirstMachine,
-                        nodeOnSecondMachine,
+                        ref nodeOnSecondMachine,
                         timeFromMachinesStart,
                         experimentInfo.OnlineChainOnFirstMachine,
                         experimentInfo.OnlineChainOnSecondMachine,
@@ -1286,7 +1288,7 @@ namespace RequirementsScheduler.Library.Worker
                         processedDetailNumbersOnSecond,
                         processedDetailNumbersOnFirst,
                         ref nodeOnSecondMachine,
-                        nodeOnFirstMachine,
+                        ref nodeOnFirstMachine,
                         timeFromMachinesStart,
                         experimentInfo.OnlineChainOnSecondMachine,
                         experimentInfo.OnlineChainOnFirstMachine,
@@ -1557,7 +1559,7 @@ namespace RequirementsScheduler.Library.Worker
         private static void ResolveConflictOnMachine(
             OnlineConflict conflict,
             ref LinkedListNode<IOnlineChainNode> nodeOnCurrentMachine,
-            LinkedListNode<IOnlineChainNode> nodeOnAnotherMachine,
+            ref LinkedListNode<IOnlineChainNode> nodeOnAnotherMachine,
             bool isFirstDetail,
             OnlineChain chainOnCurrentMachine,
             OnlineChain chainOnAnotherMachine,
@@ -1596,8 +1598,10 @@ namespace RequirementsScheduler.Library.Worker
 
                 var sumOfBInConflictOnCurrent = conflict.Details.Sum(d => d.Time.B);
 
+                var localNodeOnAnotherMachine = nodeOnAnotherMachine;
+
                 var sumOfPOnAnother = chainOnAnotherMachine
-                    .TakeWhile(i => !Equals(i, nodeOnAnotherMachine.Value))
+                    .TakeWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
                     .Sum(i =>
                     {
                         if (i.Type == OnlineChainType.Detail)
@@ -1618,7 +1622,7 @@ namespace RequirementsScheduler.Library.Worker
                 sumOnAnother = l <= (nodeOnAnotherMachine.Value as Detail).Time.A ? (nodeOnAnotherMachine.Value as Detail).Time.A : l;
 
                 var sumOfAOnAnother = chainOnAnotherMachine
-                    .SkipWhile(i => !Equals(i, nodeOnAnotherMachine.Value))
+                    .SkipWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
                     .Skip(1)
                     .TakeWhile(i => !Equals(i, conflictOnAnotherMachine))
                     .Sum(i =>
@@ -1716,6 +1720,7 @@ namespace RequirementsScheduler.Library.Worker
                     conflict,
                     conflictOnAnotherMachine,
                     ref nodeOnCurrentMachine,
+                    ref nodeOnAnotherMachine,
                     nodeOnCurrentMachineToRemove,
                     conflictNodeOnAnotherMachine,
                     chainOnCurrentMachine,
@@ -1729,6 +1734,7 @@ namespace RequirementsScheduler.Library.Worker
                 conflict,
                 conflictOnAnotherMachine,
                 ref nodeOnCurrentMachine,
+                ref nodeOnAnotherMachine,
                 nodeOnCurrentMachineToRemove,
                 conflictNodeOnAnotherMachine,
                 chainOnCurrentMachine,
@@ -1740,6 +1746,7 @@ namespace RequirementsScheduler.Library.Worker
             OnlineConflict conflict,
             OnlineConflict conflictOnAnotherMachine,
             ref LinkedListNode<IOnlineChainNode> nodeOnCurrentMachine,
+            ref LinkedListNode<IOnlineChainNode> nodeOnAnotherMachine,
             LinkedListNode<IOnlineChainNode> nodeOnCurrentMachineToRemove,
             LinkedListNode<IOnlineChainNode> conflictNodeOnAnotherMachine,
             OnlineChain chainOnCurrentMachine,
@@ -1763,14 +1770,14 @@ namespace RequirementsScheduler.Library.Worker
                 if (isFirstAdd)
                 {
                     nodeOnCurrentMachine = chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
+                    nodeOnAnotherMachine = chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
                     isFirstAdd = false;
                 }
                 else
                 {
                     chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
+                    chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
                 }
-
-                chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
             }
 
             chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
