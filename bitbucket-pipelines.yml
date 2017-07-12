@@ -11,6 +11,6 @@ pipelines:
         script: # Modify the commands below to build your repository.
            - dotnet restore ./RequirementsScheduler/
            - dotnet build ./RequirementsScheduler/
-           - dotnet xunit ./RequirementsScheduler/
+           - dotnet test ./RequirementsScheduler/RequirementsScheduler.Library.Tests/RequirementsScheduler.Library.Tests.csproj
 #          - dotnet msbuild RequirementsScheduler
 #          - dotnet test TestName
