@@ -79,6 +79,13 @@ namespace RequirementsScheduler.Library.Tests
                 Enumerable.Range(1, 1).Select(i => new LaboriousDetail(time, time, i)),
                 Enumerable.Range(2, 2).Select(i => new LaboriousDetail(time, time, i))
             }; // should be run without exceptions
+            yield return new object[]
+            {
+                Enumerable.Empty<Detail>(),
+                Enumerable.Empty<Detail>(),
+                Enumerable.Range(1, 2).Select(i => new LaboriousDetail(time, time, i)),
+                Enumerable.Range(3, 1).Select(i => new LaboriousDetail(time, time, i))
+            }; // should be run without exceptions
         }
     }
 }

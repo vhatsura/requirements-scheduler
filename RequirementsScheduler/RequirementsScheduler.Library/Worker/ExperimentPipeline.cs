@@ -1245,11 +1245,11 @@ namespace RequirementsScheduler.Library.Worker
                         isFirstDetail,
                         experimentInfo.Result);
 
-                    if (nodeOnSecondMachine?.List == null)
-                    {
-                        if (isFirstDetail)
-                            nodeOnSecondMachine = experimentInfo.OnlineChainOnSecondMachine.First;
-                    }
+                    //if (nodeOnSecondMachine?.List == null)
+                    //{
+                    //    if (isFirstDetail)
+                    //        nodeOnSecondMachine = experimentInfo.OnlineChainOnSecondMachine.First;
+                    //}
 
                     ProcessDetailOnMachine(
                         ref currentDetailOnSecond,
@@ -1770,7 +1770,17 @@ namespace RequirementsScheduler.Library.Worker
                 if (isFirstAdd)
                 {
                     nodeOnCurrentMachine = chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
-                    nodeOnAnotherMachine = chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
+                    if (nodeOnAnotherMachine.Value.Type == OnlineChainType.Conflict)
+                    {
+                        nodeOnAnotherMachine = chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
+                            conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
+                    }
+                    else
+                    {
+                        chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
+                            conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
+                    }
+                    
                     isFirstAdd = false;
                 }
                 else
