@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Worker;
 
 namespace RequirementsScheduler.Host.Console
@@ -81,7 +83,8 @@ namespace RequirementsScheduler.Host.Console
                 Mock.Of<IWorkerExperimentService>(),
                 new ExperimentTestResultFileService(),
                 reportsServiceMock.Object,
-                Mock.Of<ILogger<ExperimentPipeline>>());
+                Mock.Of<ILogger<ExperimentPipeline>>(),
+                Mock.Of<IOptions<DbSettings>>());
 
             var stopwatch = Stopwatch.StartNew();
             pipeline.Run(new List<Experiment>() {experiment}).ConfigureAwait(false);

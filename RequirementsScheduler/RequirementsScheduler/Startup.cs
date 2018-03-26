@@ -1,7 +1,9 @@
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -47,6 +49,8 @@ namespace RequirementsScheduler
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigureOAuth(services);
+
             // Add framework services.
             var builder = services.AddMvc();
             services.AddNodeServices();
@@ -105,7 +109,11 @@ namespace RequirementsScheduler
                 >();
         }
 
-        
+        // secretKey contains a secret passphrase only your server knows
+        private static string secretKey = "501FC5DD-4268-4CC5-A791-44A6CEA41A43";
+        private SymmetricSecurityKey signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -125,10 +133,10 @@ namespace RequirementsScheduler
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-                {
-                    HotModuleReplacement = true
-                });
+                //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
+                //{
+                //    HotModuleReplacement = true
+                //});
             }
             else
             {
@@ -137,7 +145,17 @@ namespace RequirementsScheduler
 
             app.UseStaticFiles();
 
-            ConfigureOAuth(app);
+            // Add JWT generation endpoint:
+            var options = new TokenProviderOptions
+            {
+                Path = "/api/token",
+                Audience = "ExampleAudience",
+                Issuer = "RequirementsScheduler",
+                Expiration = TimeSpan.FromDays(1),
+                SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256),
+            };
+
+            app.UseMiddleware<TokenProviderMiddleware>(Options.Create(options));
             app.UseQuartz(c => c.AddJob<ExperimentWorker>("experimentJob", "experimentGroup", (int) TimeSpan.FromMinutes(1).TotalSeconds));
 
             app.UseMvc(routes =>
@@ -152,24 +170,8 @@ namespace RequirementsScheduler
             });
         }
 
-        private void ConfigureOAuth(IApplicationBuilder app)
+        private void ConfigureOAuth(IServiceCollection services)
         {
-            // secretKey contains a secret passphrase only your server knows
-            var secretKey = "501FC5DD-4268-4CC5-A791-44A6CEA41A43";
-            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
-
-            // Add JWT generation endpoint:
-            var options = new TokenProviderOptions
-            {
-                Path = "/api/token",
-                Audience = "ExampleAudience",
-                Issuer = "RequirementsScheduler",
-                Expiration = TimeSpan.FromDays(1),
-                SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256),
-            };
-
-            app.UseMiddleware<TokenProviderMiddleware>(Options.Create(options));
-
             var tokenValidationParameters = new TokenValidationParameters
             {
                 // The signing key must match!
@@ -191,11 +193,39 @@ namespace RequirementsScheduler
                 ClockSkew = TimeSpan.Zero
             };
 
-            app.UseJwtBearerAuthentication(new JwtBearerOptions
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.ClaimsIssuer = "RequirementsScheduler";
+                    options.TokenValidationParameters = tokenValidationParameters;
+                    options.SaveToken = true;
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            Console.WriteLine("OnAuthenticationFailed: " +
+                                              context.Exception.Message);
+                            return Task.CompletedTask;
+                        },
+                        OnTokenValidated = context =>
+                        {
+                            Console.WriteLine("OnTokenValidated: " +
+                                              context.SecurityToken);
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
+
+            services.AddAuthorization(options =>
             {
-                AutomaticAuthenticate = true,
-                AutomaticChallenge = true,
-                TokenValidationParameters = tokenValidationParameters
+                //options.DefaultPolicy = n
+                //options.AddPolicy("ApiUser", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess));
             });
         }
     }

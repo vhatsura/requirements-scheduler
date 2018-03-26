@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using LinqToDB;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.DAL;
+using RequirementsScheduler.DAL.Model;
+using Experiment = RequirementsScheduler.BLL.Model.Experiment;
 
 namespace RequirementsScheduler.Library.Worker
 {
@@ -22,18 +28,23 @@ namespace RequirementsScheduler.Library.Worker
         private IReportsService ReportService { get; }
         private ILogger Logger { get; }
 
+        private IOptions<DbSettings> Settings { get; }
+
+
         public ExperimentPipeline(
             IExperimentGenerator generator,
             IWorkerExperimentService service,
             IExperimentTestResultService resultService,
             IReportsService reportService,
-            ILogger<ExperimentPipeline> logger)
+            ILogger<ExperimentPipeline> logger,
+            IOptions<DbSettings> settings)
         {
             Generator = generator ?? throw new ArgumentNullException(nameof(generator));
             Service = service;
             ResultService = resultService;
             ReportService = reportService;
             Logger = logger;
+            Settings = settings;
         }
 
         public async Task Run(IEnumerable<Experiment> experiments)
@@ -49,6 +60,17 @@ namespace RequirementsScheduler.Library.Worker
                 }
                 catch (Exception ex)    
                 {
+                    using (var db = new Database(Settings).Open())
+                    {
+                        db.GetTable<ExperimentFailure>()
+                            .Insert(() => new ExperimentFailure
+                            {
+                                ExperimentId = experiment.Id,
+                                ErrorMessage = JsonConvert.SerializeObject(ex)
+                            });
+                    }
+
+
                     var telemetry = new TelemetryClient();
 
                     telemetry.TrackException(new ExceptionTelemetry(ex));

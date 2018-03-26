@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.Prerendering;
@@ -36,13 +37,13 @@ namespace RequirementsScheduler.Controllers
             var prerenderResult = await Prerenderer.RenderToString(
                 "/",
                 nodeServices,
+                CancellationToken.None,
                 new JavaScriptModuleExport(applicationBasePath + "/Client/dist/main-server"),
                 unencodedAbsoluteUrl,
                 unencodedPathAndQuery,
-                transferData, // Our simplified Request object & any other CustommData you want to send!
+                transferData,
                 40000,
-                Request.PathBase.ToString()
-            );
+                Request.PathBase.ToString());
 
             ViewData["SpaHtml"] = prerenderResult.Html; // our <app> from Angular
             ViewData["Title"] = prerenderResult.Globals["title"]; // set our <title> from Angular
