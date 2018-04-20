@@ -17,7 +17,7 @@ module.exports = {
         { test: /\.ts$/, loader: '@ngtools/webpack' },
         { test: /\.css$/, loaders: ['to-string-loader', 'css-loader'] },
         { test: /\.html$/, loader: 'html-loader' },
-        { test: /\.scss$/, loaders: [{loader: "style-loader" }, { loader: "css-loader"}, { loader: "sass-loader"}] },
+        { test: /\.scss$/, loaders: ["style-loader", "css-loader", "sass-loader"] },
         { test: /\.(woff2?|ttf|eot|svg)$/, loader: 'url-loader?limit=10000' }
     ]
   },
