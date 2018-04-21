@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "project": {
+    "name": "Requirements Scheduler"
+  },
+  "apps": [
+    {
+      "root": "ClientApp"
+    }
+  ],
+  "defaults": {
+    "styleExt": "scss",
+    "component": {
+      "spec": false
+    }
+  },
+  "lint":[
+    {
+      "project": "Client/tsconfig.app.json"
+    },
+    {
+      "project": "Client/tsconfig.spec.json"
+    }
+  ]
+}

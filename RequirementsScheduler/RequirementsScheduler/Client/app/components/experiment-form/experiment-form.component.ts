@@ -59,11 +59,11 @@ export class ExperimentFormComponent implements OnInit {
         this.experimentService.create(this.f.value)
             .subscribe(result => {
                 if (result.status === 200) {
-                    this.success = `Experiment with ${result.response.id} id was submitted successfully`;
+                    this.success = `Experiment with ${(result.body as Experiment).id} id was submitted successfully`;
                     this.error = '';
                     this.f.reset();
                 } else {
-                    this.error = result.response;
+                    this.error = result.body.toString();
                 }
                 this.loading = false;
             });
@@ -74,7 +74,7 @@ export class ExperimentFormComponent implements OnInit {
         this.experimentService.createTest(this.model)
             .subscribe(result => {
                 if (result.status === 200) {
-                    this.success = `Experiment with ${result.response.id} id was submitted successfully`;
+                    this.success = `Experiment with ${(result.body as Experiment).id} id was submitted successfully`;
                     this.error = '';
                     this.model = {
                         J1: [],
@@ -89,7 +89,7 @@ export class ExperimentFormComponent implements OnInit {
                         }
                     };
                 } else {
-                    this.error = result.response;
+                    this.error = result.body.toString();
                 }
             });
     }

@@ -1,89 +1,30 @@
 ﻿import { Component, Injectable } from '@angular/core';
-import { Response } from '@angular/http';
-import { AuthHttp } from 'angular2-jwt';
-import { HttpResponse } from '../models/index';
+import { HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Experiment, ExperimentStatus, Test } from '../models/index';
 
 @Injectable()
 export class ExperimentService {
-    constructor(private authHttp: AuthHttp) { }
+    constructor(private http: HttpClient) { }
 
-    create(experiment: Experiment) : Observable<HttpResponse> {
-        return this.authHttp.post('/api/experiments', experiment)
-            .map((response: Response) => {
-                let httpResponse = new HttpResponse();
-                httpResponse.status = response.status;
-                httpResponse.response = response.json();
-                return httpResponse;
-            });
+    create(experiment: Experiment) : Observable<HttpResponse<Object>> {
+        return this.http.post('/api/experiments', experiment, { observe: 'response' });
     }
 
-    createTest(experiment: any) : Observable<HttpResponse> {
-        return this.authHttp.post('/api/experiments/test', experiment)
-            .map((response: Response) => {
-                let httpResponse = new HttpResponse();
-                httpResponse.status = response.status;
-                httpResponse.response = response.json();
-                return httpResponse;
-            });
+    createTest(experiment: any) : Observable<HttpResponse<Object>> {
+        return this.http.post('/api/experiments/test', experiment, { observe: 'response' });
     }
 
-    getExperimentResults(id: string) : Observable<Array<Test>> {
-        return Observable.create(observer => {
-            this.authHttp.get(`/api/experiments/${id}/result`)
-            .map((response: Response) => response.json())
-            .subscribe(result => {
-                var tests = new Array<Test>();
-                
-                console.log('Result of experiment');
-                console.log(result);
-
-                for(let r of result) {
-                    tests.push(new Test().deserialize(r));
-                }
-
-                observer.next(tests);
-                observer.complete();
-            });
-        });
+    getExperimentResults(id: string) : Observable<Test[]> {
+        return this.http.get<Test[]>(`/api/experiments/${id}/result`);
     }
 
-    getExperimentResult(id: string, testNumber: number) : Observable<Array<Test>> {
-        return Observable.create(observer => {
-            this.authHttp.get(`/api/experiments/${id}/result/${testNumber}`)
-            .map((response: Response) => response.json())
-            .subscribe(result => {
-                var tests = new Array<Test>();
-                
-                console.log('Result of experiment');
-                console.log(result);
-
-                tests.push(new Test().deserialize(result));
-
-                observer.next(tests);
-                observer.complete();
-            });
-        });
+    getExperimentResult(id: string, testNumber: number) : Observable<Test[]> {
+        return this.http.get<Test[]>(`/api/experiments/${id}/result/${testNumber}`);
     } 
 
-    getByStatus(status: ExperimentStatus): Observable<Array<Experiment>> {
-        return Observable.create(observer => {
-            this.authHttp.get('/api/experiments/GetByStatus/' + status)
-                .map((response: Response) => response.json())
-                .subscribe((result) => {
-                    var experiments = new Array<Experiment>();
-
-                    //console.log('Result in experiment service: ');
-                    //console.log(result);
-
-                    for (let r of result) {
-                        //console.log(r);
-                        experiments.push(new Experiment().deserialize(r));
-                    }
-                    observer.next(experiments);
-                    observer.complete();
-                });
-        });
+    getByStatus(status: ExperimentStatus): Observable<Experiment[]> {
+        return this.http.get<Experiment[]>('/api/experiments/GetByStatus/' + status);
     }
 }

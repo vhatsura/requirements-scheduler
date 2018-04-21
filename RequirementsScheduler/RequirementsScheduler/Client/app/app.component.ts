@@ -2,11 +2,12 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation, Inject } from '@angula
 import { Router, NavigationEnd, ActivatedRoute, PRIMARY_OUTLET } from '@angular/router';
 import { Meta, Title, DOCUMENT, MetaDefinition } from '@angular/platform-browser';
 import { Subscription } from 'rxjs/Subscription';
-import { LinkService } from '../../shared/link.service';
-import { REQUEST } from '../../shared/constants/request';
+import { LinkService } from './shared/link.service';
+
+import { REQUEST } from '@nguniversal/aspnetcore-engine/tokens';
 
 @Component({
-    selector: 'app',
+    selector: 'app-root',
     templateUrl: './app.component.html',
     styles: [require('./app.component.scss')],
     encapsulation: ViewEncapsulation.None

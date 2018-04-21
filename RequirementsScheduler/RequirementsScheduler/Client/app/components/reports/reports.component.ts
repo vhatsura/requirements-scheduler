@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Inject, ViewChild } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
@@ -69,7 +69,7 @@ export class ReportsComponent implements OnInit {
 
     constructor(
         @Inject(PLATFORM_ID) private platformId: Object,
-        private http: Http,
+        private http: HttpClient,
         private alertService: AlertService) {
         this.configObject = {
             settings: [
@@ -373,9 +373,9 @@ export class ReportsComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.http.get('/api/reports').subscribe(result => {
+        this.http.get<any>('/api/reports').subscribe(result => {
             this.configObject.data.length = 0;
-                this.configObject.data = this.configObject.data.concat(result.json());
+                this.configObject.data = this.configObject.data.concat(result);
                 return this.configObject.data;
         });
     }

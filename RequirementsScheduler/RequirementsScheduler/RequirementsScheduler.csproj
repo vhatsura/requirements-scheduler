@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <ApplicationInsightsResourceId>/subscriptions/881b4899-680f-4106-8a7c-1afbef680f61/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/requirementsscheduler</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/881b4899-680f-4106-8a7c-1afbef680f61/resourceGroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/requirementsscheduler</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.2" />
@@ -22,17 +20,14 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.1" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
-
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- Files not to show in IDE -->
     <None Remove="yarn.lock" />
     <Content Remove="wwwroot\dist\**" />
     <None Remove="Client\dist\**" />
-
     <!-- Files not to publish (note that the 'dist' subfolders are re-added below) -->
     <Content Remove="Client\**" />
   </ItemGroup>
@@ -44,7 +39,6 @@
     <Exec Command="npm install" />
     <Exec Command="node node_modules/webpack/bin/webpack.js --env.client" />
     <Exec Command="node node_modules/webpack/bin/webpack.js --env.server" />
-
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
       <DistFiles Include="wwwroot\dist\**; Client\dist\**" />
