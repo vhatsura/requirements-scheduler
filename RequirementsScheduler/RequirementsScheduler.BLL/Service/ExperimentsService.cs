@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using AutoMapper;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.Core.Service;
@@ -35,6 +36,7 @@ namespace RequirementsScheduler.BLL.Service
                     .Get()
                     .Select(e => Mapper.Map<BLL.Model.Experiment>(e));
             }
+
             var user = UsersService.GetByUserName(username);
             if (user != null)
             {
@@ -62,10 +64,11 @@ namespace RequirementsScheduler.BLL.Service
             if (user != null)
             {
                 return Repository
-                    .Get(experiment => experiment.Status == (int)status &&
+                    .Get(experiment => experiment.Status == (int) status &&
                                        experiment.UserId == user.Id)
-                     .Select(e => Mapper.Map<BLL.Model.Experiment>(e));
+                    .Select(e => Mapper.Map<BLL.Model.Experiment>(e));
             }
+
             return Enumerable.Empty<Experiment>();
         }
 
@@ -87,7 +90,8 @@ namespace RequirementsScheduler.BLL.Service
             return Mapper.Map<BLL.Model.Experiment>(Repository.Add(dalValue));
         }
 
-        public Experiment Get(Guid experimentId, string username)
+        public Experiment Get(Guid experimentId, string username,
+            params Expression<Func<Experiment, object>>[] membersToLoad)
         {
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException();
@@ -96,13 +100,14 @@ namespace RequirementsScheduler.BLL.Service
             {
                 return Mapper.Map<Experiment>(Repository.Get(experimentId));
             }
+
             var user = UsersService.GetByUserName(username);
             if (user != null)
             {
                 //todo think about security
                 return Mapper.Map<Experiment>(
-                    Repository
-                    .Get(experimentId));
+                    Repository.GetWith(experimentId, e => e.Result)
+                );
             }
 
             return null;

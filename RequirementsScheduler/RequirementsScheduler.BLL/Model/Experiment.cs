@@ -54,6 +54,8 @@ namespace RequirementsScheduler.BLL.Model
 
         public List<ExperimentInfo> Results { get; } = new List<ExperimentInfo>();
 
+        public ReportInfo Report { get; set; }
+        
         public ExperimentStatus Status { get; set; }
 
         public DateTime? Created { get; set; }

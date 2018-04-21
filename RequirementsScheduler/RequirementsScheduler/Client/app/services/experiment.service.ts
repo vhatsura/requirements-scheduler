@@ -2,7 +2,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-import { Experiment, ExperimentStatus, Test } from '../models/index';
+import { Experiment, ExperimentStatus, Test, Report } from '../models/index';
 
 @Injectable()
 export class ExperimentService {
@@ -16,8 +16,8 @@ export class ExperimentService {
         return this.http.post('/api/experiments/test', experiment, { observe: 'response' });
     }
 
-    getExperimentResults(id: string) : Observable<Test[]> {
-        return this.http.get<Test[]>(`/api/experiments/${id}/result`);
+    getResultInfo(id: string) : Observable<Report> {
+        return this.http.get<Report>(`/api/experiments/${id}/resultinfo`);
     }
 
     getExperimentResult(id: string, testNumber: number) : Observable<Test[]> {

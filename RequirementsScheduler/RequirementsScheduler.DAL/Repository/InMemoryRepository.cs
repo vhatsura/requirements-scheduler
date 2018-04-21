@@ -35,6 +35,13 @@ namespace RequirementsScheduler.DAL.Repository
             return ModelsCollection.Values.ToImmutableList();
         }
 
+        public TEntity GetWith(TKey id, Expression<Func<TEntity, object>> selector)
+        {
+            TEntity value;
+            ModelsCollection.TryGetValue(id, out value);
+            return value;
+        }
+
         public TEntity Get(TKey id)
         {
             TEntity value;

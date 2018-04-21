@@ -26,9 +26,10 @@ namespace RequirementsScheduler.DAL.Model
         public DateTime Created { get; set; }
 
         public int UserId { get; set; }
-        [Association(ThisKey = nameof(UserId), OtherKey = nameof(Model.User.Id))]
+        [Association(ThisKey = nameof(UserId), OtherKey = nameof(Model.User.Id), CanBeNull = false)]
         public User User { get; set; }
 
-        public IEnumerable<ExperimentResult> Results { get; set; }
+        [Association(ThisKey = nameof(Id), OtherKey = nameof(ExperimentResult.ExperimentId), CanBeNull = true)]
+        public ExperimentResult Result { get; set; }
     }
 }

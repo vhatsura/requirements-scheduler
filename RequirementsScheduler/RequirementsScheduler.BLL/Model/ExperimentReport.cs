@@ -2,6 +2,23 @@
 
 namespace RequirementsScheduler.BLL.Model
 {
+    public sealed class ReportInfo
+    {
+        public int OfflineResolvedConflictAmount { get; set; }
+        public int OnlineResolvedConflictAmount { get; set; }
+        public int OnlineUnResolvedConflictAmount { get; set; }
+
+        public float Stop1Percentage { get; set; }
+        public float Stop2Percentage { get; set; }
+        public float Stop3Percentage { get; set; }
+        public float Stop4Percentage { get; set; }
+
+        public float DeltaCmaxMax { get; set; }
+        public float DeltaCmaxAverage { get; set; }
+
+        public TimeSpan OnlineExecutionTime { get; set; }
+    }
+    
     public sealed class ExperimentReport
     {
         public int Id { get; set; }

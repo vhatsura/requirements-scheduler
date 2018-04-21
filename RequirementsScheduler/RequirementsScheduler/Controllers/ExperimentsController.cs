@@ -65,7 +65,22 @@ namespace RequirementsScheduler.Controllers
             return Ok("value");
         }
 
-        [HttpGet("{id}/result")]
+        [HttpGet("{id}/resultinfo")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> ResultInfo(Guid id)
+        {
+            var username = UserName;
+
+            var experiment = Service.Get(id, username);
+            if (experiment == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(experiment.Report);
+        }
+
+        [HttpGet("{id}/results")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Result(Guid id)
         {
@@ -79,7 +94,7 @@ namespace RequirementsScheduler.Controllers
 
             var infos = new List<ExperimentInfo>();
 
-            for (int i = 1; i <= experiment.TestsAmount; i++)
+            for (var i = 1; i <= experiment.TestsAmount; i++)
             {
                 var experimentInfo = await ResultService.GetExperimentTestResult(id, i);
                 infos.Add(experimentInfo);
@@ -87,13 +102,18 @@ namespace RequirementsScheduler.Controllers
 
             return Ok(infos);
         }
-
+        
         [HttpGet("{id}/result/{testNumber}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> Result(Guid id, int number)
+        public async Task<IActionResult> Result(Guid id, int testNumber)
         {
+            // todo add check that testNumber don't more than test number in experiment
+            if (testNumber <= 0)
+            {
+                return BadRequest("Invalid test number");
+            }
             //var username = UserName;
-            var experimentInfo =  await ResultService.GetExperimentTestResult(id, number);
+            var experimentInfo =  await ResultService.GetExperimentTestResult(id, testNumber);
 
             return Ok(experimentInfo);
         }

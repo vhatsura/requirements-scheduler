@@ -1,25 +1,4 @@
-import { Serializable } from './serializable';
-
-export class Test implements Serializable<Test> {
-    
-    deserialize(input): Test {
-        this.testNumber = input.testNumber;
-        this.isOptimized = input.isOptimized;
-
-        this.j1 = input.j1;
-        this.j2 = input.j2;
-
-        this.j12 = input.j12Chain;
-        this.j21 = input.j21Chain;
-
-        this.result = input.result;
-
-        this.machine1 = input.onlineChainOnFirstMachine;
-        this.machine2 = input.onlineChainOnSecondMachine;
-
-        return this;
-    }
-
+export class Test {
     isOptimized: boolean;
     testNumber: number;
     j1: Array<any>;

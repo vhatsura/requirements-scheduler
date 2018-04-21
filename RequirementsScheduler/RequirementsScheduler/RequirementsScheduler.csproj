@@ -4,11 +4,12 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <ApplicationInsightsResourceId>/subscriptions/881b4899-680f-4106-8a7c-1afbef680f61/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/requirementsscheduler</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/881b4899-680f-4106-8a7c-1afbef680f61/resourceGroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/requirementsscheduler</ApplicationInsightsAnnotationResourceId>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="2.0.3" />

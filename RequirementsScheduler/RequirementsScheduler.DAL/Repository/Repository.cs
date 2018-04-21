@@ -36,6 +36,24 @@ namespace RequirementsScheduler.DAL.Repository
                     .ToList();
             }
         }
+        
+        public TEntity GetWith(TKey id, Expression<Func<TEntity, object>> selector)
+        {
+            using (var db = Db.Open())
+            {
+                var pkName =
+                    typeof(TEntity)
+                        .GetProperties()
+                        .First(prop => prop.GetCustomAttributes<PrimaryKeyAttribute>(false).Any());
+
+                var expression = SimpleComparison(pkName.Name, id);
+
+                return db.GetTable<TEntity>()
+                    .LoadWith(selector)
+                    .Where(expression)
+                    .FirstOrDefault();
+            }
+        }
 
         public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
         {

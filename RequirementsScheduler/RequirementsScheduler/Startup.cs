@@ -65,6 +65,8 @@ namespace RequirementsScheduler
 
             services.AddAutoMapper(typeof(MappingProfile));
 
+            Mapper.AssertConfigurationIsValid();
+
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IExperimentsService, ExperimentsService>();
             services.AddSingleton<IReportsService, ReportsService>();
