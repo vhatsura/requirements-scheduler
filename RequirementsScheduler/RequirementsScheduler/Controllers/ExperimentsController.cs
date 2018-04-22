@@ -77,7 +77,9 @@ namespace RequirementsScheduler.Controllers
                 return BadRequest();
             }
 
-            return Ok(experiment.Report);
+            var aggregatedResult = await ResultService.GetAggregatedResult(experiment.Id);
+
+            return Ok(new {experiment.Report, TestResults = aggregatedResult.ToList()});
         }
 
         [HttpGet("{id}/results")]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.PlatformAbstractions;
@@ -9,7 +10,7 @@ namespace RequirementsScheduler.BLL.Service
 {
     public sealed class ExperimentTestResultFileService : IExperimentTestResultService
     {
-        private static string ServiceFolder => 
+        private static string ServiceFolder =>
             Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "experiments-results");
 
         public async Task SaveExperimentTestResult(Guid experimentId, ExperimentInfo experimentInfo)
@@ -34,11 +35,10 @@ namespace RequirementsScheduler.BLL.Service
             TypeNameHandling = TypeNameHandling.All,
             DefaultValueHandling = DefaultValueHandling.Ignore,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
-            
+
 #if DEBUG
             Formatting = Formatting.Indented
 #endif
-
         };
 
         public async Task<ExperimentInfo> GetExperimentTestResult(Guid experimentId, int testNumber)
@@ -54,6 +54,35 @@ namespace RequirementsScheduler.BLL.Service
             {
                 var text = await reader.ReadToEndAsync();
                 return JsonConvert.DeserializeObject<ExperimentInfo>(text, SerializerSettings);
+            }
+        }
+
+        public async Task SaveAggregatedResult(Guid experimentId, IDictionary<int, ResultInfo> aggregatedResult)
+        {
+            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
+
+            var fileStream = File.Create(fileName);
+
+            using (var writer = new StreamWriter(fileStream))
+            {
+                await writer.WriteAsync(JsonConvert.SerializeObject(aggregatedResult, SerializerSettings));
+            }
+        }
+
+        public async Task<IDictionary<int, ResultInfo>> GetAggregatedResult(Guid experimentId)
+        {
+            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
+
+            if (!File.Exists(fileName))
+            {
+                return new Dictionary<int, ResultInfo>();
+            }
+            
+            var fileStream = File.OpenRead(fileName);
+            using (var reader = new StreamReader(fileStream))
+            {
+                var text = await reader.ReadToEndAsync();
+                return JsonConvert.DeserializeObject<IDictionary<int, ResultInfo>>(text, SerializerSettings);
             }
         }
     }

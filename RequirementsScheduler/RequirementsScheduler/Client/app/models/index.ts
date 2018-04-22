@@ -2,3 +2,4 @@
 export { Experiment, ExperimentStatus } from './experiment';
 export { Test } from './test';
 export { Report } from './report';
+export { Result } from './result';

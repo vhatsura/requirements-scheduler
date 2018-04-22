@@ -7,7 +7,14 @@
             </div>
         </div>
         <div class="row">
-            
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Report details</h3>
+                </div>
+                <div>
+                    {{result.report.stop1Percentage}}, {{result.report.stop2Percentage}}, {{result.report.stop3Percentage}}, {{result.report.stop4Percentage}}
+                </div>
+              </div>
         </div>
         <div class="row">
             <test-list [tests]="tests" [(selected)]="selectedTest" class="col-xs-4"></test-list>

@@ -76,7 +76,7 @@
         "@types/chai": "^3.4.34",
         "@types/jasmine": "^2.5.37",
         "chai": "^3.5.0",
-        "codelyzer": "^3.0.0",
+        "codelyzer": "^4.3.0",
         "istanbul-instrumenter-loader": "^3.0.0",
         "jasmine-core": "^2.5.2",
         "karma": "^1.7.1",

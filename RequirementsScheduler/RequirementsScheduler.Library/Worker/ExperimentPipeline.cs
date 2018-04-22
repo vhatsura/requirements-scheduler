@@ -20,7 +20,8 @@ namespace RequirementsScheduler.Library.Worker
 {
     public sealed class ExperimentPipeline : IExperimentPipeline
     {
-        delegate void ConflictResolverDelegate(OnlineConflict conflict, ref LinkedListNode<IOnlineChainNode> node, bool isFirst);
+        private delegate void ConflictResolverDelegate(OnlineConflict conflict,
+            ref LinkedListNode<IOnlineChainNode> node, bool isFirst);
 
         private IExperimentGenerator Generator { get; }
         private IWorkerExperimentService Service { get; }
@@ -36,7 +37,7 @@ namespace RequirementsScheduler.Library.Worker
             IWorkerExperimentService service,
             IExperimentTestResultService resultService,
             IReportsService reportService,
-            ILogger<ExperimentPipeline> logger,
+            ILogger logger,
             IOptions<DbSettings> settings)
         {
             Generator = generator ?? throw new ArgumentNullException(nameof(generator));
@@ -58,7 +59,7 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     await RunTests(experiment);
                 }
-                catch (Exception ex)    
+                catch (Exception ex)
                 {
                     using (var db = new Database(Settings).Open())
                     {
@@ -85,8 +86,6 @@ namespace RequirementsScheduler.Library.Worker
 
         private Task RunTests(Experiment experiment)
         {
-            ExperimentInfo experimentInfo = null;
-
             var experimentReport = new ExperimentReport()
             {
                 ExperimentId = experiment.Id,
@@ -99,9 +98,11 @@ namespace RequirementsScheduler.Library.Worker
 
             var sumOfDeltaCmax = 0.0;
 
+            var aggregationResult = new Dictionary<int, ResultInfo>(); 
+            
             for (var i = 0; i < experiment.TestsAmount; i++)
             {
-                experimentInfo = Generator.GenerateDataForTest(experiment);
+                var experimentInfo = Generator.GenerateDataForTest(experiment);
 
                 experimentInfo.TestNumber = i + 1;
 
@@ -113,6 +114,7 @@ namespace RequirementsScheduler.Library.Worker
                     experimentInfo.J12Chain = new Chain(experimentInfo.J12
                         .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
                 }
+
                 if (experimentInfo.J21Chain == null ||
                     experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
                 {
@@ -140,7 +142,8 @@ namespace RequirementsScheduler.Library.Worker
                         stop4++;
                         sumOfDeltaCmax += experimentInfo.Result.DeltaCmax;
 
-                        experimentReport.DeltaCmaxMax = Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
+                        experimentReport.DeltaCmaxMax =
+                            Math.Max(experimentReport.DeltaCmaxMax, experimentInfo.Result.DeltaCmax);
                     }
                 }
                 else
@@ -148,39 +151,41 @@ namespace RequirementsScheduler.Library.Worker
                     stop1++;
                 }
 
-                experimentReport.OnlineExecutionTime = experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
+                experimentReport.OnlineExecutionTime =
+                    experimentReport.OnlineExecutionTime.Add(experimentInfo.Result.OnlineExecutionTime);
 
                 experimentReport.OfflineResolvedConflictAmount += experimentInfo.Result.OfflineResolvedConflictAmount;
                 experimentReport.OnlineResolvedConflictAmount += experimentInfo.Result.OnlineResolvedConflictAmount;
                 experimentReport.OnlineUnResolvedConflictAmount += experimentInfo.Result.OnlineUnResolvedConflictAmount;
 
                 ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+                
+                aggregationResult.Add(experimentInfo.TestNumber, experimentInfo.Result);
             }
 
-            experimentReport.Stop1Percentage = (float)Math.Round(stop1 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop2Percentage = (float)Math.Round(stop2 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop3Percentage = (float)Math.Round(stop3 / (float)experiment.TestsAmount * 100, 1);
-            experimentReport.Stop4Percentage = (float)Math.Round(stop4 / (float)experiment.TestsAmount * 100, 1);
+            experimentReport.Stop1Percentage = (float) Math.Round(stop1 / (float) experiment.TestsAmount * 100, 1);
+            experimentReport.Stop2Percentage = (float) Math.Round(stop2 / (float) experiment.TestsAmount * 100, 1);
+            experimentReport.Stop3Percentage = (float) Math.Round(stop3 / (float) experiment.TestsAmount * 100, 1);
+            experimentReport.Stop4Percentage = (float) Math.Round(stop4 / (float) experiment.TestsAmount * 100, 1);
 
             if (stop4 != 0)
             {
-                experimentReport.DeltaCmaxAverage = (float)sumOfDeltaCmax / experiment.TestsAmount;
+                experimentReport.DeltaCmaxAverage = (float) sumOfDeltaCmax / experiment.TestsAmount;
             }
             else
             {
                 experimentReport.DeltaCmaxAverage = 0;
             }
 
-
+            ResultService.SaveAggregatedResult(experiment.Id, aggregationResult);
+            
             ReportService.Save(experimentReport);
 
             return Task.FromResult(0);
-
         }
 
         private static void RunTest()
         {
-
         }
 
         #region Offline mode
@@ -215,7 +220,8 @@ namespace RequirementsScheduler.Library.Worker
                 return true;
             }
 
-            experimentInfo.Result.OfflineResolvedConflictAmount += stop12ConflictCount - experimentInfo.OfflineConflictCount;
+            experimentInfo.Result.OfflineResolvedConflictAmount +=
+                stop12ConflictCount - experimentInfo.OfflineConflictCount;
             return false;
         }
 
@@ -257,12 +263,16 @@ namespace RequirementsScheduler.Library.Worker
 
                     var sumOfBOnFirst = 0.0;
                     var sumOfAOnSecond = 0.0;
-                    for (var nodeForSum = experimentInfo.J12Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    for (var nodeForSum = experimentInfo.J12Chain.First;
+                        nodeForSum != node;
+                        nodeForSum = nodeForSum.Next)
                     {
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
-                            sumOfBOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
-                            sumOfAOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
+                            sumOfBOnFirst +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+                            sumOfAOnSecond +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
                         }
                         else
                         {
@@ -270,10 +280,11 @@ namespace RequirementsScheduler.Library.Worker
                             sumOfAOnSecond += (nodeForSum.Value as LaboriousDetail).OnSecond.Time.A;
                         }
                     }
+
                     sumOfBOnFirst += (node.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
 
                     sumOfAOnSecond += experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) +
-                                         experimentInfo.J2.Sum(detail => detail.Time.A);
+                                      experimentInfo.J2.Sum(detail => detail.Time.A);
 
                     if (sumOfAOnSecond >= sumOfBOnFirst)
                     {
@@ -282,6 +293,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             insertedNode = experimentInfo.J12Chain.AddBefore(node, laboriousDetail);
                         }
+
                         experimentInfo.J12Chain.Remove(node);
                         node = insertedNode;
                     }
@@ -296,12 +308,16 @@ namespace RequirementsScheduler.Library.Worker
 
                     var sumOfBOnSecond = 0.0;
                     var sumOfAOnFirst = 0.0;
-                    for (var nodeForSum = experimentInfo.J21Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    for (var nodeForSum = experimentInfo.J21Chain.First;
+                        nodeForSum != node;
+                        nodeForSum = nodeForSum.Next)
                     {
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
-                            sumOfBOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
-                            sumOfAOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
+                            sumOfBOnSecond +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+                            sumOfAOnFirst +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
                         }
                         else
                         {
@@ -309,18 +325,20 @@ namespace RequirementsScheduler.Library.Worker
                             sumOfAOnFirst += (nodeForSum.Value as LaboriousDetail).OnFirst.Time.A;
                         }
                     }
+
                     sumOfBOnSecond += (node.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
 
                     sumOfAOnFirst += experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) +
-                                         experimentInfo.J1.Sum(detail => detail.Time.A);
+                                     experimentInfo.J1.Sum(detail => detail.Time.A);
 
                     if (sumOfAOnFirst >= sumOfBOnSecond)
                     {
-                        LinkedListNode<IChainNode> insertedNode = node;
+                        var insertedNode = node;
                         foreach (var laboriousDetail in (node.Value as Conflict).Details)
                         {
                             insertedNode = experimentInfo.J21Chain.AddBefore(node, laboriousDetail);
                         }
+
                         experimentInfo.J21Chain.Remove(node);
                         node = insertedNode;
                     }
@@ -355,12 +373,16 @@ namespace RequirementsScheduler.Library.Worker
                     var sumBeforeConflictOfBOnFirst = 0.0;
                     var sumBeforeConflictOfAOnSecond = 0.0;
 
-                    for (var nodeForSum = experimentInfo.J12Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    for (var nodeForSum = experimentInfo.J12Chain.First;
+                        nodeForSum != node;
+                        nodeForSum = nodeForSum.Next)
                     {
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
-                            sumBeforeConflictOfBOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
-                            sumBeforeConflictOfAOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
+                            sumBeforeConflictOfBOnFirst +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+                            sumBeforeConflictOfAOnSecond +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
                         }
                         else
                         {
@@ -397,6 +419,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             insertedNode = experimentInfo.J12Chain.AddBefore(node, detailInBox);
                         }
+
                         experimentInfo.J12Chain.Remove(node);
                         node = insertedNode;
                         continue;
@@ -428,9 +451,9 @@ namespace RequirementsScheduler.Library.Worker
                     }
                     else
                     {
-                        aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail ?
-                            (node.Next.Value as LaboriousDetail).OnFirst.Time.A :
-                            (node.Next.Value as Conflict).Details.Min(detail => detail.OnFirst.Time.A);
+                        aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail
+                            ? (node.Next.Value as LaboriousDetail).OnFirst.Time.A
+                            : (node.Next.Value as Conflict).Details.Min(detail => detail.OnFirst.Time.A);
                     }
 
                     var sumOfAOnFirst = aOfDetailAfterConflict;
@@ -444,6 +467,7 @@ namespace RequirementsScheduler.Library.Worker
                             sumOfAOnFirst += detailInBox.OnFirst.Time.A;
                             continue;
                         }
+
                         isResolved = false;
                         break;
                     }
@@ -455,6 +479,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             insertedNode = experimentInfo.J12Chain.AddBefore(node, detailInBox);
                         }
+
                         experimentInfo.J12Chain.Remove(node);
                         node = insertedNode;
                     }
@@ -484,12 +509,16 @@ namespace RequirementsScheduler.Library.Worker
                     var sumBeforeConflictOfBOnSecond = 0.0;
                     var sumBeforeConflictOfAOnFirst = 0.0;
 
-                    for (var nodeForSum = experimentInfo.J21Chain.First; nodeForSum != node; nodeForSum = nodeForSum.Next)
+                    for (var nodeForSum = experimentInfo.J21Chain.First;
+                        nodeForSum != node;
+                        nodeForSum = nodeForSum.Next)
                     {
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
-                            sumBeforeConflictOfBOnSecond += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
-                            sumBeforeConflictOfAOnFirst += (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
+                            sumBeforeConflictOfBOnSecond +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+                            sumBeforeConflictOfAOnFirst +=
+                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
                         }
                         else
                         {
@@ -499,7 +528,7 @@ namespace RequirementsScheduler.Library.Worker
                     }
 
                     sumBeforeConflictOfAOnFirst += experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) +
-                                                    experimentInfo.J1.Sum(detail => detail.Time.A);
+                                                   experimentInfo.J1.Sum(detail => detail.Time.A);
 
                     var sumOfBOnSecond = sumBeforeConflictOfBOnSecond;
                     var sumOfAOnFirst = sumBeforeConflictOfAOnFirst;
@@ -526,6 +555,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             insertedNode = experimentInfo.J21Chain.AddBefore(node, detailInBox);
                         }
+
                         experimentInfo.J21Chain.Remove(node);
                         node = insertedNode;
                         continue;
@@ -557,9 +587,9 @@ namespace RequirementsScheduler.Library.Worker
                     }
                     else
                     {
-                        aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail ?
-                            (node.Next.Value as LaboriousDetail).OnSecond.Time.A :
-                            (node.Next.Value as Conflict).Details.Min(detail => detail.OnSecond.Time.A);
+                        aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail
+                            ? (node.Next.Value as LaboriousDetail).OnSecond.Time.A
+                            : (node.Next.Value as Conflict).Details.Min(detail => detail.OnSecond.Time.A);
                     }
 
                     var sumOfAOnSecond = aOfDetailAfterConflict;
@@ -573,6 +603,7 @@ namespace RequirementsScheduler.Library.Worker
                             sumOfAOnSecond += detailInBox.OnSecond.Time.A;
                             continue;
                         }
+
                         isResolved = false;
                         break;
                     }
@@ -584,6 +615,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             insertedNode = experimentInfo.J21Chain.AddBefore(node, detailInBox);
                         }
+
                         experimentInfo.J21Chain.Remove(node);
                         node = insertedNode;
                     }
@@ -601,6 +633,7 @@ namespace RequirementsScheduler.Library.Worker
             {
                 return new Chain(sortedBox);
             }
+
             var chain = new Chain();
 
             foreach (var detailFromSortedBox in sortedBox)
@@ -613,7 +646,8 @@ namespace RequirementsScheduler.Library.Worker
                     if (lastElement.Value.Type == ChainType.Conflict)
                     {
                         var conflict = lastElement.Value as Conflict;
-                        var isConflict = conflict.Details.Any(detail => conflictPredicate.Invoke(detail, detailFromSortedBox));
+                        var isConflict = conflict.Details.Any(detail =>
+                            conflictPredicate.Invoke(detail, detailFromSortedBox));
 
                         if (isConflict)
                         {
@@ -656,9 +690,9 @@ namespace RequirementsScheduler.Library.Worker
         private static Chain TryToOptimizeJ12(ExperimentInfo experimentInfo)
         {
             var boxes = SplitToBoxes(
-                            experimentInfo.J12,
-                            detail => detail.OnFirst.Time.B <= detail.OnSecond.Time.A,
-                            detail => detail.OnSecond.Time.B <= detail.OnFirst.Time.A);
+                experimentInfo.J12,
+                detail => detail.OnFirst.Time.B <= detail.OnSecond.Time.A,
+                detail => detail.OnSecond.Time.B <= detail.OnFirst.Time.A);
 
             var sortedFirstBox = boxes.Item1
                 .OrderBy(detail => detail.OnFirst.Time.A)
@@ -715,10 +749,13 @@ namespace RequirementsScheduler.Library.Worker
                             {
                                 jConflict.Details.Add(nodeValue as LaboriousDetail);
                             }
+
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
+
                     resultChain.AddLast(chainElement);
                 }
                 else
@@ -740,10 +777,13 @@ namespace RequirementsScheduler.Library.Worker
                             {
                                 jConflict.Details.Add(nodeValue as LaboriousDetail);
                             }
+
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
+
                     resultChain.AddLast(chainElement);
                 }
             }
@@ -770,6 +810,7 @@ namespace RequirementsScheduler.Library.Worker
                             resultChain.AddLast(chainNode.Value);
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
                 }
@@ -791,6 +832,7 @@ namespace RequirementsScheduler.Library.Worker
                             resultChain.AddLast(chainNode.Value);
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
                 }
@@ -804,10 +846,11 @@ namespace RequirementsScheduler.Library.Worker
             return resultChain;
         }
 
-        private static Tuple<IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>> SplitToBoxes(
-            LaboriousDetailList details,
-            Func<LaboriousDetail, bool> firstBoxSelector,
-            Func<LaboriousDetail, bool> secondBoxSelector)
+        private static Tuple<IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>>
+            SplitToBoxes(
+                LaboriousDetailList details,
+                Func<LaboriousDetail, bool> firstBoxSelector,
+                Func<LaboriousDetail, bool> secondBoxSelector)
         {
             var firstBox = details
                 .Where(firstBoxSelector)
@@ -825,19 +868,19 @@ namespace RequirementsScheduler.Library.Worker
 
             return
                 new Tuple<IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>, IEnumerable<LaboriousDetail>>(
-                firstBox, secondBox, asteriskBox);
+                    firstBox, secondBox, asteriskBox);
         }
 
         private static Chain TryToOptimizeJ21(ExperimentInfo experimentInfo)
         {
             var boxes = SplitToBoxes(
-                            experimentInfo.J21,
-                            detail => detail.OnSecond.Time.B <= detail.OnFirst.Time.A,
-                            detail => detail.OnFirst.Time.B <= detail.OnSecond.Time.A);
+                experimentInfo.J21,
+                detail => detail.OnSecond.Time.B <= detail.OnFirst.Time.A,
+                detail => detail.OnFirst.Time.B <= detail.OnSecond.Time.A);
 
             var sortedFirstBox = boxes.Item1
-                    .OrderBy(detail => detail.OnSecond.Time.A)
-                    .ToList();
+                .OrderBy(detail => detail.OnSecond.Time.A)
+                .ToList();
 
             var sortedSecondBox = boxes.Item2
                 .OrderBy(detail => detail.OnFirst.Time.A)
@@ -890,10 +933,13 @@ namespace RequirementsScheduler.Library.Worker
                             {
                                 jConflict.Details.Add(nodeValue as LaboriousDetail);
                             }
+
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
+
                     resultChain.AddLast(chainElement);
                 }
                 else
@@ -915,10 +961,13 @@ namespace RequirementsScheduler.Library.Worker
                             {
                                 jConflict.Details.Add(nodeValue as LaboriousDetail);
                             }
+
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
+
                     resultChain.AddLast(chainElement);
                 }
             }
@@ -945,6 +994,7 @@ namespace RequirementsScheduler.Library.Worker
                             resultChain.AddLast(chainNode.Value);
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
                 }
@@ -966,6 +1016,7 @@ namespace RequirementsScheduler.Library.Worker
                             resultChain.AddLast(chainNode.Value);
                             chainNode = chainNode.Next;
                         }
+
                         break;
                     }
                 }
@@ -982,7 +1033,8 @@ namespace RequirementsScheduler.Library.Worker
         private static void CheckFirst(ExperimentInfo experimentInfo)
         {
             if (experimentInfo.J12.Sum(detail => detail.OnFirst.Time.B) <=
-                    experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) + experimentInfo.J2.Sum(detail => detail.Time.A))
+                experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) +
+                experimentInfo.J2.Sum(detail => detail.Time.A))
             {
                 experimentInfo.J12.IsOptimized = true;
             }
@@ -990,7 +1042,8 @@ namespace RequirementsScheduler.Library.Worker
                 return;
 
             if (experimentInfo.J12.Sum(detail => detail.OnSecond.Time.A) >=
-                experimentInfo.J1.Sum(detail => detail.Time.B) + experimentInfo.J21.Sum(detail => detail.OnFirst.Time.B))
+                experimentInfo.J1.Sum(detail => detail.Time.B) +
+                experimentInfo.J21.Sum(detail => detail.OnFirst.Time.B))
             {
                 experimentInfo.J21.IsOptimized = true;
             }
@@ -999,7 +1052,8 @@ namespace RequirementsScheduler.Library.Worker
         private static void CheckSecond(ExperimentInfo experimentInfo)
         {
             if (experimentInfo.J21.Sum(detail => detail.OnSecond.Time.B) <=
-                    experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) + experimentInfo.J1.Sum(detail => detail.Time.A))
+                experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) +
+                experimentInfo.J1.Sum(detail => detail.Time.A))
             {
                 experimentInfo.J21.IsOptimized = true;
             }
@@ -1008,7 +1062,8 @@ namespace RequirementsScheduler.Library.Worker
 
             //todo if J12 already optimized we don't need check it again
             if (experimentInfo.J21.Sum(detail => detail.OnFirst.Time.A) >=
-                experimentInfo.J2.Sum(detail => detail.Time.B) + experimentInfo.J12.Sum(detail => detail.OnSecond.Time.B))
+                experimentInfo.J2.Sum(detail => detail.Time.B) +
+                experimentInfo.J12.Sum(detail => detail.OnSecond.Time.B))
             {
                 experimentInfo.J12.IsOptimized = true;
             }
@@ -1170,9 +1225,9 @@ namespace RequirementsScheduler.Library.Worker
             bool isFirstDetail,
             ResultInfo result)
         {
-            if (currentDetail is Detail)
+            if (currentDetail is Detail detail1)
             {
-                processedDetailNumbersOnCurrentMachine.Add((currentDetail as Detail).Number);
+                processedDetailNumbersOnCurrentMachine.Add(detail1.Number);
             }
 
             currentDetail = nodeOnCurrentMachine.Value;
@@ -1186,7 +1241,8 @@ namespace RequirementsScheduler.Library.Worker
                               .TakeWhile(d => (d as Detail).Number != detail.Number)
                               .Sum(d => (d as Detail).Time.P) +
                           (chainOnAnotherMachine.First(
-                              d => d is Detail && (d as Detail).Number == detail.Number) as Detail).Time.P - machinesStart,
+                              d => d is Detail && (d as Detail).Number == detail.Number) as Detail).Time.P -
+                          machinesStart,
                 processedDetailNumbersOnAnotherMachine,
                 ref timeOnCurrentMachine,
                 isFirstDetail,
@@ -1247,8 +1303,8 @@ namespace RequirementsScheduler.Library.Worker
 
             // details are on two machines
             while (hasDetailOnFirst && hasDetailOnSecond ||
-                time1 > time2 && hasDetailOnSecond ||
-                time2 > time1 && hasDetailOnFirst)
+                   time1 > time2 && hasDetailOnSecond ||
+                   time2 > time1 && hasDetailOnFirst)
             {
                 // time1 equal to time2
                 if (Math.Abs(time1 - time2) < 0.001)
@@ -1334,7 +1390,7 @@ namespace RequirementsScheduler.Library.Worker
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
 
-                    time1 += ((Detail)node.Value).Time.P;
+                    time1 += ((Detail) node.Value).Time.P;
                 }
             }
             else
@@ -1343,9 +1399,10 @@ namespace RequirementsScheduler.Library.Worker
                 for (var node = nodeOnSecondMachine; node != null; node = node.Next)
                 {
                     if (!(node.Value is Detail))
-                        throw new InvalidOperationException("There can be no conflicts and downtimes when one of machine finished work");
+                        throw new InvalidOperationException(
+                            "There can be no conflicts and downtimes when one of machine finished work");
 
-                    time2 += ((Detail)node.Value).Time.P;
+                    time2 += ((Detail) node.Value).Time.P;
                 }
             }
 
@@ -1359,8 +1416,7 @@ namespace RequirementsScheduler.Library.Worker
                 experimentInfo.Result.IsStop3OnOnline = true;
             }
 
-            experimentInfo.Result.DeltaCmax = (float)((cMax - cOpt) / cOpt * 100);
-
+            experimentInfo.Result.DeltaCmax = (float) ((cMax - cOpt) / cOpt * 100);
         }
 
         private static double CalculateCOpt(
@@ -1399,7 +1455,8 @@ namespace RequirementsScheduler.Library.Worker
                     }
 
                     var x1 = j12OnFirstMachine
-                        .Where(detail => detail.Time.P <= j12OnSecondMachine.First(d => d.Number == detail.Number).Time.P)
+                        .Where(detail =>
+                            detail.Time.P <= j12OnSecondMachine.First(d => d.Number == detail.Number).Time.P)
                         .OrderBy(detail => detail.Time.P);
 
                     var x2 = j12OnFirstMachine
@@ -1410,7 +1467,7 @@ namespace RequirementsScheduler.Library.Worker
                     j12OnSecondMachine = j12OnSecondMachine
                         .OrderBy(detail => detail.Number,
                             new CustomComparer(j12OnFirstMachine.Select(detail => detail.Number)))
-                            .ToList();
+                        .ToList();
 
                     var sumOfPOnFirst = j12OnFirstMachine.First().Time.P;
                     var sumOfPOnSecond = j12OnSecondMachine.Sum(detail => detail.Time.P);
@@ -1437,8 +1494,9 @@ namespace RequirementsScheduler.Library.Worker
                         throw new InvalidOperationException("Wrong finding algorithm of maxCfact");
 
                     var l = j12OnFirstMachine
-                        .Take(jOfMaxSumOfP)
-                        .Sum(detail => detail.Time.P) - j12OnSecondMachine.Take(jOfMaxSumOfP - 1).Sum(detail => detail.Time.P);
+                                .Take(jOfMaxSumOfP)
+                                .Sum(detail => detail.Time.P) - j12OnSecondMachine.Take(jOfMaxSumOfP - 1)
+                                .Sum(detail => detail.Time.P);
                     var q = experimentInfo.OnlineChainOnSecondMachine
                         .OfType<Detail>()
                         .Where(detail => !j12Numbers.Contains(detail.Number))
@@ -1475,7 +1533,8 @@ namespace RequirementsScheduler.Library.Worker
                     }
 
                     var x1 = j21OnFirstMachine
-                        .Where(detail => j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P <= detail.Time.P)
+                        .Where(detail =>
+                            j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P <= detail.Time.P)
                         .OrderBy(detail => j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P);
 
                     var x2 = j21OnFirstMachine
@@ -1512,7 +1571,8 @@ namespace RequirementsScheduler.Library.Worker
                     if (jOfMaxSumOfP == 0)
                         throw new InvalidOperationException("Wrong finding algorithm of maxCfact");
 
-                    var l = j21OnSecondMachine.Take(jOfMaxSumOfP).Sum(detail => detail.Time.P) - j21OnFirstMachine.Take(jOfMaxSumOfP - 1).Sum(detail => detail.Time.P);
+                    var l = j21OnSecondMachine.Take(jOfMaxSumOfP).Sum(detail => detail.Time.P) -
+                            j21OnFirstMachine.Take(jOfMaxSumOfP - 1).Sum(detail => detail.Time.P);
                     var q = experimentInfo.OnlineChainOnFirstMachine
                         .OfType<Detail>()
                         .Where(detail => !j21Numbers.Contains(detail.Number))
@@ -1556,7 +1616,8 @@ namespace RequirementsScheduler.Library.Worker
 
             var detail = currentDetail as Detail;
             if (detail == null)
-                throw new InvalidCastException($"Try cast {currentDetail.GetType().FullName} to {typeof(Detail).FullName}");
+                throw new InvalidCastException(
+                    $"Try cast {currentDetail.GetType().FullName} to {typeof(Detail).FullName}");
 
             if (processedDetailNumbersOnAnotherMachine.Contains(detail.Number))
             {
@@ -1610,6 +1671,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             return (i as Detail).Time.P;
                         }
+
                         if (i.Type == OnlineChainType.Downtime)
                         {
                             return (i as Downtime).Time;
@@ -1630,6 +1692,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             return (i as Detail).Time.P;
                         }
+
                         if (i.Type == OnlineChainType.Downtime)
                         {
                             return (i as Downtime).Time;
@@ -1641,7 +1704,9 @@ namespace RequirementsScheduler.Library.Worker
                 double sumOnAnother;
 
                 var l = timeFromMachinesStart - sumOfPOnAnother;
-                sumOnAnother = l <= (nodeOnAnotherMachine.Value as Detail).Time.A ? (nodeOnAnotherMachine.Value as Detail).Time.A : l;
+                sumOnAnother = l <= (nodeOnAnotherMachine.Value as Detail).Time.A
+                    ? (nodeOnAnotherMachine.Value as Detail).Time.A
+                    : l;
 
                 var sumOfAOnAnother = chainOnAnotherMachine
                     .SkipWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
@@ -1653,6 +1718,7 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             return (i as Detail).Time.A;
                         }
+
                         if (i.Type == OnlineChainType.Conflict)
                         {
                             return (i as OnlineConflict).Details.Sum(d => d.Time.A);
@@ -1673,12 +1739,14 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, conflictDetail);
                     }
+
                     chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
 
                     foreach (var conflictDetail in conflictOnAnotherMachine.Details)
                     {
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictDetail);
                     }
+
                     chainOnAnotherMachine.Remove(conflictNodeOnAnotherMachine);
 
                     nodeOnCurrentMachine = nodeOnCurrentMachine.Next;
@@ -1690,7 +1758,8 @@ namespace RequirementsScheduler.Library.Worker
 
                 // Check 2
                 var x1 = conflict.Details
-                    .Where(d => conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.A - d.Time.B >= 0)
+                    .Where(d => conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.A - d.Time.B >=
+                                0)
                     .OrderBy(d => d.Time.B);
 
                 var x2 = conflict.Details
@@ -1725,7 +1794,8 @@ namespace RequirementsScheduler.Library.Worker
                     foreach (var detail in conflictSequence)
                     {
                         chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
-                        chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictOnAnotherMachine.Details.First(d => d.Number == detail.Number));
+                        chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
+                            conflictOnAnotherMachine.Details.First(d => d.Number == detail.Number));
                     }
 
                     chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
@@ -1778,11 +1848,13 @@ namespace RequirementsScheduler.Library.Worker
             // Check 3
             var t1 = conflict.Details
                 .Where(
-                    d => d.Time.Average <= conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.Average)
+                    d => d.Time.Average <= conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time
+                             .Average)
                 .OrderBy(d => d.Time.Average);
             var t2 = conflict.Details
                 .Except(t1)
-                .OrderByDescending(d => conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.Average);
+                .OrderByDescending(
+                    d => conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.Average);
 
             var conflictSequence = t1.Concat(t2);
 
@@ -1802,13 +1874,14 @@ namespace RequirementsScheduler.Library.Worker
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
                             conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
                     }
-                    
+
                     isFirstAdd = false;
                 }
                 else
                 {
                     chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
-                    chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
+                    chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
+                        conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
                 }
             }
 
@@ -1821,9 +1894,10 @@ namespace RequirementsScheduler.Library.Worker
 
         #endregion
 
-        internal class CustomComparer : IComparer<int>
+        private class CustomComparer : IComparer<int>
         {
             private readonly List<int> _numbers;
+
             public CustomComparer(IEnumerable<int> numbers)
             {
                 _numbers = numbers.ToList();

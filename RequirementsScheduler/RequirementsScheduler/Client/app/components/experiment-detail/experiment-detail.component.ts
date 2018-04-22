@@ -1,7 +1,7 @@
 ﻿import { Component, OnInit, Input } from '@angular/core';
 import { GtExpandedRow } from 'angular-generic-table';
 
-import { Test, Report } from '../../models/index';
+import { Test, Report, Result } from '../../models/index';
 
 import { ExperimentService } from '../../services/index';
 
@@ -13,13 +13,13 @@ export class ExperimentDetailComponent extends GtExpandedRow<any> implements OnI
 
     selectedTest: Test;
     tests: Test[];
-    report: Report;
+    result: Result;
 
     constructor(private _experimentService: ExperimentService) { super(); }
 
     ngOnInit() {
         console.log(this.row);
         this._experimentService.getResultInfo(this.row.id)
-            .subscribe(report => { this.report = report; });
+            .subscribe(result => { this.result = result; });
     }
 }
