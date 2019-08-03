@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System;
+using RequirementsScheduler.BLL.Model;
 
 namespace RequirementsScheduler.BLL
 {
@@ -7,11 +8,16 @@ namespace RequirementsScheduler.BLL
     {
         public MappingProfile()
         {
-            CreateMap<DAL.Model.User, BLL.Model.User>();
-            CreateMap<BLL.Model.User, DAL.Model.User>();
+            CreateMap<DAL.Model.User, BLL.Model.User>()
+                .ForMember(dest => dest.Email, opt => opt.Ignore())
+                .ReverseMap();
 
-            CreateMap<DAL.Model.Experiment, BLL.Model.Experiment>();
-            CreateMap<BLL.Model.Experiment, DAL.Model.Experiment>();
+            CreateMap<DAL.Model.Experiment, BLL.Model.Experiment>()
+                .ForMember(dest => dest.Report, opt => opt.MapFrom(src => src.Result))
+                .ForMember(dest => dest.BorderGenerationType, opt => opt.Ignore())
+                .ForMember(dest => dest.PGenerationType, opt => opt.Ignore())
+                .ForMember(dest => dest.Results, opt => opt.Ignore())
+                .ReverseMap();
 
             CreateMap<DAL.Model.ExperimentResult, BLL.Model.ExperimentReport>()
                 .ForMember(dest => dest.N, opt => opt.MapFrom(src => src.Experiment.TestsAmount))
@@ -26,9 +32,10 @@ namespace RequirementsScheduler.BLL
                 .ForMember(dest => dest.RequirementsAmount, opt => opt.MapFrom(src => src.Experiment.RequirementsAmount))
                 .ForMember(
                     dest => dest.OnlineExecutionTime, 
-                    opt => opt.MapFrom(src => TimeSpan.FromSeconds(src.OnlineExecutionTime.TotalSeconds)));
-             
-            CreateMap<BLL.Model.ExperimentReport, DAL.Model.ExperimentResult>();
+                    opt => opt.MapFrom(src => TimeSpan.FromSeconds(src.OnlineExecutionTime.TotalSeconds)))
+                .ReverseMap();
+
+            CreateMap<DAL.Model.ExperimentResult, ReportInfo>();
         }
     }
 }

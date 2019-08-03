@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { APP_BASE_HREF } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { ORIGIN_URL, REQUEST } from '@nguniversal/aspnetcore-engine/tokens';
+import { AppModuleShared } from './app.module';
+import { AppComponent } from './app.component';
+import { BrowserTransferStateModule } from '@angular/platform-browser';
+import { BrowserPrebootModule } from 'preboot/browser';
+
 import { ApplicationInsightsModule, AppInsightsService } from '@markpieszak/ng-application-insights';
-
-import { ORIGIN_URL } from './shared/constants/baseurl.constants';
-import { AppModule } from './app.module';
-import { AppComponent } from './components/app/app.component';
-
-import { REQUEST } from './shared/constants/request';
-import { BrowserTransferStateModule } from '../modules/transfer-state/browser-transfer-state.module';
 
 export function getOriginUrl() {
     return window.location.origin;
@@ -23,14 +23,11 @@ export function getRequest() {
 @NgModule({
     bootstrap: [AppComponent],
     imports: [
-        BrowserModule.withServerTransition({
-            appId: 'my-app-id' // make sure this matches with your Server NgModule
-        }),
+        BrowserPrebootModule.replayEvents(),
         BrowserAnimationsModule,
 
-        BrowserTransferStateModule,
         // Our Common AppModule
-        AppModule,
+        AppModuleShared,
         ApplicationInsightsModule.forRoot({
             instrumentationKey: '660270e3-0760-44d8-b002-a4725627aeed'
         })
@@ -49,5 +46,5 @@ export function getRequest() {
         AppInsightsService
     ]
 })
-export class BrowserAppModule {
+export class AppModule {
 }

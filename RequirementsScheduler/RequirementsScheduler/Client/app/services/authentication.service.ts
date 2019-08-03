@@ -8,16 +8,14 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/of';
 
 import { AlertService } from './alert.service';
-
-import { tokenNotExpired, JwtHelper } from 'angular2-jwt';
-
+import { JwtHelperService } from '@auth0/angular-jwt';
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
 @Injectable()
 export class AuthenticationService {
 
-    private jwtHelper = new JwtHelper();
+    private jwtHelper = new JwtHelperService();
 
     // Observable navItem source
     private _user: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -32,8 +30,11 @@ export class AuthenticationService {
 
     loggedIn(): boolean {
         if (isPlatformBrowser(this.platformId)) {
-            return tokenNotExpired();
+            let token = localStorage.getItem('token');
+            var isTokenExpired = this.jwtHelper.isTokenExpired(token);
+            return !isTokenExpired;
         } else {
+            console.log('Platform isn\'t browser');
             return false;
         }
     }

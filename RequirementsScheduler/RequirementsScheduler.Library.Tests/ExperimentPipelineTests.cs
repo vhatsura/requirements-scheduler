@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Extensions;
 using RequirementsScheduler.Library.Worker;
 using Xunit;
@@ -53,7 +55,8 @@ namespace RequirementsScheduler.Library.Tests
                 Mock.Of<IWorkerExperimentService>(),
                 experimentTestResultService.Object,
                 Mock.Of<IReportsService>(),
-                Mock.Of<ILogger<ExperimentPipeline>>());
+                Mock.Of<ILogger<ExperimentPipeline>>(),
+                Mock.Of<IOptions<DbSettings>>());
 
             // Act
             await experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment));

@@ -1,10 +1,13 @@
 import { NgModule, Inject } from '@angular/core';
+import { RouterModule, PreloadAllModules } from '@angular/router';
 import { CommonModule, APP_BASE_HREF  } from '@angular/common';
-import { Http, RequestOptions, HttpModule, BrowserXhr } from '@angular/http';
-import { RouterModule } from '@angular/router';
+import { HttpModule, Http, RequestOptions, BrowserXhr } from '@angular/http';
+import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS  } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule, BrowserTransferStateModule } from '@angular/platform-browser';
+import { TransferHttpCacheModule } from '@nguniversal/common';
 
-import { AppComponent } from './components/app/app.component';
+import { AppComponent } from './app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
 import { UsersComponent } from './components/users/users.component';
@@ -19,41 +22,43 @@ import { ExperimentsComponent } from './components/experiments/experiments.compo
 import { ExperimentDetailComponent } from './components/experiment-detail/experiment-detail.component';
 import { TestListComponent } from './components/test-list/test-list.component';
 import { TestDetailComponent } from './components/test-detail/test-detail.component';
+import { NameComponent, RoleComponent, EmailComponent } from './components/users/users.component';
+import { UserDetailComponent } from './components/user-detail/user-detail.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
+
 
 import { CustomFormsModule } from 'ng2-validation';
 
-import { AuthHttp, AuthConfig } from 'angular2-jwt';
+import { JwtModule } from '@auth0/angular-jwt';
 
 import { BusyModule } from 'angular2-busy';
 import { GenericTableModule } from 'angular-generic-table';
 
 import { LinkService } from './shared/link.service';
-import { ORIGIN_URL } from './shared/constants/baseurl.constants';
-import { TransferHttpModule } from '../modules/transfer-http/transfer-http.module';
+import { ORIGIN_URL } from '@nguniversal/aspnetcore-engine/tokens';
 
 import { Ng2GoogleChartsModule } from 'ng2-google-charts';
 
 // import { ChartMockComponent } from './components/chartMock/chartMock.component';
 
-import { PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { NgProgressModule, NgProgressInterceptor } from 'ngx-progressbar';
 
-import { NgProgressCustomBrowserXhr, NgProgressModule } from 'ng2-progressbar';
+import { TabsModule  } from 'ngx-bootstrap';
 
-import { NameComponent, RoleComponent, EmailComponent } from './components/users/users.component';
+import { JwtHttpInterceptor } from './services/jwt.http.interceptor';
 
-import { UserDetailComponent } from './components/user-detail/user-detail.component';
-import { NotFoundComponent } from './components/not-found/not-found.component';
-
-import { Ng2BootstrapModule, TabsModule  } from 'ngx-bootstrap';
-
-export function authHttpServiceFactory(http: Http, options: RequestOptions) {
-    return new AuthHttp(new AuthConfig({
-        tokenName: 'token',
-        tokenGetter: (() => localStorage.getItem('token')),
-        globalHeaders: [{ 'Content-Type': 'application/json' }]
-    }), http, options);
+export function jwtTokenGetter() {
+    let token = localStorage.getItem('token');
+    return token;
 }
+
+export const jwtConf = {
+      config: {
+        tokenGetter: jwtTokenGetter,
+        whitelistedDomains: new Array(new RegExp('^null$')),
+        throwNoTokenError: true
+      }
+    };
 
 @NgModule({
     declarations: [
@@ -78,19 +83,25 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     ],
     imports: [
         CommonModule,
-        // Must be first import. This automatically imports BrowserModule, HttpModule, and JsonpModule too.
-        FormsModule,
+        BrowserModule.withServerTransition({
+            appId: 'my-app-id' // make sure this matches with your Server NgModule
+        }),
+
         HttpModule,
+        HttpClientModule,
+        JwtModule.forRoot(jwtConf),
+        TransferHttpCacheModule,
+        BrowserTransferStateModule,
+
+        FormsModule,
         CustomFormsModule,
         ReactiveFormsModule,
 
         Ng2GoogleChartsModule,
 
-        Ng2BootstrapModule.forRoot(), // You could also split this up if you don't want the Entire Module imported
         TabsModule.forRoot(),
 
         GenericTableModule,
-        TransferHttpModule,
         RouterModule.forRoot([
             { path: '', component: HomeComponent, canActivate: [AuthGuard] },
             { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
@@ -109,24 +120,23 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
                      ]
                  }
              }
-        ]),
+        ], {
+            // Router options
+            useHash: false,
+            preloadingStrategy: PreloadAllModules,
+            initialNavigation: 'enabled'
+        }),
         NgProgressModule
     ],
     providers: [
-        {
-            provide: AuthHttp,
-            useFactory: authHttpServiceFactory,
-            deps: [Http, RequestOptions]
-        },
         AuthGuard,
         AlertService,
         AuthenticationService,
         UserService,
         ExperimentService,
         LinkService,
-        {
-            provide: BrowserXhr, useClass: NgProgressCustomBrowserXhr
-        }
+        { provide: HTTP_INTERCEPTORS, useClass: JwtHttpInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: NgProgressInterceptor, multi: true }
     ],
     entryComponents: [
         ExperimentDetailComponent,
@@ -136,5 +146,5 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         EmailComponent
     ]
 })
-export class AppModule {
+export class AppModuleShared {
 }

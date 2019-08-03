@@ -2,8 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthenticationService } from '../../services/index';
 import { Subscription } from 'rxjs/Subscription';
 
-import { JwtHelper } from 'angular2-jwt';
-
 @Component({
     selector: 'nav-menu',
     templateUrl: './navmenu.component.html',
@@ -14,7 +12,6 @@ export class NavMenuComponent implements OnInit, OnDestroy {
     isAdmin: boolean;
 
     subscription: Subscription;
-    jwtHelper: JwtHelper = new JwtHelper();
 
     constructor(public authService: AuthenticationService) { }
 

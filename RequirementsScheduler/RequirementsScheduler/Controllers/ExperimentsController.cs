@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
 using RequirementsScheduler.Core.Worker;
+using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Extensions;
 using RequirementsScheduler.Library.Worker;
 using RequirementsScheduler2.Extensions;
@@ -43,7 +46,7 @@ namespace RequirementsScheduler.Controllers
 
         // GET: api/values
         [HttpGet]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IEnumerable<Experiment> Get()
         {
             var username = UserName;
@@ -54,7 +57,7 @@ namespace RequirementsScheduler.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult Get(int id)
         {
             //var username = UserName;
@@ -62,8 +65,25 @@ namespace RequirementsScheduler.Controllers
             return Ok("value");
         }
 
-        [HttpGet("{id}/result")]
-        [Authorize]
+        [HttpGet("{id}/resultinfo")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> ResultInfo(Guid id)
+        {
+            var username = UserName;
+
+            var experiment = Service.Get(id, username);
+            if (experiment == null)
+            {
+                return BadRequest();
+            }
+
+            var aggregatedResult = await ResultService.GetAggregatedResult(experiment.Id);
+
+            return Ok(new {experiment.Report, TestResults = aggregatedResult.ToList()});
+        }
+
+        [HttpGet("{id}/results")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Result(Guid id)
         {
             var username = UserName;
@@ -76,7 +96,7 @@ namespace RequirementsScheduler.Controllers
 
             var infos = new List<ExperimentInfo>();
 
-            for (int i = 1; i <= experiment.TestsAmount; i++)
+            for (var i = 1; i <= experiment.TestsAmount; i++)
             {
                 var experimentInfo = await ResultService.GetExperimentTestResult(id, i);
                 infos.Add(experimentInfo);
@@ -84,19 +104,24 @@ namespace RequirementsScheduler.Controllers
 
             return Ok(infos);
         }
-
+        
         [HttpGet("{id}/result/{testNumber}")]
-        [Authorize]
-        public async Task<IActionResult> Result(Guid id, int number)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> Result(Guid id, int testNumber)
         {
+            // todo add check that testNumber don't more than test number in experiment
+            if (testNumber <= 0)
+            {
+                return BadRequest("Invalid test number");
+            }
             //var username = UserName;
-            var experimentInfo =  await ResultService.GetExperimentTestResult(id, number);
+            var experimentInfo =  await ResultService.GetExperimentTestResult(id, testNumber);
 
             return Ok(experimentInfo);
         }
 
         [HttpGet("[action]/{status}")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult GetByStatus(string status)
         {
             var username = UserName;
@@ -115,7 +140,7 @@ namespace RequirementsScheduler.Controllers
 
         // POST api/values
         [HttpPost]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult Post([FromBody]Experiment value)
         {
             if (!ModelState.IsValid)
@@ -136,7 +161,7 @@ namespace RequirementsScheduler.Controllers
 
         // POST api/values
         [HttpPost("[action]")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult Test([FromBody]TestExperiment value)
         {
             var username = UserName;
@@ -232,7 +257,8 @@ namespace RequirementsScheduler.Controllers
                 Container.GetService<IWorkerExperimentService>(),
                 Container.GetService<IExperimentTestResultService>(),
                 Container.GetService<IReportsService>(),
-                Container.GetService<ILogger<ExperimentPipeline>>());
+                Container.GetService<ILogger<ExperimentPipeline>>(),
+                Container.GetService<IOptions<DbSettings>>());
 
             Task.Factory.StartNew(
                 () => experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment)));

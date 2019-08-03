@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RequirementsScheduler.BLL.Model;
@@ -21,7 +22,7 @@ namespace RequirementsScheduler.Controllers
 
         // GET: api/values
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public IEnumerable<User> Get()
         {
             return Service.GetAllUsers();
@@ -29,7 +30,7 @@ namespace RequirementsScheduler.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public User Get(int id)
         {
             return Service.GetUserById(id);
@@ -37,7 +38,7 @@ namespace RequirementsScheduler.Controllers
 
         // POST api/values
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public ActionResult Post([FromBody]User value)
         {
             if (!ModelState.IsValid)
