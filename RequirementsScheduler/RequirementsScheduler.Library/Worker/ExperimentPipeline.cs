@@ -37,7 +37,7 @@ namespace RequirementsScheduler.Library.Worker
             IWorkerExperimentService service,
             IExperimentTestResultService resultService,
             IReportsService reportService,
-            ILogger logger,
+            ILogger<ExperimentPipeline> logger,
             IOptions<DbSettings> settings)
         {
             Generator = generator ?? throw new ArgumentNullException(nameof(generator));
