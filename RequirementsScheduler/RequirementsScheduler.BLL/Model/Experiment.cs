@@ -40,11 +40,9 @@ namespace RequirementsScheduler.BLL.Model
         [Required(ErrorMessage = "Max boundary is required")]
         public int MaxBoundaryRange { get; set; }
 
-        [Required] [Range(5, 20)]
-        public int MinPercentageFromA { get; set; }
+        [Required] [Range(5, 50)] public int MinPercentageFromA { get; set; }
 
-        [Required] [Range(5,20)]
-        public int MaxPercentageFromA { get; set; }
+        [Required] [Range(5, 50)] public int MaxPercentageFromA { get; set; }
 
         [Required(ErrorMessage = "Border generation type is required")]
         public string BorderGenerationType { get; set; }
@@ -55,7 +53,7 @@ namespace RequirementsScheduler.BLL.Model
         public List<ExperimentInfo> Results { get; } = new List<ExperimentInfo>();
 
         public ReportInfo Report { get; set; }
-        
+
         public ExperimentStatus Status { get; set; }
 
         public DateTime? Created { get; set; }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
 using Quartz;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.Library.Worker
 {
+    [DisallowConcurrentExecution]
     public sealed class ExperimentWorker : IJob
     {
         private IExperimentsService Service { get; }
@@ -27,10 +27,6 @@ namespace RequirementsScheduler.Library.Worker
             }
             catch (Exception ex)
             {
-                var telemetry = new TelemetryClient();
-
-                // Send the exception telemetry:
-                telemetry.TrackException(ex);
             }
             
         }

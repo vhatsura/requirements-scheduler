@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.IO;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace RequirementsScheduler
 {
@@ -8,23 +10,19 @@ namespace RequirementsScheduler
     {
         public static void Main(string[] args)
         {
-            var pathToExe = Directory.GetCurrentDirectory();
-            var pathToContentRoot = Path.GetDirectoryName(pathToExe)?
-                .Replace(@"\bin\Debug\netcoreapp2.0", "")
-                .Replace(@"\bin\Release\netcoreapp2.0", "")
-                .Replace(@"\bin\Debug", "")
-                .Replace(@"\bin\Release", "");
-
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .CaptureStartupErrors(true)
-                .UseSetting("detailedErrors", "true")
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .Build();
-
-            host.Run();
+            CreateWebHostBuilder(args).Build().Run();
         }
+
+        public static IHostBuilder CreateWebHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder
+                        .UseStartup<Startup>()
+                        .ConfigureKestrel((context, options) =>
+                        {
+                            // Set properties and call methods on options
+                        });
+                });
     }
 }

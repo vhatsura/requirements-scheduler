@@ -249,7 +249,7 @@ namespace RequirementsScheduler.Controllers
 
             var generatorMock = new Mock<IExperimentGenerator>();
 
-            generatorMock.Setup(g => g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id)))
+            generatorMock.Setup(g => g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
                 .Returns(() => experimentInfo);
                                      
             var experimentPipeline = new ExperimentPipeline(

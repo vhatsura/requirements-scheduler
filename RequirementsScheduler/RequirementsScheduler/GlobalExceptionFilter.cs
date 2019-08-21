@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -28,10 +27,6 @@ namespace RequirementsScheduler
             }
             catch (Exception ex)
             {
-                var telemetry = new TelemetryClient();
-
-                // Send the exception telemetry:
-                telemetry.TrackException(ex);
                 try
                 {
                     // Do custom stuff

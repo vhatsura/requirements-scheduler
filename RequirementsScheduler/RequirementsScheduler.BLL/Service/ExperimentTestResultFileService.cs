@@ -21,13 +21,10 @@ namespace RequirementsScheduler.BLL.Service
                 Directory.CreateDirectory(experimentPath);
             }
 
-            var fileName = Path.Combine(experimentPath, $"{experimentInfo.TestNumber}.json");
-            var fileStream = File.Create(fileName);
+            var fileName = Path.Combine(experimentPath, $"{experimentInfo.TestNumber.ToString()}.json");
 
-            using (var writer = new StreamWriter(fileStream))
-            {
-                await writer.WriteAsync(JsonConvert.SerializeObject(experimentInfo, SerializerSettings));
-            }
+            await using var fileStream = File.Create(fileName);
+            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, experimentInfo);
         }
 
         private JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()
@@ -43,7 +40,7 @@ namespace RequirementsScheduler.BLL.Service
 
         public async Task<ExperimentInfo> GetExperimentTestResult(Guid experimentId, int testNumber)
         {
-            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), $"{testNumber}.json");
+            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), $"{testNumber.ToString()}.json");
             if (!File.Exists(fileName))
             {
                 throw new ArgumentException();
@@ -61,12 +58,8 @@ namespace RequirementsScheduler.BLL.Service
         {
             var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
 
-            var fileStream = File.Create(fileName);
-
-            using (var writer = new StreamWriter(fileStream))
-            {
-                await writer.WriteAsync(JsonConvert.SerializeObject(aggregatedResult, SerializerSettings));
-            }
+            await using var fileStream = File.Create(fileName);
+            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, aggregatedResult);
         }
 
         public async Task<IDictionary<int, ResultInfo>> GetAggregatedResult(Guid experimentId)

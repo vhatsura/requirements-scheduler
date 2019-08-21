@@ -9,7 +9,7 @@ namespace RequirementsScheduler.Core.Worker
 {
     public class ExperimentGenerator : IExperimentGenerator
     {
-        public ExperimentInfo GenerateDataForTest(Experiment experiment)
+        public ExperimentInfo GenerateDataForTest(Experiment experiment, int testNumber)
         {
             var firstRequirementsAmount = (int) Math.Round(experiment.RequirementsAmount * experiment.N1 / (double)100);
             var secondRequirementsAmount = (int) Math.Round(experiment.RequirementsAmount * experiment.N2 / (double)100);
@@ -44,7 +44,10 @@ namespace RequirementsScheduler.Core.Worker
             var secondFirstSecondBBoundaries = GetBBoundaries(secondFirstSecondABoundaries, experiment.MinPercentageFromA,
                 experiment.MaxPercentageFromA);
 
-            var experimentInfo = new ExperimentInfo();
+            var experimentInfo = new ExperimentInfo
+            {
+                TestNumber = testNumber
+            };
 
             int number = 1;
 
