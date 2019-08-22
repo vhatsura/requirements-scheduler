@@ -8,6 +8,7 @@ using LinqToDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;
@@ -96,10 +97,8 @@ namespace RequirementsScheduler.Library.Worker
 
             var onlineExecutionTimeInMilliseconds = 0.0d;
 
-            var testTasks = new Task[experiment.TestsAmount];
-
             var aggregationResult = Enumerable.Range(0, experiment.TestsAmount)
-                .AsParallel()
+                //.AsParallel()
                 .Select(i =>
                 {
                     var experimentInfo = Generator.GenerateDataForTest(experiment, i + 1);
@@ -281,9 +280,11 @@ namespace RequirementsScheduler.Library.Worker
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
                             sumOfBOnFirst +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnFirst.Time.B);
                             sumOfAOnSecond +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnSecond.Time.A);
                         }
                         else
                         {
@@ -291,7 +292,8 @@ namespace RequirementsScheduler.Library.Worker
                             sumOfAOnSecond += (nodeForSum.Value as LaboriousDetail).OnSecond.Time.A;
                         }
 
-                    sumOfBOnFirst += (node.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+                    sumOfBOnFirst +=
+                        (node.Value as Conflict).DetailsDictionary.Values.Sum(detail => detail.OnFirst.Time.B);
 
                     sumOfAOnSecond += experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) +
                                       experimentInfo.J2.Sum(detail => detail.Time.A);
@@ -299,7 +301,7 @@ namespace RequirementsScheduler.Library.Worker
                     if (sumOfAOnSecond >= sumOfBOnFirst)
                     {
                         var insertedNode = node;
-                        foreach (var laboriousDetail in (node.Value as Conflict).Details)
+                        foreach (var laboriousDetail in (node.Value as Conflict).DetailsDictionary.Values)
                             insertedNode = experimentInfo.J12Chain.AddBefore(node, laboriousDetail);
 
                         experimentInfo.J12Chain.Remove(node);
@@ -320,9 +322,11 @@ namespace RequirementsScheduler.Library.Worker
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
                             sumOfBOnSecond +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnSecond.Time.B);
                             sumOfAOnFirst +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnFirst.Time.A);
                         }
                         else
                         {
@@ -330,7 +334,8 @@ namespace RequirementsScheduler.Library.Worker
                             sumOfAOnFirst += (nodeForSum.Value as LaboriousDetail).OnFirst.Time.A;
                         }
 
-                    sumOfBOnSecond += (node.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+                    sumOfBOnSecond +=
+                        (node.Value as Conflict).DetailsDictionary.Values.Sum(detail => detail.OnSecond.Time.B);
 
                     sumOfAOnFirst += experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) +
                                      experimentInfo.J1.Sum(detail => detail.Time.A);
@@ -338,7 +343,7 @@ namespace RequirementsScheduler.Library.Worker
                     if (sumOfAOnFirst >= sumOfBOnSecond)
                     {
                         var insertedNode = node;
-                        foreach (var laboriousDetail in (node.Value as Conflict).Details)
+                        foreach (var laboriousDetail in (node.Value as Conflict).DetailsDictionary.Values)
                             insertedNode = experimentInfo.J21Chain.AddBefore(node, laboriousDetail);
 
                         experimentInfo.J21Chain.Remove(node);
@@ -357,12 +362,12 @@ namespace RequirementsScheduler.Library.Worker
                     if (node.Value.Type != ChainType.Conflict) continue;
 
                     var conflict = node.Value as Conflict;
-                    var x1Box = conflict.Details
+                    var x1Box = conflict.DetailsDictionary.Values
                         .Where(detail => detail.OnSecond.Time.A - detail.OnFirst.Time.B >= 0)
                         .OrderBy(detail => detail.OnFirst.Time.B)
                         .ToList();
 
-                    var x2Box = conflict.Details
+                    var x2Box = conflict.DetailsDictionary.Values
                         .Except(x1Box)
                         .OrderBy(detail => detail.OnSecond.Time.A)
                         .Reverse()
@@ -379,9 +384,11 @@ namespace RequirementsScheduler.Library.Worker
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
                             sumBeforeConflictOfBOnFirst +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.B);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnFirst.Time.B);
                             sumBeforeConflictOfAOnSecond +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.A);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnSecond.Time.A);
                         }
                         else
                         {
@@ -421,13 +428,13 @@ namespace RequirementsScheduler.Library.Worker
                         continue;
                     }
 
-                    var y1Box = conflict.Details
+                    var y1Box = conflict.DetailsDictionary.Values
                         .Where(detail => detail.OnFirst.Time.A - detail.OnSecond.Time.B >= 0)
                         .OrderBy(detail => detail.OnSecond.Time.B)
                         .Reverse()
                         .ToList();
 
-                    var y2Box = conflict.Details
+                    var y2Box = conflict.DetailsDictionary.Values
                         .Except(y1Box)
                         .OrderBy(detail => detail.OnFirst.Time.A)
                         .ToList();
@@ -446,7 +453,8 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail
                             ? (node.Next.Value as LaboriousDetail).OnFirst.Time.A
-                            : (node.Next.Value as Conflict).Details.Min(detail => detail.OnFirst.Time.A);
+                            : (node.Next.Value as Conflict).DetailsDictionary.Values.Min(
+                                detail => detail.OnFirst.Time.A);
                     }
 
                     var sumOfAOnFirst = aOfDetailAfterConflict;
@@ -482,12 +490,12 @@ namespace RequirementsScheduler.Library.Worker
                     if (node.Value.Type != ChainType.Conflict) continue;
 
                     var conflict = node.Value as Conflict;
-                    var x1Box = conflict.Details
+                    var x1Box = conflict.DetailsDictionary.Values
                         .Where(detail => detail.OnFirst.Time.A - detail.OnSecond.Time.B >= 0)
                         .OrderBy(detail => detail.OnSecond.Time.B)
                         .ToList();
 
-                    var x2Box = conflict.Details
+                    var x2Box = conflict.DetailsDictionary.Values
                         .Except(x1Box)
                         .OrderBy(detail => detail.OnFirst.Time.A)
                         .Reverse()
@@ -504,9 +512,11 @@ namespace RequirementsScheduler.Library.Worker
                         if (nodeForSum.Value.Type == ChainType.Conflict)
                         {
                             sumBeforeConflictOfBOnSecond +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnSecond.Time.B);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnSecond.Time.B);
                             sumBeforeConflictOfAOnFirst +=
-                                (nodeForSum.Value as Conflict).Details.Sum(detail => detail.OnFirst.Time.A);
+                                (nodeForSum.Value as Conflict).DetailsDictionary.Values.Sum(detail =>
+                                    detail.OnFirst.Time.A);
                         }
                         else
                         {
@@ -546,13 +556,13 @@ namespace RequirementsScheduler.Library.Worker
                         continue;
                     }
 
-                    var y1Box = conflict.Details
+                    var y1Box = conflict.DetailsDictionary.Values
                         .Where(detail => detail.OnSecond.Time.A - detail.OnFirst.Time.B >= 0)
                         .OrderBy(detail => detail.OnFirst.Time.B)
                         .Reverse()
                         .ToList();
 
-                    var y2Box = conflict.Details
+                    var y2Box = conflict.DetailsDictionary.Values
                         .Except(y1Box)
                         .OrderBy(detail => detail.OnSecond.Time.A)
                         .ToList();
@@ -571,7 +581,8 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         aOfDetailAfterConflict = node.Next.Value.Type == ChainType.Detail
                             ? (node.Next.Value as LaboriousDetail).OnSecond.Time.A
-                            : (node.Next.Value as Conflict).Details.Min(detail => detail.OnSecond.Time.A);
+                            : (node.Next.Value as Conflict).DetailsDictionary.Values.Min(detail =>
+                                detail.OnSecond.Time.A);
                     }
 
                     var sumOfAOnSecond = aOfDetailAfterConflict;
@@ -621,11 +632,11 @@ namespace RequirementsScheduler.Library.Worker
                     if (lastElement.Value.Type == ChainType.Conflict)
                     {
                         var conflict = lastElement.Value as Conflict;
-                        var isConflict = conflict.Details.Any(detail =>
+                        var isConflict = conflict.DetailsDictionary.Values.Any(detail =>
                             conflictPredicate.Invoke(detail, detailFromSortedBox));
 
                         if (isConflict)
-                            conflict.Details.Add(detailFromSortedBox);
+                            conflict.DetailsDictionary.Add(detailFromSortedBox.Number, detailFromSortedBox);
                         else
                             chain.AddLast(detailFromSortedBox);
                     }
@@ -636,8 +647,8 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             //it's conflict
                             var conflict = new Conflict();
-                            conflict.Details.Add(lastDetail);
-                            conflict.Details.Add(detailFromSortedBox);
+                            conflict.DetailsDictionary.Add(lastDetail.Number, lastDetail);
+                            conflict.DetailsDictionary.Add(detailFromSortedBox.Number, detailFromSortedBox);
 
                             chain.RemoveLast();
                             chain.AddLast(conflict);
@@ -696,7 +707,7 @@ namespace RequirementsScheduler.Library.Worker
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
-                    if (conflict.Details.Max(detail => detail.OnFirst.Time.B) > minAOnFirst)
+                    if (conflict.DetailsDictionary.Values.Max(detail => detail.OnFirst.Time.B) > minAOnFirst)
                     {
                         //we find a border of conflict
                         var chainNode = firstChain.Find(chainElement);
@@ -705,9 +716,12 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             var nodeValue = chainNode.Value;
                             if (nodeValue.Type == ChainType.Conflict)
-                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
+                                jConflict.DetailsDictionary.AddRange((nodeValue as Conflict).DetailsDictionary);
                             else
-                                jConflict.Details.Add(nodeValue as LaboriousDetail);
+                            {
+                                var laboriousDetail = nodeValue as LaboriousDetail;
+                                jConflict.DetailsDictionary.Add(laboriousDetail.Number, laboriousDetail);
+                            }
 
                             chainNode = chainNode.Next;
                         }
@@ -729,9 +743,12 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             var nodeValue = chainNode.Value;
                             if (nodeValue.Type == ChainType.Conflict)
-                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
+                                jConflict.DetailsDictionary.AddRange((nodeValue as Conflict).DetailsDictionary);
                             else
-                                jConflict.Details.Add(nodeValue as LaboriousDetail);
+                            {
+                                var laboriousDetail = nodeValue as LaboriousDetail;
+                                jConflict.DetailsDictionary.Add(laboriousDetail.Number, laboriousDetail);
+                            }
 
                             chainNode = chainNode.Next;
                         }
@@ -742,15 +759,16 @@ namespace RequirementsScheduler.Library.Worker
                     resultChain.AddLast(chainElement);
                 }
 
-            jConflict.Details.AddRange(boxes.Item3);
+            jConflict.DetailsDictionary.AddRange(boxes.Item3.Select(x =>
+                new KeyValuePair<int, LaboriousDetail>(x.Number, x)));
 
             foreach (var chainElement in secondChain)
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
-                    if (conflict.Details.Max(detail => detail.OnSecond.Time.B) > minAOnSecond)
+                    if (conflict.DetailsDictionary.Values.Max(detail => detail.OnSecond.Time.B) > minAOnSecond)
                     {
-                        jConflict.Details.AddRange(conflict.Details);
+                        jConflict.DetailsDictionary.AddRange(conflict.DetailsDictionary);
                     }
                     else
                     {
@@ -772,7 +790,7 @@ namespace RequirementsScheduler.Library.Worker
                     var detail = chainElement as LaboriousDetail;
                     if (detail.OnSecond.Time.B > minAOnSecond)
                     {
-                        jConflict.Details.Add(detail);
+                        jConflict.DetailsDictionary.Add(detail.Number, detail);
                     }
                     else
                     {
@@ -859,7 +877,7 @@ namespace RequirementsScheduler.Library.Worker
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
-                    if (conflict.Details.Max(detail => detail.OnSecond.Time.B) > minAOnSecond)
+                    if (conflict.DetailsDictionary.Values.Max(detail => detail.OnSecond.Time.B) > minAOnSecond)
                     {
                         //we find a border of conflict
                         var chainNode = firstChain.Find(chainElement);
@@ -868,9 +886,12 @@ namespace RequirementsScheduler.Library.Worker
                         {
                             var nodeValue = chainNode.Value;
                             if (nodeValue.Type == ChainType.Conflict)
-                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
+                                jConflict.DetailsDictionary.AddRange((nodeValue as Conflict).DetailsDictionary);
                             else
-                                jConflict.Details.Add(nodeValue as LaboriousDetail);
+                            {
+                                var laboriousDetail = nodeValue as LaboriousDetail;
+                                jConflict.DetailsDictionary.Add(laboriousDetail.Number, laboriousDetail);
+                            }
 
                             chainNode = chainNode.Next;
                         }
@@ -890,12 +911,7 @@ namespace RequirementsScheduler.Library.Worker
 
                         while (chainNode != null)
                         {
-                            var nodeValue = chainNode.Value;
-                            if (nodeValue.Type == ChainType.Conflict)
-                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
-                            else
-                                jConflict.Details.Add(nodeValue as LaboriousDetail);
-
+                            jConflict.AddDetail(chainNode.Value);
                             chainNode = chainNode.Next;
                         }
 
@@ -905,15 +921,16 @@ namespace RequirementsScheduler.Library.Worker
                     resultChain.AddLast(chainElement);
                 }
 
-            jConflict.Details.AddRange(boxes.Item3);
+            jConflict.DetailsDictionary.AddRange(boxes.Item3.Select(x =>
+                new KeyValuePair<int, LaboriousDetail>(x.Number, x)));
 
             foreach (var chainElement in secondChain)
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
-                    if (conflict.Details.Max(detail => detail.OnFirst.Time.B) > minAOnFirst)
+                    if (conflict.DetailsDictionary.Values.Max(detail => detail.OnFirst.Time.B) > minAOnFirst)
                     {
-                        jConflict.Details.AddRange(conflict.Details);
+                        jConflict.DetailsDictionary.AddRange(conflict.DetailsDictionary);
                     }
                     else
                     {
@@ -935,7 +952,7 @@ namespace RequirementsScheduler.Library.Worker
                     var detail = chainElement as LaboriousDetail;
                     if (detail.OnFirst.Time.B > minAOnFirst)
                     {
-                        jConflict.Details.Add(detail);
+                        jConflict.DetailsDictionary.Add(detail.Number, detail);
                     }
                     else
                     {
@@ -1005,7 +1022,9 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     case ChainType.Conflict:
                         var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnFirst));
+                        onlineConflict.DetailsDictionary.AddRange(
+                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
+                                new KeyValuePair<int, Detail>(d.OnFirst.Number, d.OnFirst)));
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -1024,7 +1043,9 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     case ChainType.Conflict:
                         var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnFirst));
+                        onlineConflict.DetailsDictionary.AddRange(
+                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
+                                new KeyValuePair<int, Detail>(d.OnFirst.Number, d.OnFirst)));
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -1047,7 +1068,9 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     case ChainType.Conflict:
                         var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnSecond));
+                        onlineConflict.DetailsDictionary.AddRange(
+                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
+                                new KeyValuePair<int, Detail>(d.OnSecond.Number, d.OnSecond)));
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -1066,7 +1089,9 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     case ChainType.Conflict:
                         var onlineConflict = new OnlineConflict();
-                        onlineConflict.Details.AddRange((chainNode as Conflict).Details.Select(d => d.OnSecond));
+                        onlineConflict.DetailsDictionary.AddRange(
+                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
+                                new KeyValuePair<int, Detail>(d.OnSecond.Number, d.OnSecond)));
 
                         onlineChain.AddLast(onlineConflict);
                         break;
@@ -1086,7 +1111,11 @@ namespace RequirementsScheduler.Library.Worker
                         (onlineChainNode as Detail).Time.GenerateP();
                         break;
                     case OnlineChainType.Conflict:
-                        (onlineChainNode as OnlineConflict).Details.ForEach(detail => detail.Time.GenerateP());
+                        foreach (var detail in (onlineChainNode as OnlineConflict).DetailsDictionary.Values)
+                        {
+                            detail.Time.GenerateP();
+                        }
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -1099,7 +1128,11 @@ namespace RequirementsScheduler.Library.Worker
                         (onlineChainNode as Detail).Time.GenerateP();
                         break;
                     case OnlineChainType.Conflict:
-                        (onlineChainNode as OnlineConflict).Details.ForEach(detail => detail.Time.GenerateP());
+                        foreach (var detail in (onlineChainNode as OnlineConflict).DetailsDictionary.Values)
+                        {
+                            detail.Time.GenerateP();
+                        }
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -1524,10 +1557,10 @@ namespace RequirementsScheduler.Library.Worker
             ResultInfo result)
         {
             if (!(chainOnAnotherMachine
-                .First(i => i.Type == OnlineChainType.Conflict &&
-                            (i as OnlineConflict).Details
-                            .Select(d => d.Number)
-                            .SequenceEqual(conflict.Details.Select(d => d.Number))) is OnlineConflict conflictOnAnotherMachine))
+                    .First(i => i.Type == OnlineChainType.Conflict &&
+                                (i as OnlineConflict).DetailsDictionary.Keys
+                                .SequenceEqual(conflict.DetailsDictionary.Keys)) is OnlineConflict
+                conflictOnAnotherMachine))
                 throw new InvalidOperationException("Not found conflict on another machine");
 
             var conflictNodeOnAnotherMachine = chainOnAnotherMachine.Find(conflictOnAnotherMachine);
@@ -1550,7 +1583,7 @@ namespace RequirementsScheduler.Library.Worker
                         }
                     });
 
-                var sumOfBInConflictOnCurrent = conflict.Details.Sum(d => d.Time.B);
+                var sumOfBInConflictOnCurrent = conflict.DetailsDictionary.Values.Sum(d => d.Time.B);
 
                 var localNodeOnAnotherMachine = nodeOnAnotherMachine;
 
@@ -1578,7 +1611,8 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         if (i.Type == OnlineChainType.Detail) return (i as Detail).Time.A;
 
-                        if (i.Type == OnlineChainType.Conflict) return (i as OnlineConflict).Details.Sum(d => d.Time.A);
+                        if (i.Type == OnlineChainType.Conflict)
+                            return (i as OnlineConflict).DetailsDictionary.Values.Sum(d => d.Time.A);
 
                         throw new InvalidOperationException();
                     });
@@ -1591,12 +1625,12 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     nodeOnCurrentMachine = nodeOnCurrentMachineToRemove.Previous;
 
-                    foreach (var conflictDetail in conflict.Details)
+                    foreach (var conflictDetail in conflict.DetailsDictionary.Values)
                         chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, conflictDetail);
 
                     chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
 
-                    foreach (var conflictDetail in conflictOnAnotherMachine.Details)
+                    foreach (var conflictDetail in conflictOnAnotherMachine.DetailsDictionary.Values)
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictDetail);
 
                     chainOnAnotherMachine.Remove(conflictNodeOnAnotherMachine);
@@ -1609,14 +1643,14 @@ namespace RequirementsScheduler.Library.Worker
                 }
 
                 // Check 2
-                var x1 = conflict.Details
-                    .Where(d => conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.A - d.Time.B >=
+                var x1 = conflict.DetailsDictionary.Values
+                    .Where(d => conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.A - d.Time.B >=
                                 0)
                     .OrderBy(d => d.Time.B);
 
-                var x2 = conflict.Details
+                var x2 = conflict.DetailsDictionary.Values
                     .Except(x1)
-                    .OrderByDescending(d => conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.A);
+                    .OrderByDescending(d => conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.A);
 
                 var conflictSequence = x1.Concat(x2).ToList();
 
@@ -1629,7 +1663,7 @@ namespace RequirementsScheduler.Library.Worker
                     if (firstSum + detail.Time.B <= secondSum)
                     {
                         firstSum += detail.Time.B;
-                        secondSum += conflictOnAnotherMachine.Details.First(d => d.Number == detail.Number).Time.A;
+                        secondSum += conflictOnAnotherMachine.DetailsDictionary[detail.Number].Time.A;
                     }
                     else
                     {
@@ -1645,7 +1679,7 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                            conflictOnAnotherMachine.Details.First(d => d.Number == detail.Number));
+                            conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
                     }
 
                     chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
@@ -1696,15 +1730,12 @@ namespace RequirementsScheduler.Library.Worker
             ResultInfo result)
         {
             // Check 3
-            var t1 = conflict.Details
-                .Where(
-                    d => d.Time.Average <= conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time
-                             .Average)
+            var t1 = conflict.DetailsDictionary.Values
+                .Where(d => d.Time.Average <= conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.Average)
                 .OrderBy(d => d.Time.Average);
-            var t2 = conflict.Details
+            var t2 = conflict.DetailsDictionary.Values
                 .Except(t1)
-                .OrderByDescending(
-                    d => conflictOnAnotherMachine.Details.First(de => de.Number == d.Number).Time.Average);
+                .OrderByDescending(d => conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.Average);
 
             var conflictSequence = t1.Concat(t2);
 
@@ -1715,10 +1746,10 @@ namespace RequirementsScheduler.Library.Worker
                     nodeOnCurrentMachine = chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
                     if (nodeOnAnotherMachine.Value.Type == OnlineChainType.Conflict)
                         nodeOnAnotherMachine = chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                            conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
+                            conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
                     else
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                            conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
+                            conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
 
                     isFirstAdd = false;
                 }
@@ -1726,7 +1757,7 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
                     chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                        conflictOnAnotherMachine.Details.First(de => de.Number == detail.Number));
+                        conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
                 }
 
             chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);

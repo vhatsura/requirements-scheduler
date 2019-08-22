@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Worker;

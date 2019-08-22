@@ -15,16 +15,16 @@ namespace RequirementsScheduler.BLL.Service
 
         public async Task SaveExperimentTestResult(Guid experimentId, ExperimentInfo experimentInfo)
         {
-            var experimentPath = Path.Combine(ServiceFolder, experimentId.ToString());
-            if (!Directory.Exists(experimentPath))
-            {
-                Directory.CreateDirectory(experimentPath);
-            }
-
-            var fileName = Path.Combine(experimentPath, $"{experimentInfo.TestNumber.ToString()}.json");
-
-            await using var fileStream = File.Create(fileName);
-            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, experimentInfo);
+//            var experimentPath = Path.Combine(ServiceFolder, experimentId.ToString());
+//            if (!Directory.Exists(experimentPath))
+//            {
+//                Directory.CreateDirectory(experimentPath);
+//            }
+//
+//            var fileName = Path.Combine(experimentPath, $"{experimentInfo.TestNumber.ToString()}.json");
+//
+//            await using var fileStream = File.Create(fileName);
+//            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, experimentInfo);
         }
 
         private JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()
@@ -56,10 +56,10 @@ namespace RequirementsScheduler.BLL.Service
 
         public async Task SaveAggregatedResult(Guid experimentId, IDictionary<int, ResultInfo> aggregatedResult)
         {
-            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
-
-            await using var fileStream = File.Create(fileName);
-            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, aggregatedResult);
+//            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
+//
+//            await using var fileStream = File.Create(fileName);
+//            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, aggregatedResult);
         }
 
         public async Task<IDictionary<int, ResultInfo>> GetAggregatedResult(Guid experimentId)
