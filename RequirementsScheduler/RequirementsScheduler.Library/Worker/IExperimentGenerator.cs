@@ -4,6 +4,6 @@ namespace RequirementsScheduler.Core.Worker
 {
     public interface IExperimentGenerator
     {
-        ExperimentInfo GenerateDataForTest(Experiment experiment);
+        ExperimentInfo GenerateDataForTest(Experiment experiment, int testNumber);
     }
 }

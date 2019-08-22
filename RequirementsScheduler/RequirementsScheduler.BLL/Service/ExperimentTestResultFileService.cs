@@ -15,19 +15,16 @@ namespace RequirementsScheduler.BLL.Service
 
         public async Task SaveExperimentTestResult(Guid experimentId, ExperimentInfo experimentInfo)
         {
-            var experimentPath = Path.Combine(ServiceFolder, experimentId.ToString());
-            if (!Directory.Exists(experimentPath))
-            {
-                Directory.CreateDirectory(experimentPath);
-            }
-
-            var fileName = Path.Combine(experimentPath, $"{experimentInfo.TestNumber}.json");
-            var fileStream = File.Create(fileName);
-
-            using (var writer = new StreamWriter(fileStream))
-            {
-                await writer.WriteAsync(JsonConvert.SerializeObject(experimentInfo, SerializerSettings));
-            }
+//            var experimentPath = Path.Combine(ServiceFolder, experimentId.ToString());
+//            if (!Directory.Exists(experimentPath))
+//            {
+//                Directory.CreateDirectory(experimentPath);
+//            }
+//
+//            var fileName = Path.Combine(experimentPath, $"{experimentInfo.TestNumber.ToString()}.json");
+//
+//            await using var fileStream = File.Create(fileName);
+//            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, experimentInfo);
         }
 
         private JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()
@@ -43,7 +40,7 @@ namespace RequirementsScheduler.BLL.Service
 
         public async Task<ExperimentInfo> GetExperimentTestResult(Guid experimentId, int testNumber)
         {
-            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), $"{testNumber}.json");
+            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), $"{testNumber.ToString()}.json");
             if (!File.Exists(fileName))
             {
                 throw new ArgumentException();
@@ -59,14 +56,10 @@ namespace RequirementsScheduler.BLL.Service
 
         public async Task SaveAggregatedResult(Guid experimentId, IDictionary<int, ResultInfo> aggregatedResult)
         {
-            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
-
-            var fileStream = File.Create(fileName);
-
-            using (var writer = new StreamWriter(fileStream))
-            {
-                await writer.WriteAsync(JsonConvert.SerializeObject(aggregatedResult, SerializerSettings));
-            }
+//            var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
+//
+//            await using var fileStream = File.Create(fileName);
+//            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, aggregatedResult);
         }
 
         public async Task<IDictionary<int, ResultInfo>> GetAggregatedResult(Guid experimentId)

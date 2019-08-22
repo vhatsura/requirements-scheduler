@@ -2,14 +2,13 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -23,16 +22,14 @@ using RequirementsScheduler.DAL;
 using RequirementsScheduler.DAL.Repository;
 using RequirementsScheduler.Extensions;
 using RequirementsScheduler.Library.Worker;
-using RequirementsScheduler.Middleware;
-using RequirementsScheduler.Telemetry;
 
 namespace RequirementsScheduler
 {
     public class Startup
     {
-        private IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -52,10 +49,7 @@ namespace RequirementsScheduler
             ConfigureOAuth(services);
 
             // Add framework services.
-            var builder = services.AddMvc();
-            services.AddNodeServices();
-
-            services.AddApplicationInsightsTelemetry();
+            var builder = services.AddControllers().AddNewtonsoftJson();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -117,22 +111,11 @@ namespace RequirementsScheduler
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
-            loggerFactory.AddApplicationInsights(app.ApplicationServices);
-
-            app.UseMiddleware<EnableRequestRewindMiddleware>();
             app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
-            var initialzer =
-                new RequestBodyTelemetryInitializer(app.ApplicationServices.GetService<IHttpContextAccessor>());
-            var configuration = app.ApplicationServices.GetService<TelemetryConfiguration>();
-            configuration.TelemetryInitializers.Add(initialzer);
-
-            if (env.IsDevelopment())
+            if (_hostingEnvironment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
@@ -146,7 +129,9 @@ namespace RequirementsScheduler
             }
 
             app.UseStaticFiles();
-
+            
+            app.UseRouting();
+            
             // Add JWT generation endpoint:
             var options = new TokenProviderOptions
             {
@@ -158,18 +143,12 @@ namespace RequirementsScheduler
             };
 
             app.UseMiddleware<TokenProviderMiddleware>(Options.Create(options));
+            
+            app.UseAuthorization();
+            
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            
             app.UseQuartz(c => c.AddJob<ExperimentWorker>("experimentJob", "experimentGroup", (int) TimeSpan.FromMinutes(1).TotalSeconds));
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
-            });
         }
 
         private void ConfigureOAuth(IServiceCollection services)

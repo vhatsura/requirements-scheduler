@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace RequirementsScheduler.BLL.Model
 {
@@ -18,7 +19,7 @@ namespace RequirementsScheduler.BLL.Model
 
         public TimeSpan OnlineExecutionTime { get; set; }
     }
-    
+
     public sealed class ExperimentReport
     {
         public int Id { get; set; }
@@ -38,7 +39,9 @@ namespace RequirementsScheduler.BLL.Model
         public int MaxPercentageFromA { get; set; }
 
         public int OfflineResolvedConflictAmount { get; set; }
+
         public int OnlineResolvedConflictAmount { get; set; }
+
         public int OnlineUnResolvedConflictAmount { get; set; }
 
         public float Stop1Percentage { get; set; }

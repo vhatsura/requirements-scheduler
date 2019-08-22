@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace RequirementsScheduler.Library.Extensions
+namespace RequirementsScheduler.BLL
 {
     public static class CollectionExtensions
     {
         public static void AddRange<T>(this ICollection<T> destination,
                                IEnumerable<T> source)
         {
-            var list = destination as List<T>;
-
-            if (list != null)
+            if (destination is List<T> list)
             {
                 list.AddRange(source);
             }
