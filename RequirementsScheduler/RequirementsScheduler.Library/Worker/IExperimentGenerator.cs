@@ -1,6 +1,6 @@
 ﻿using RequirementsScheduler.BLL.Model;
 
-namespace RequirementsScheduler.Core.Worker
+namespace RequirementsScheduler.Library.Worker
 {
     public interface IExperimentGenerator
     {

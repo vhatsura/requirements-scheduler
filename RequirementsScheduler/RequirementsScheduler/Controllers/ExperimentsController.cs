@@ -14,7 +14,6 @@ using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
-using RequirementsScheduler.Core.Worker;
 using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Extensions;
 using RequirementsScheduler.Library.Worker;
