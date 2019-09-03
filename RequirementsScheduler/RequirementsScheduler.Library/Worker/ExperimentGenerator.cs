@@ -4,9 +4,8 @@ using System.Linq;
 using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Library.Extensions;
 
-namespace RequirementsScheduler.Core.Worker
+namespace RequirementsScheduler.Library.Worker
 {
     public class ExperimentGenerator : IExperimentGenerator
     {

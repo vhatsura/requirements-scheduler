@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Core.Worker;
 using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Extensions;
 using RequirementsScheduler.Library.Worker;
@@ -17,9 +18,32 @@ namespace RequirementsScheduler.Library.Tests
 {
     public class ExperimentPipelineTests
     {
+        [Fact]
+        public async Task RunDirectTest()
+        {
+            var experimentPipeline = new ExperimentPipeline(
+                new ExperimentGenerator(),
+                Mock.Of<IWorkerExperimentService>(),
+                Mock.Of<IExperimentTestResultService>(),
+                Mock.Of<IReportsService>(),
+                Mock.Of<ILogger<ExperimentPipeline>>(),
+                Mock.Of<IOptions<DbSettings>>());
+
+            await experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(new Experiment
+            {
+                Id = Guid.NewGuid(),
+                N1 = 5, N2 = 5, N12 = 5, N21 = 85,
+                RequirementsAmount = 10_000,
+                TestsAmount = 100,
+                BorderGenerationType = "uniform", PGenerationType = "uniform",
+                MinPercentageFromA = 15, MaxPercentageFromA = 15,
+                MinBoundaryRange = 10, MaxBoundaryRange = 1000
+            }));
+        }
+
         [Theory]
         [MemberData(nameof(DataTest))]
-        public async void Test1(
+        public async Task Test1(
             IEnumerable<Detail> j1,
             IEnumerable<Detail> j2,
             IEnumerable<LaboriousDetail> j12,
@@ -41,14 +65,16 @@ namespace RequirementsScheduler.Library.Tests
 
             var generatorMock = new Mock<IExperimentGenerator>();
 
-            generatorMock.Setup(g => g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
+            generatorMock.Setup(g =>
+                    g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
                 .Returns(() => experimentInfo);
 
             ExperimentInfo resultInfo = null;
 
             var experimentTestResultService = new Mock<IExperimentTestResultService>();
             experimentTestResultService
-                .Setup(e => e.SaveExperimentTestResult(It.Is<Guid>(id => id == experiment.Id), It.IsAny<ExperimentInfo>()))
+                .Setup(e => e.SaveExperimentTestResult(It.Is<Guid>(id => id == experiment.Id),
+                    It.IsAny<ExperimentInfo>()))
                 .Callback<Guid, ExperimentInfo>((id, info) => resultInfo = info);
 
             var experimentPipeline = new ExperimentPipeline(

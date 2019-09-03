@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Core.Worker;
 using RequirementsScheduler.DAL;
 using RequirementsScheduler.DAL.Model;
 using RequirementsScheduler.Library.Extensions;

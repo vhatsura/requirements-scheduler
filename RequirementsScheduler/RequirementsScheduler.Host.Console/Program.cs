@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Core.Worker;
 using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Worker;
 
