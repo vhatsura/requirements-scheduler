@@ -21,6 +21,7 @@ namespace RequirementsScheduler.DAL.Model
         public float DeltaCmaxMax { get; set; }
         public float DeltaCmaxAverage { get; set; }
 
+        public TimeSpan OfflineExecutionTime { get; set; }
         public TimeSpan OnlineExecutionTime { get; set; }
 
         public Guid ExperimentId { get; set; }

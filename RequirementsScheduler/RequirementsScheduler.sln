@@ -17,6 +17,13 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "RequirementsSchedulerDb", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Library.Tests", "RequirementsScheduler.Library.Tests\RequirementsScheduler.Library.Tests.csproj", "{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{6EE7AA53-DDE7-47F8-AE85-B5F036A0D274}"
+ProjectSection(SolutionItems) = preProject
+	..\.gitattributes = ..\.gitattributes
+	..\.gitignore = ..\.gitignore
+	..\README.md = ..\README.md
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

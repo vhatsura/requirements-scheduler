@@ -27,6 +27,7 @@ namespace RequirementsScheduler.BLL.Model
 
         public float DeltaCmax { get; set; }
 
+        public TimeSpan OfflineExecutionTime { get; set; }
         public TimeSpan OnlineExecutionTime { get; set; }
     }
 }

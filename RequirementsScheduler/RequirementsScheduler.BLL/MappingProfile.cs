@@ -8,11 +8,11 @@ namespace RequirementsScheduler.BLL
     {
         public MappingProfile()
         {
-            CreateMap<DAL.Model.User, BLL.Model.User>()
+            CreateMap<DAL.Model.User, User>()
                 .ForMember(dest => dest.Email, opt => opt.Ignore())
                 .ReverseMap();
 
-            CreateMap<DAL.Model.Experiment, BLL.Model.Experiment>()
+            CreateMap<DAL.Model.Experiment, Experiment>()
                 .ForMember(dest => dest.Report, opt => opt.MapFrom(src => src.Result))
                 .ForMember(dest => dest.BorderGenerationType, opt => opt.Ignore())
                 .ForMember(dest => dest.PGenerationType, opt => opt.Ignore())
@@ -27,12 +27,17 @@ namespace RequirementsScheduler.BLL
                 .ForMember(dest => dest.N21Percentage, opt => opt.MapFrom(src => src.Experiment.N21))
                 .ForMember(dest => dest.ABorder, opt => opt.MapFrom(src => src.Experiment.MinBoundaryRange))
                 .ForMember(dest => dest.BBorder, opt => opt.MapFrom(src => src.Experiment.MaxBoundaryRange))
-                .ForMember(dest => dest.MinPercentageFromA, opt => opt.MapFrom(src => src.Experiment.MinPercentageFromA))
-                .ForMember(dest => dest.MaxPercentageFromA, opt => opt.MapFrom(src => src.Experiment.MaxPercentageFromA))
-                .ForMember(dest => dest.RequirementsAmount, opt => opt.MapFrom(src => src.Experiment.RequirementsAmount))
+                .ForMember(dest => dest.MinPercentageFromA,
+                    opt => opt.MapFrom(src => src.Experiment.MinPercentageFromA))
+                .ForMember(dest => dest.MaxPercentageFromA,
+                    opt => opt.MapFrom(src => src.Experiment.MaxPercentageFromA))
+                .ForMember(dest => dest.RequirementsAmount,
+                    opt => opt.MapFrom(src => src.Experiment.RequirementsAmount))
                 .ForMember(
-                    dest => dest.OnlineExecutionTime, 
+                    dest => dest.OnlineExecutionTime,
                     opt => opt.MapFrom(src => TimeSpan.FromSeconds(src.OnlineExecutionTime.TotalSeconds)))
+                .ForMember(dest => dest.OfflineExecutionTime,
+                    opt => opt.MapFrom(src => TimeSpan.FromSeconds(src.OfflineExecutionTime.TotalSeconds)))
                 .ReverseMap();
 
             CreateMap<DAL.Model.ExperimentResult, ReportInfo>();
