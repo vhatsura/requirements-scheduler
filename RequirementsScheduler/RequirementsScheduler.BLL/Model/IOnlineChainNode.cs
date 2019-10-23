@@ -6,6 +6,8 @@ namespace RequirementsScheduler.BLL.Model
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         OnlineChainType Type { get; }
+
+        void GenerateP();
     }
 
 }

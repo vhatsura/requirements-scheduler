@@ -8,7 +8,6 @@ using LinqToDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.DAL;
@@ -57,15 +56,13 @@ namespace RequirementsScheduler.Library.Worker
                 }
                 catch (Exception ex)
                 {
-                    using (var db = new Database(Settings).Open())
-                    {
-                        db.GetTable<ExperimentFailure>()
-                            .Insert(() => new ExperimentFailure
-                            {
-                                ExperimentId = experiment.Id,
-                                ErrorMessage = JsonConvert.SerializeObject(ex)
-                            });
-                    }
+                    using var db = new Database(Settings).Open();
+                    db.GetTable<ExperimentFailure>()
+                        .Insert(() => new ExperimentFailure
+                        {
+                            ExperimentId = experiment.Id,
+                            ErrorMessage = JsonConvert.SerializeObject(ex)
+                        });
                 }
                 finally
                 {
@@ -197,7 +194,7 @@ namespace RequirementsScheduler.Library.Worker
         }
 
         private delegate void ConflictResolverDelegate(OnlineConflict conflict,
-            ref LinkedListNode<IOnlineChainNode> node, bool isFirst);
+            ref LinkedListNode<IOnlineChainNode> node, ResultInfo result, bool isFirst);
 
         private class CustomComparer : IComparer<int>
         {
@@ -220,44 +217,34 @@ namespace RequirementsScheduler.Library.Worker
         {
             var onlineChain = new OnlineChain();
             foreach (var chainNode in experimentInfo.J12Chain)
-                switch (chainNode.Type)
+            {
+                var element = chainNode.Type switch
                 {
-                    case ChainType.Detail:
-                        onlineChain
-                            .AddLast((chainNode as LaboriousDetail).OnFirst);
-                        break;
-                    case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.DetailsDictionary.AddRange(
-                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
-                                new KeyValuePair<int, Detail>(d.OnFirst.Number, d.OnFirst)));
+                    ChainType.Detail when chainNode is LaboriousDetail detail => (IOnlineChainNode) detail.OnFirst,
+                    ChainType.Conflict when chainNode is Conflict conflict => new OnlineConflict(
+                        conflict.Details.Values.Select(d =>
+                            new KeyValuePair<int, Detail>(d.OnFirst.Number, d.OnFirst))),
+                    _ => throw new InvalidOperationException()
+                };
 
-                        onlineChain.AddLast(onlineConflict);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                onlineChain.AddLast(element);
+            }
 
             foreach (var j1 in experimentInfo.J1) onlineChain.AddLast(j1);
 
             foreach (var chainNode in experimentInfo.J21Chain)
-                switch (chainNode.Type)
+            {
+                var element = chainNode.Type switch
                 {
-                    case ChainType.Detail:
-                        onlineChain
-                            .AddLast((chainNode as LaboriousDetail).OnFirst);
-                        break;
-                    case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.DetailsDictionary.AddRange(
-                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
-                                new KeyValuePair<int, Detail>(d.OnFirst.Number, d.OnFirst)));
+                    ChainType.Detail when chainNode is LaboriousDetail detail => (IOnlineChainNode) detail.OnFirst,
+                    ChainType.Conflict when chainNode is Conflict conflict => new OnlineConflict(
+                        conflict.Details.Values.Select(d =>
+                            new KeyValuePair<int, Detail>(d.OnFirst.Number, d.OnFirst))),
+                    _ => throw new InvalidOperationException()
+                };
 
-                        onlineChain.AddLast(onlineConflict);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                onlineChain.AddLast(element);
+            }
 
             return onlineChain;
         }
@@ -266,96 +253,50 @@ namespace RequirementsScheduler.Library.Worker
         {
             var onlineChain = new OnlineChain();
             foreach (var chainNode in experimentInfo.J21Chain)
-                switch (chainNode.Type)
+            {
+                var element = chainNode.Type switch
                 {
-                    case ChainType.Detail:
-                        onlineChain
-                            .AddLast((chainNode as LaboriousDetail).OnSecond);
-                        break;
-                    case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.DetailsDictionary.AddRange(
-                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
-                                new KeyValuePair<int, Detail>(d.OnSecond.Number, d.OnSecond)));
+                    ChainType.Detail when chainNode is LaboriousDetail detail => (IOnlineChainNode) detail.OnSecond,
+                    ChainType.Conflict when chainNode is Conflict conflict => new OnlineConflict(
+                        conflict.Details.Values.Select(d =>
+                            new KeyValuePair<int, Detail>(d.OnSecond.Number, d.OnSecond))),
+                    _ => throw new InvalidOperationException()
+                };
 
-                        onlineChain.AddLast(onlineConflict);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                onlineChain.AddLast(element);
+            }
 
             foreach (var j2 in experimentInfo.J2) onlineChain.AddLast(j2);
 
             foreach (var chainNode in experimentInfo.J12Chain)
-                switch (chainNode.Type)
+            {
+                var element = chainNode.Type switch
                 {
-                    case ChainType.Detail:
-                        onlineChain
-                            .AddLast((chainNode as LaboriousDetail).OnSecond);
-                        break;
-                    case ChainType.Conflict:
-                        var onlineConflict = new OnlineConflict();
-                        onlineConflict.DetailsDictionary.AddRange(
-                            (chainNode as Conflict).DetailsDictionary.Values.Select(d =>
-                                new KeyValuePair<int, Detail>(d.OnSecond.Number, d.OnSecond)));
+                    ChainType.Detail when chainNode is LaboriousDetail detail => (IOnlineChainNode) detail.OnSecond,
+                    ChainType.Conflict when chainNode is Conflict conflict => new OnlineConflict(
+                        conflict.Details.Values.Select(d =>
+                            new KeyValuePair<int, Detail>(d.OnSecond.Number, d.OnSecond))),
+                    _ => throw new InvalidOperationException()
+                };
 
-                        onlineChain.AddLast(onlineConflict);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                onlineChain.AddLast(element);
+            }
 
             return onlineChain;
         }
 
-        private static void GeneratePForOnlineChains(ExperimentInfo experimentInfo)
-        {
-            foreach (var onlineChainNode in experimentInfo.OnlineChainOnFirstMachine)
-                switch (onlineChainNode.Type)
-                {
-                    case OnlineChainType.Detail:
-                        (onlineChainNode as Detail).Time.GenerateP();
-                        break;
-                    case OnlineChainType.Conflict:
-                        foreach (var detail in (onlineChainNode as OnlineConflict).DetailsDictionary.Values)
-                        {
-                            detail.Time.GenerateP();
-                        }
-
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-            foreach (var onlineChainNode in experimentInfo.OnlineChainOnSecondMachine)
-                switch (onlineChainNode.Type)
-                {
-                    case OnlineChainType.Detail:
-                        (onlineChainNode as Detail).Time.GenerateP();
-                        break;
-                    case OnlineChainType.Conflict:
-                        foreach (var detail in (onlineChainNode as OnlineConflict).DetailsDictionary.Values)
-                        {
-                            detail.Time.GenerateP();
-                        }
-
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-        }
-
         private static void RunOnlineMode(ExperimentInfo experimentInfo)
         {
-            GeneratePForOnlineChains(experimentInfo);
+            experimentInfo.OnlineChainOnFirstMachine.GenerateP();
+            experimentInfo.OnlineChainOnSecondMachine.GenerateP();
 
             DoRunInOnlineMode(experimentInfo);
         }
 
         private static void ProcessDetailOnMachine(
             ref IOnlineChainNode currentDetail,
-            ICollection<int> processedDetailNumbersOnCurrentMachine,
-            ICollection<int> processedDetailNumbersOnAnotherMachine,
+            ISet<int> processedDetailNumbersOnCurrentMachine,
+            ISet<int> processedDetailNumbersOnAnotherMachine,
             ref LinkedListNode<IOnlineChainNode> nodeOnCurrentMachine,
             ref LinkedListNode<IOnlineChainNode> nodeOnAnotherMachine,
             double timeFromMachinesStart,
@@ -384,18 +325,12 @@ namespace RequirementsScheduler.Library.Worker
                 processedDetailNumbersOnAnotherMachine,
                 ref timeOnCurrentMachine,
                 isFirstDetail,
-                (OnlineConflict conflict, ref LinkedListNode<IOnlineChainNode> node, bool isFirst) =>
+                result,
+                (OnlineConflict conflict, ref LinkedListNode<IOnlineChainNode> node, ResultInfo resultInfo,
+                    bool isFirst) =>
                 {
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-
                     ResolveConflictOnMachine(conflict, ref node, ref anotherMachine, isFirst, chainOnCurrentMachine,
-                        chainOnAnotherMachine, machinesStart, result);
-
-                    stopwatch.Stop();
-
-                    result.OnlineExecutionTime =
-                        result.OnlineExecutionTime.Add(TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds));
+                        chainOnAnotherMachine, machinesStart, resultInfo);
                 });
 
             nodeOnAnotherMachine = anotherMachine;
@@ -410,13 +345,11 @@ namespace RequirementsScheduler.Library.Worker
 
         private static void DoRunInOnlineMode(ExperimentInfo experimentInfo)
         {
-            var processedDetailNumbersOnFirst = new List<int>();
-            processedDetailNumbersOnFirst.AddRange(experimentInfo.J21.Select(d => d.Number));
-            processedDetailNumbersOnFirst.AddRange(experimentInfo.J2.Select(d => d.Number));
+            var processedDetailNumbersOnFirst = experimentInfo.J21.Select(d => d.Number)
+                .Union(experimentInfo.J2.Select(d => d.Number)).ToHashSet();
 
-            var processedDetailNumbersOnSecond = new List<int>();
-            processedDetailNumbersOnSecond.AddRange(experimentInfo.J12.Select(d => d.Number));
-            processedDetailNumbersOnSecond.AddRange(experimentInfo.J1.Select(d => d.Number));
+            var processedDetailNumbersOnSecond = experimentInfo.J12.Select(d => d.Number)
+                .Union(experimentInfo.J1.Select(d => d.Number)).ToHashSet();
 
             IOnlineChainNode currentDetailOnFirst = null;
             IOnlineChainNode currentDetailOnSecond = null;
@@ -517,21 +450,29 @@ namespace RequirementsScheduler.Library.Worker
             if (hasDetailOnFirst)
                 for (var node = nodeOnFirstMachine; node != null; node = node.Next)
                 {
-                    if (!(node.Value is Detail))
+                    if (node.Value is Detail detail)
+                    {
+                        time1 += detail.Time.P;
+                    }
+                    else
+                    {
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
-
-                    time1 += ((Detail) node.Value).Time.P;
+                    }
                 }
             else
                 // details only on second machine
                 for (var node = nodeOnSecondMachine; node != null; node = node.Next)
                 {
-                    if (!(node.Value is Detail))
+                    if (node.Value is Detail detail)
+                    {
+                        time2 += detail.Time.P;
+                    }
+                    else
+                    {
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
-
-                    time2 += ((Detail) node.Value).Time.P;
+                    }
                 }
 
             timeFromMachinesStart = Math.Max(time1, time2);
@@ -544,11 +485,7 @@ namespace RequirementsScheduler.Library.Worker
             experimentInfo.Result.DeltaCmax = (float) ((cMax - cOpt) / cOpt * 100);
         }
 
-        private static double CalculateCOpt(
-            double time1,
-            double time2,
-            ExperimentInfo experimentInfo,
-            double cMax)
+        private static double CalculateCOpt(double time1, double time2, ExperimentInfo experimentInfo, double cMax)
         {
             double cOpt;
             if (time2 >= time1 && !experimentInfo.OnlineChainOnSecondMachine.Any(node => node is Downtime) ||
@@ -580,11 +517,13 @@ namespace RequirementsScheduler.Library.Worker
                     var x1 = j12OnFirstMachine
                         .Where(detail =>
                             detail.Time.P <= j12OnSecondMachine.First(d => d.Number == detail.Number).Time.P)
-                        .OrderBy(detail => detail.Time.P);
+                        .OrderBy(detail => detail.Time.P)
+                        .ToList();
 
                     var x2 = j12OnFirstMachine
                         .Except(x1)
-                        .OrderByDescending(detail => j12OnSecondMachine.First(d => d.Number == detail.Number).Time.P);
+                        .OrderByDescending(detail => j12OnSecondMachine.First(d => d.Number == detail.Number).Time.P)
+                        .ToList();
 
                     j12OnFirstMachine = x1.Concat(x2).ToList();
                     j12OnSecondMachine = j12OnSecondMachine
@@ -652,11 +591,13 @@ namespace RequirementsScheduler.Library.Worker
                     var x1 = j21OnFirstMachine
                         .Where(detail =>
                             j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P <= detail.Time.P)
-                        .OrderBy(detail => j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P);
+                        .OrderBy(detail => j21OnSecondMachine.First(d => d.Number == detail.Number).Time.P)
+                        .ToList();
 
                     var x2 = j21OnFirstMachine
                         .Except(x1)
-                        .OrderByDescending(detail => detail.Time.P);
+                        .OrderByDescending(detail => detail.Time.P)
+                        .ToList();
 
                     j21OnFirstMachine = x1.Concat(x2).ToList();
                     j21OnSecondMachine = j21OnSecondMachine
@@ -709,9 +650,10 @@ namespace RequirementsScheduler.Library.Worker
             OnlineChain chain,
             ref LinkedListNode<IOnlineChainNode> node,
             Func<Detail, double> downtimeCalculationFunc,
-            ICollection<int> processedDetailNumbersOnAnotherMachine,
+            ISet<int> processedDetailNumbersOnAnotherMachine,
             ref double time,
             bool isFirstDetail,
+            ResultInfo result,
             ConflictResolverDelegate conflictResolver)
         {
             var currentDetail = node.Value;
@@ -719,16 +661,22 @@ namespace RequirementsScheduler.Library.Worker
             if (currentDetail.Type == OnlineChainType.Conflict)
             {
                 var conflict = currentDetail as OnlineConflict;
-                conflictResolver(conflict, ref node, isFirstDetail);
+
+                var start = Stopwatch.GetTimestamp();
+                conflictResolver(conflict, ref node, result, isFirstDetail);
+                var stop = Stopwatch.GetTimestamp();
+
+                result.OnlineExecutionTime = result.OnlineExecutionTime.Add(
+                    TimeSpan.FromMilliseconds((stop - start) / (double) Stopwatch.Frequency * 1000));
+
 
                 if (node.Value.Type != OnlineChainType.Detail)
-                    throw new InvalidOperationException("Conflict resolver don't change current node");
+                    throw new InvalidOperationException("Conflict resolver didn't change current node");
 
                 currentDetail = node.Value;
             }
 
-            var detail = currentDetail as Detail;
-            if (detail == null)
+            if (!(currentDetail is Detail detail))
                 throw new InvalidCastException(
                     $"Try cast {currentDetail.GetType().FullName} to {typeof(Detail).FullName}");
 
@@ -762,12 +710,13 @@ namespace RequirementsScheduler.Library.Worker
             double timeFromMachinesStart,
             ResultInfo result)
         {
-            if (!(chainOnAnotherMachine
-                    .First(i => i.Type == OnlineChainType.Conflict &&
-                                (i as OnlineConflict).DetailsDictionary.Keys
-                                .SequenceEqual(conflict.DetailsDictionary.Keys)) is OnlineConflict
+            if (!(chainOnAnotherMachine.First(i =>
+                    i.Type == OnlineChainType.Conflict &&
+                    (i as OnlineConflict).Details.Keys.SequenceEqual(conflict.Details.Keys)) is OnlineConflict
                 conflictOnAnotherMachine))
+            {
                 throw new InvalidOperationException("Not found conflict on another machine");
+            }
 
             var conflictNodeOnAnotherMachine = chainOnAnotherMachine.Find(conflictOnAnotherMachine);
             var nodeOnCurrentMachineToRemove = nodeOnCurrentMachine;
@@ -776,32 +725,24 @@ namespace RequirementsScheduler.Library.Worker
             {
                 var sumOfPOnCurrent = chainOnCurrentMachine
                     .TakeWhile(i => !Equals(i, nodeOnCurrentMachineToRemove.Value))
-                    .Sum(i =>
+                    .Sum(i => i.Type switch
                     {
-                        switch (i.Type)
-                        {
-                            case OnlineChainType.Detail:
-                                return (i as Detail).Time.P;
-                            case OnlineChainType.Downtime:
-                                return (i as Downtime).Time;
-                            default:
-                                throw new InvalidOperationException();
-                        }
+                        OnlineChainType.Detail when i is Detail detail => detail.Time.P,
+                        OnlineChainType.Downtime when i is Downtime downtime => downtime.Time,
+                        _ => throw new InvalidOperationException()
                     });
 
-                var sumOfBInConflictOnCurrent = conflict.DetailsDictionary.Values.Sum(d => d.Time.B);
+                var sumOfBInConflictOnCurrent = conflict.Details.Values.Sum(d => d.Time.B);
 
                 var localNodeOnAnotherMachine = nodeOnAnotherMachine;
 
                 var sumOfPOnAnother = chainOnAnotherMachine
                     .TakeWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
-                    .Sum(i =>
+                    .Sum(i => i.Type switch
                     {
-                        if (i.Type == OnlineChainType.Detail) return (i as Detail).Time.P;
-
-                        if (i.Type == OnlineChainType.Downtime) return (i as Downtime).Time;
-
-                        throw new InvalidOperationException();
+                        OnlineChainType.Detail when i is Detail detail => detail.Time.P,
+                        OnlineChainType.Downtime when i is Downtime downtime => downtime.Time,
+                        _ => throw new InvalidOperationException()
                     });
 
                 var l = timeFromMachinesStart - sumOfPOnAnother;
@@ -813,14 +754,12 @@ namespace RequirementsScheduler.Library.Worker
                     .SkipWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
                     .Skip(1)
                     .TakeWhile(i => !Equals(i, conflictOnAnotherMachine))
-                    .Sum(i =>
+                    .Sum(i => i.Type switch
                     {
-                        if (i.Type == OnlineChainType.Detail) return (i as Detail).Time.A;
-
-                        if (i.Type == OnlineChainType.Conflict)
-                            return (i as OnlineConflict).DetailsDictionary.Values.Sum(d => d.Time.A);
-
-                        throw new InvalidOperationException();
+                        OnlineChainType.Detail when i is Detail detail => detail.Time.A,
+                        OnlineChainType.Conflict when i is OnlineConflict onlineConflict => onlineConflict
+                            .Details.Values.Sum(d => d.Time.A),
+                        _ => throw new InvalidOperationException()
                     });
 
                 var sumOnMCurrent = sumOfPOnCurrent + sumOfBInConflictOnCurrent;
@@ -831,12 +770,12 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     nodeOnCurrentMachine = nodeOnCurrentMachineToRemove.Previous;
 
-                    foreach (var conflictDetail in conflict.DetailsDictionary.Values)
+                    foreach (var conflictDetail in conflict.Details.Values)
                         chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, conflictDetail);
 
                     chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
 
-                    foreach (var conflictDetail in conflictOnAnotherMachine.DetailsDictionary.Values)
+                    foreach (var conflictDetail in conflictOnAnotherMachine.Details.Values)
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine, conflictDetail);
 
                     chainOnAnotherMachine.Remove(conflictNodeOnAnotherMachine);
@@ -849,14 +788,15 @@ namespace RequirementsScheduler.Library.Worker
                 }
 
                 // Check 2
-                var x1 = conflict.DetailsDictionary.Values
-                    .Where(d => conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.A - d.Time.B >=
-                                0)
-                    .OrderBy(d => d.Time.B);
+                var x1 = conflict.Details.Values
+                    .Where(d => conflictOnAnotherMachine.Details[d.Number].Time.A - d.Time.B >= 0)
+                    .OrderBy(d => d.Time.B)
+                    .ToList();
 
-                var x2 = conflict.DetailsDictionary.Values
+                var x2 = conflict.Details.Values
                     .Except(x1)
-                    .OrderByDescending(d => conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.A);
+                    .OrderByDescending(d => conflictOnAnotherMachine.Details[d.Number].Time.A)
+                    .ToList();
 
                 var conflictSequence = x1.Concat(x2).ToList();
 
@@ -865,17 +805,19 @@ namespace RequirementsScheduler.Library.Worker
                 var isOptimized = true;
 
                 foreach (var detail in conflictSequence)
+                {
                     //todo check all conditions
                     if (firstSum + detail.Time.B <= secondSum)
                     {
                         firstSum += detail.Time.B;
-                        secondSum += conflictOnAnotherMachine.DetailsDictionary[detail.Number].Time.A;
+                        secondSum += conflictOnAnotherMachine.Details[detail.Number].Time.A;
                     }
                     else
                     {
                         isOptimized = false;
                         break;
                     }
+                }
 
                 if (isOptimized)
                 {
@@ -885,7 +827,7 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                            conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
+                            conflictOnAnotherMachine.Details[detail.Number]);
                     }
 
                     chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
@@ -936,26 +878,30 @@ namespace RequirementsScheduler.Library.Worker
             ResultInfo result)
         {
             // Check 3
-            var t1 = conflict.DetailsDictionary.Values
-                .Where(d => d.Time.Average <= conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.Average)
-                .OrderBy(d => d.Time.Average);
-            var t2 = conflict.DetailsDictionary.Values
+            var t1 = conflict.Details.Values
+                .Where(d => d.Time.Average <= conflictOnAnotherMachine.Details[d.Number].Time.Average)
+                .OrderBy(d => d.Time.Average)
+                .ToList();
+
+            var t2 = conflict.Details.Values
                 .Except(t1)
-                .OrderByDescending(d => conflictOnAnotherMachine.DetailsDictionary[d.Number].Time.Average);
+                .OrderByDescending(d => conflictOnAnotherMachine.Details[d.Number].Time.Average)
+                .ToList();
 
             var conflictSequence = t1.Concat(t2);
 
             var isFirstAdd = true;
             foreach (var detail in conflictSequence)
+            {
                 if (isFirstAdd)
                 {
                     nodeOnCurrentMachine = chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
                     if (nodeOnAnotherMachine.Value.Type == OnlineChainType.Conflict)
                         nodeOnAnotherMachine = chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                            conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
+                            conflictOnAnotherMachine.Details[detail.Number]);
                     else
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                            conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
+                            conflictOnAnotherMachine.Details[detail.Number]);
 
                     isFirstAdd = false;
                 }
@@ -963,8 +909,9 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
                     chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
-                        conflictOnAnotherMachine.DetailsDictionary[detail.Number]);
+                        conflictOnAnotherMachine.Details[detail.Number]);
                 }
+            }
 
             chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
             chainOnAnotherMachine.Remove(conflictNodeOnAnotherMachine);

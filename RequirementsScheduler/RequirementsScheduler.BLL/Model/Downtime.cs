@@ -17,6 +17,10 @@ namespace RequirementsScheduler.BLL.Model
         }
 
         public OnlineChainType Type => OnlineChainType.Downtime;
+        public void GenerateP()
+        {
+            throw new InvalidOperationException();
+        }
 
         public bool Equals(Downtime other)
         {

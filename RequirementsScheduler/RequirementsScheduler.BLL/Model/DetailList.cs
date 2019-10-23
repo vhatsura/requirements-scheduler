@@ -1,10 +1,11 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace RequirementsScheduler.BLL.Model
 {
+    [DebuggerDisplay("IsOptimized: {" + nameof(IsOptimized) + "}, Count: {this." + nameof(Count) + "}")]
     public class DetailList : Collection<Detail>, IMachine
     {
-        public static DetailList Empty => new DetailList();
         public bool IsOptimized => true;
     }
 }

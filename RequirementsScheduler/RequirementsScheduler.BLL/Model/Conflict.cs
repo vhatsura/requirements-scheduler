@@ -1,4 +1,7 @@
-﻿namespace RequirementsScheduler.BLL.Model
+﻿using System;
+using System.Collections.Generic;
+
+namespace RequirementsScheduler.BLL.Model
 {
     public class Conflict : BaseConflict<LaboriousDetail>, IChainNode
     {
@@ -6,19 +9,34 @@
 
         public void AddDetail(IChainNode node)
         {
-            if (node.Type == ChainType.Conflict)
-                DetailsDictionary.AddRange((node as Conflict).DetailsDictionary);
-            else
+            switch (node.Type)
             {
-                var laboriousDetail = node as LaboriousDetail;
-                DetailsDictionary.Add(laboriousDetail.Number, laboriousDetail);
+                case ChainType.Conflict when node is Conflict conflict:
+                    Details.AddRange(conflict.Details);
+                    break;
+                case ChainType.Detail when node is LaboriousDetail detail:
+                    Details.Add(detail.Number, detail);
+                    break;
+                default: throw new InvalidOperationException();
             }
-                    
         }
     }
 
     public class OnlineConflict : BaseConflict<Detail>, IOnlineChainNode
     {
+        public OnlineConflict(IEnumerable<KeyValuePair<int, Detail>> details)
+        {
+            Details.AddRange(details);
+        }
+
         OnlineChainType IOnlineChainNode.Type => OnlineChainType.Conflict;
+
+        public void GenerateP()
+        {
+            foreach (var detail in Details.Values)
+            {
+                detail.GenerateP();
+            }
+        }
     }
 }

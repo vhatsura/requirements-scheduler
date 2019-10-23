@@ -11,10 +11,14 @@ namespace RequirementsScheduler.Library.Worker
     {
         public ExperimentInfo GenerateDataForTest(Experiment experiment, int testNumber)
         {
-            var firstRequirementsAmount = (int) Math.Round(experiment.RequirementsAmount * experiment.N1 / (double)100);
-            var secondRequirementsAmount = (int) Math.Round(experiment.RequirementsAmount * experiment.N2 / (double)100);
-            var firstSecondRequirementsAmount = (int) Math.Round(experiment.RequirementsAmount * experiment.N12 / (double)100);
-            var secondFirstRequirementsAmount = (int) Math.Round(experiment.RequirementsAmount * experiment.N21 / (double)100);
+            var firstRequirementsAmount =
+                (int) Math.Round(experiment.RequirementsAmount * experiment.N1 / (double) 100);
+            var secondRequirementsAmount =
+                (int) Math.Round(experiment.RequirementsAmount * experiment.N2 / (double) 100);
+            var firstSecondRequirementsAmount =
+                (int) Math.Round(experiment.RequirementsAmount * experiment.N12 / (double) 100);
+            var secondFirstRequirementsAmount =
+                (int) Math.Round(experiment.RequirementsAmount * experiment.N21 / (double) 100);
 
             var firstABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
                 firstRequirementsAmount);
@@ -32,7 +36,8 @@ namespace RequirementsScheduler.Library.Worker
                 experiment.MaxPercentageFromA);
             var firstSecondSecondABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
                 firstSecondRequirementsAmount);
-            var firstSecondSecondBBoundaries = GetBBoundaries(firstSecondSecondABoundaries, experiment.MinPercentageFromA,
+            var firstSecondSecondBBoundaries = GetBBoundaries(firstSecondSecondABoundaries,
+                experiment.MinPercentageFromA,
                 experiment.MaxPercentageFromA);
 
             var secondFirstFirstABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
@@ -41,7 +46,8 @@ namespace RequirementsScheduler.Library.Worker
                 experiment.MaxPercentageFromA);
             var secondFirstSecondABoundaries = GetABoundaries(experiment.MinBoundaryRange, experiment.MaxBoundaryRange,
                 secondFirstRequirementsAmount);
-            var secondFirstSecondBBoundaries = GetBBoundaries(secondFirstSecondABoundaries, experiment.MinPercentageFromA,
+            var secondFirstSecondBBoundaries = GetBBoundaries(secondFirstSecondABoundaries,
+                experiment.MinPercentageFromA,
                 experiment.MaxPercentageFromA);
 
             var experimentInfo = new ExperimentInfo
@@ -59,7 +65,8 @@ namespace RequirementsScheduler.Library.Worker
             var onSecondDetails = firstSecondSecondABoundaries.Zip(firstSecondSecondBBoundaries,
                 (a, b) => new ProcessingTime(a, b));
 
-            experimentInfo.J12.AddRange(onFirstDetails.Zip(onSecondDetails, (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, number++)));
+            experimentInfo.J12.AddRange(onFirstDetails.Zip(onSecondDetails,
+                (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, number++)));
 
             onFirstDetails = secondFirstFirstABoundaries.Zip(secondFirstFirstBBoundaries,
                 (a, b) => new ProcessingTime(a, b));
@@ -78,13 +85,11 @@ namespace RequirementsScheduler.Library.Worker
                 .Select(i => RandomizeService.GetRandomDouble(min, max))
                 .ToList();
 
-        private static ICollection<double> GetBBoundaries(
-            IEnumerable<double> aBoundaries,
-            int minPercentage,
-            int maxPercentage) 
-                => aBoundaries
-                    .Select(a => RandomizeService.GetRandomDouble(minPercentage, maxPercentage) * a / 100 + a)
-                    .ToList();
+        private static ICollection<double> GetBBoundaries(IEnumerable<double> aBoundaries, int minPercentage,
+            int maxPercentage)
+            => aBoundaries
+                .Select(a => RandomizeService.GetRandomDouble(minPercentage, maxPercentage) * a / 100 + a)
+                .ToList();
 
         #region Triangle Distribution
 

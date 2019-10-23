@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -10,7 +9,6 @@ using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.DAL;
-using RequirementsScheduler.Library.Extensions;
 using RequirementsScheduler.Library.Worker;
 using Xunit;
 
@@ -32,11 +30,11 @@ namespace RequirementsScheduler.Library.Tests
             await experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(new Experiment
             {
                 Id = Guid.NewGuid(),
-                N1 = 5, N2 = 5, N12 = 5, N21 = 85,
-                RequirementsAmount = 10_000,
+                N1 = 10, N2 = 40, N12 = 10, N21 = 40,
+                RequirementsAmount = 10000,
                 TestsAmount = 100,
                 BorderGenerationType = "uniform", PGenerationType = "uniform",
-                MinPercentageFromA = 15, MaxPercentageFromA = 15,
+                MinPercentageFromA = 50, MaxPercentageFromA = 50,
                 MinBoundaryRange = 10, MaxBoundaryRange = 1000
             }));
         }

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
+    [DebuggerDisplay("#{Number} - ({Time})")]
     public class Detail : IOnlineChainNode
     {
         public ProcessingTime Time { get; }
@@ -18,14 +21,15 @@ namespace RequirementsScheduler.BLL.Model
         [JsonConstructor]
         public Detail(ProcessingTime time, int number)
         {
-            if (number <= 0)
-                throw new ArgumentOutOfRangeException(nameof(number));
+            if (number <= 0) throw new ArgumentOutOfRangeException(nameof(number));
 
             Time = time;
             Number = number;
         }
 
         public OnlineChainType Type => OnlineChainType.Detail;
+
+        public void GenerateP() => Time.GenerateP();
 
         public override string ToString()
         {
