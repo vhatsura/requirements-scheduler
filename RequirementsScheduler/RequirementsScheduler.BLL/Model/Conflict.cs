@@ -33,10 +33,7 @@ namespace RequirementsScheduler.BLL.Model
 
         public void GenerateP()
         {
-            foreach (var detail in Details.Values)
-            {
-                detail.GenerateP();
-            }
+            foreach (var detail in Details.Values) detail.GenerateP();
         }
     }
 }

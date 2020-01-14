@@ -7,8 +7,6 @@ namespace RequirementsScheduler.DAL
 {
     public sealed class Database
     {
-        private DbSettings Settings { get; }
-
         public Database(IOptions<DbSettings> settings)
         {
             //it writes generated sql to the debug console
@@ -20,9 +18,9 @@ namespace RequirementsScheduler.DAL
             Settings = settings.Value;
         }
 
-        public DataConnection Open()
-        {
-            return SqlServerTools.CreateDataConnection(Settings.ConnectionString, SqlServerVersion.v2012);
-        }
+        private DbSettings Settings { get; }
+
+        public DataConnection Open() =>
+            SqlServerTools.CreateDataConnection(Settings.ConnectionString, SqlServerVersion.v2012);
     }
 }

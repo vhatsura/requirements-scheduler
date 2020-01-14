@@ -6,10 +6,7 @@ namespace RequirementsScheduler.BLL.Model
     {
         public void GenerateP()
         {
-            foreach (var node in this)
-            {
-                node.GenerateP();
-            }
+            foreach (var node in this) node.GenerateP();
         }
     }
 }

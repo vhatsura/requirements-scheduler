@@ -7,16 +7,15 @@ namespace RequirementsScheduler
 {
     public sealed class CustomExceptionHandlerMiddleware
     {
-        private readonly RequestDelegate _next;
         private readonly ILogger _logger;
+        private readonly RequestDelegate _next;
 
         public CustomExceptionHandlerMiddleware(
             RequestDelegate next,
             ILoggerFactory loggerFactory)
         {
             _next = next;
-            _logger = loggerFactory.
-                CreateLogger<CustomExceptionHandlerMiddleware>();
+            _logger = loggerFactory.CreateLogger<CustomExceptionHandlerMiddleware>();
         }
 
         public async Task Invoke(HttpContext context)

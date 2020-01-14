@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using System.IO;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -18,11 +15,7 @@ namespace RequirementsScheduler
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
-                        .UseStartup<Startup>()
-                        .ConfigureKestrel((context, options) =>
-                        {
-                            // Set properties and call methods on options
-                        });
+                        .UseStartup<Startup>();
                 });
     }
 }

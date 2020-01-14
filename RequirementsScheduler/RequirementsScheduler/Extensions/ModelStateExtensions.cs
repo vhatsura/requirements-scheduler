@@ -11,8 +11,8 @@ namespace RequirementsScheduler2.Extensions
                 return string.Empty;
 
             return string.Join("; ", modelState.Values
-                                               .SelectMany(x => x.Errors)
-                                               .Select(x => x.ErrorMessage));
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage));
         }
     }
 }

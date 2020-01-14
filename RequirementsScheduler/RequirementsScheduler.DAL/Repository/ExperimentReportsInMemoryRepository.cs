@@ -1,8 +1,9 @@
 ﻿using System.Threading;
+using RequirementsScheduler.DAL.Model;
 
 namespace RequirementsScheduler.DAL.Repository
 {
-    public class ExperimentReportsInMemoryRepository : InMemoryRepository<DAL.Model.ExperimentResult, int>
+    public class ExperimentReportsInMemoryRepository : InMemoryRepository<ExperimentResult, int>
     {
         private int _id;
 

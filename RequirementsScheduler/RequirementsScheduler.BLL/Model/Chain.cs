@@ -9,13 +9,11 @@ namespace RequirementsScheduler.BLL.Model
     {
         public Chain()
         {
-            
         }
 
         public Chain(IEnumerable<IChainNode> collection)
             : base(collection)
         {
-            
         }
 
         public bool IsOptimized => this.All(element => element.Type == ChainType.Detail);

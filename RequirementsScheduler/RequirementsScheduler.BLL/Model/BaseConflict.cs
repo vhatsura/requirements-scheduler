@@ -17,12 +17,9 @@ namespace RequirementsScheduler.BLL.Model
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == this.GetType() && Equals((BaseConflict<T>) obj);
+            return obj.GetType() == GetType() && Equals((BaseConflict<T>) obj);
         }
 
-        public override int GetHashCode()
-        {
-            return (Details != null ? Details.GetHashCode() : 0);
-        }
+        public override int GetHashCode() => Details != null ? Details.GetHashCode() : 0;
     }
 }

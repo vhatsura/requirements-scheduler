@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using Newtonsoft.Json;
+using RequirementsScheduler.DAL.Model;
 
 namespace RequirementsScheduler.BLL.Model
 {
     [DebuggerDisplay("#{Number} - ({Time})")]
     public class Detail : IOnlineChainNode
     {
-        public ProcessingTime Time { get; }
-
-        public int Number { get; }
-
-        public Detail(double a, double b, int number)
-            : this(new ProcessingTime(a, b), number)
+        public Detail(double a, double b, Distribution distribution, int number)
+            : this(new ProcessingTime(a, b, distribution), number)
         {
-
         }
 
         [JsonConstructor]
@@ -27,13 +22,17 @@ namespace RequirementsScheduler.BLL.Model
             Number = number;
         }
 
+        public ProcessingTime Time { get; }
+
+        public int Number { get; }
+
         public OnlineChainType Type => OnlineChainType.Detail;
 
-        public void GenerateP() => Time.GenerateP();
-
-        public override string ToString()
+        public void GenerateP()
         {
-            return $"Number: {Number} Time: ({Time})";
+            Time.GenerateP();
         }
+
+        public override string ToString() => $"Number: {Number} Time: ({Time})";
     }
 }

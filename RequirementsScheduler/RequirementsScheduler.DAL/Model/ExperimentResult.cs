@@ -6,9 +6,6 @@ namespace RequirementsScheduler.DAL.Model
 {
     public class ExperimentResult : IRepositoryModel<int>
     {
-        [PrimaryKey, Identity]
-        public int Id { get; set; }
-
         public int OfflineResolvedConflictAmount { get; set; }
         public int OnlineResolvedConflictAmount { get; set; }
         public int OnlineUnResolvedConflictAmount { get; set; }
@@ -25,7 +22,10 @@ namespace RequirementsScheduler.DAL.Model
         public TimeSpan OnlineExecutionTime { get; set; }
 
         public Guid ExperimentId { get; set; }
+
         [Association(ThisKey = nameof(ExperimentId), OtherKey = nameof(Model.Experiment.Id))]
         public Experiment Experiment { get; set; }
+
+        [PrimaryKey] [Identity] public int Id { get; set; }
     }
 }

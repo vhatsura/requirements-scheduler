@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -27,17 +28,16 @@ namespace RequirementsScheduler2.Identity
             UserService = service;
         }
 
+        private IUserService UserService { get; }
+
         public Task Invoke(HttpContext context)
         {
             // If the request path doesn't match, skip
-            if (!context.Request.Path.Equals(_options.Path, StringComparison.Ordinal))
-            {
-                return _next(context);
-            }
+            if (!context.Request.Path.Equals(_options.Path, StringComparison.Ordinal)) return _next(context);
 
             // Request must be POST with Content-Type: application/x-www-form-urlencoded
             if (!context.Request.Method.Equals("POST")
-               || !context.Request.HasFormContentType)
+                || !context.Request.HasFormContentType)
             {
                 context.Response.StatusCode = 400;
                 return context.Response.WriteAsync(JsonConvert.SerializeObject(new {Message = "Bad request."}));
@@ -56,7 +56,8 @@ namespace RequirementsScheduler2.Identity
             if (identity == null)
             {
                 context.Response.StatusCode = 400;
-                await context.Response.WriteAsync(JsonConvert.SerializeObject(new { Message = "Invalid username or password." }));
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                    {Message = "Invalid username or password."}));
                 return;
             }
 
@@ -75,36 +76,33 @@ namespace RequirementsScheduler2.Identity
 
             // Create the JWT and write it to a string
             var jwt = new JwtSecurityToken(
-                issuer: _options.Issuer,
-                audience: _options.Audience,
-                claims: claims,
-                notBefore: now.DateTime,
-                expires: now.DateTime.Add(_options.Expiration),
-                signingCredentials: _options.SigningCredentials);
+                _options.Issuer,
+                _options.Audience,
+                claims,
+                now.DateTime,
+                now.DateTime.Add(_options.Expiration),
+                _options.SigningCredentials);
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             var response = new
             {
                 access_token = encodedJwt,
-                expires_in = (int)_options.Expiration.TotalSeconds
+                expires_in = (int) _options.Expiration.TotalSeconds
             };
 
             // Serialize and return the response
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(response,
+                new JsonSerializerSettings {Formatting = Formatting.Indented}));
         }
-
-        private IUserService UserService { get; }
 
         private Task<ClaimsIdentity> GetIdentity(User user, string password)
         {
-            if(user != null && user.Password == password)
-            {
+            if (user != null && user.Password == password)
                 return Task.FromResult(
                     new ClaimsIdentity(
-                        new System.Security.Principal.GenericIdentity(user.Username, "Token"),
+                        new GenericIdentity(user.Username, "Token"),
                         new Claim[] { }));
-            }
 
             // Credentials are invalid, or account doesn't exist
             return Task.FromResult<ClaimsIdentity>(null);

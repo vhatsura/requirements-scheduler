@@ -205,10 +205,7 @@ namespace RequirementsScheduler.Library.Worker
                 _numbers = numbers.ToList();
             }
 
-            public int Compare(int x, int y)
-            {
-                return _numbers.IndexOf(x).CompareTo(_numbers.IndexOf(y));
-            }
+            public int Compare(int x, int y) => _numbers.IndexOf(x).CompareTo(_numbers.IndexOf(y));
         }
 
         #region Online mode
@@ -449,31 +446,19 @@ namespace RequirementsScheduler.Library.Worker
             // details only on first machines
             if (hasDetailOnFirst)
                 for (var node = nodeOnFirstMachine; node != null; node = node.Next)
-                {
                     if (node.Value is Detail detail)
-                    {
                         time1 += detail.Time.P;
-                    }
                     else
-                    {
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
-                    }
-                }
             else
                 // details only on second machine
                 for (var node = nodeOnSecondMachine; node != null; node = node.Next)
-                {
                     if (node.Value is Detail detail)
-                    {
                         time2 += detail.Time.P;
-                    }
                     else
-                    {
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
-                    }
-                }
 
             timeFromMachinesStart = Math.Max(time1, time2);
 
@@ -714,9 +699,7 @@ namespace RequirementsScheduler.Library.Worker
                     i.Type == OnlineChainType.Conflict &&
                     (i as OnlineConflict).Details.Keys.SequenceEqual(conflict.Details.Keys)) is OnlineConflict
                 conflictOnAnotherMachine))
-            {
                 throw new InvalidOperationException("Not found conflict on another machine");
-            }
 
             var conflictNodeOnAnotherMachine = chainOnAnotherMachine.Find(conflictOnAnotherMachine);
             var nodeOnCurrentMachineToRemove = nodeOnCurrentMachine;
@@ -805,7 +788,6 @@ namespace RequirementsScheduler.Library.Worker
                 var isOptimized = true;
 
                 foreach (var detail in conflictSequence)
-                {
                     //todo check all conditions
                     if (firstSum + detail.Time.B <= secondSum)
                     {
@@ -817,7 +799,6 @@ namespace RequirementsScheduler.Library.Worker
                         isOptimized = false;
                         break;
                     }
-                }
 
                 if (isOptimized)
                 {
@@ -892,7 +873,6 @@ namespace RequirementsScheduler.Library.Worker
 
             var isFirstAdd = true;
             foreach (var detail in conflictSequence)
-            {
                 if (isFirstAdd)
                 {
                     nodeOnCurrentMachine = chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
@@ -911,7 +891,6 @@ namespace RequirementsScheduler.Library.Worker
                     chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
                         conflictOnAnotherMachine.Details[detail.Number]);
                 }
-            }
 
             chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
             chainOnAnotherMachine.Remove(conflictNodeOnAnotherMachine);

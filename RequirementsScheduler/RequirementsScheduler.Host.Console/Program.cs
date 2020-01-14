@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -23,7 +22,7 @@ namespace RequirementsScheduler.Host.Console
             }
             catch (Exception)
             {
-                result = default(T);
+                result = default;
                 return false;
             }
         }
@@ -44,7 +43,7 @@ namespace RequirementsScheduler.Host.Console
 
         public static Experiment ReadExperimentFromConsole()
         {
-            var experiment = new Experiment()
+            var experiment = new Experiment
             {
                 Id = Guid.NewGuid()
             };
@@ -55,8 +54,10 @@ namespace RequirementsScheduler.Host.Console
             ReadFromConsole<int>(result => experiment.MinBoundaryRange = result, "Enter min boundary range: ");
             ReadFromConsole<int>(result => experiment.MaxBoundaryRange = result, "Enter max boundary range: ");
 
-            ReadFromConsole<int>(result => experiment.MinPercentageFromA = result, "Enter min percentage from A boundary: ");
-            ReadFromConsole<int>(result => experiment.MaxPercentageFromA = result, "Enter max percentage from A boundary: ");
+            ReadFromConsole<int>(result => experiment.MinPercentageFromA = result,
+                "Enter min percentage from A boundary: ");
+            ReadFromConsole<int>(result => experiment.MaxPercentageFromA = result,
+                "Enter max percentage from A boundary: ");
 
             ReadFromConsole<int>(result => experiment.N1 = result, "Enter percentage of 1 requirements: ");
             ReadFromConsole<int>(result => experiment.N2 = result, "Enter percentage of 2 requirements: ");
@@ -70,7 +71,7 @@ namespace RequirementsScheduler.Host.Console
         {
             var experiment = ReadExperimentFromConsole();
             if (experiment == null) return;
-            
+
             var reportsServiceMock = new Mock<IReportsService>();
             ExperimentReport report = null;
             reportsServiceMock
@@ -86,23 +87,24 @@ namespace RequirementsScheduler.Host.Console
                 Mock.Of<IOptions<DbSettings>>());
 
             var stopwatch = Stopwatch.StartNew();
-            pipeline.Run(new List<Experiment>() {experiment}).ConfigureAwait(false);
+            pipeline.Run(new List<Experiment> {experiment}).ConfigureAwait(false);
             stopwatch.Stop();
 
             System.Console.ForegroundColor = ConsoleColor.DarkGreen;
             System.Console.WriteLine("\n\n---------   RESULTS OF EXPERIMENTS' EXECUTION   ---------");
 
-            System.Console.WriteLine($"Time of execution experiments: {TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds):%m' minute(s) '%s' second(s)'}\n\n");
+            System.Console.WriteLine(
+                $"Time of execution experiments: {TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds):%m' minute(s) '%s' second(s)'}\n\n");
 
             System.Console.WriteLine($"Amounts of tests: {experiment.TestsAmount}");
-            System.Console.WriteLine($"Amounts of resolved tests in offline mode: {experiment.Results.Count}, {(experiment.Results.Count * 100 / (double)experiment.TestsAmount):0.###}%");
+            System.Console.WriteLine(
+                $"Amounts of resolved tests in offline mode: {experiment.Results.Count}, {experiment.Results.Count * 100 / (double) experiment.TestsAmount:0.###}%");
             System.Console.WriteLine($"Amounts of resolved tests in STOP 1.1: {report?.Stop1Percentage}%");
             System.Console.WriteLine($"Amounts of resolved tests in STOP 1.2: {report?.Stop2Percentage}%");
             System.Console.WriteLine($"Amounts of resolved tests in STOP 1.3: {report?.Stop3Percentage}%");
             System.Console.WriteLine($"Amounts of resolved tests in STOP 1.4: {report?.Stop4Percentage}%");
 
             System.Console.ReadKey();
-
         }
     }
 }

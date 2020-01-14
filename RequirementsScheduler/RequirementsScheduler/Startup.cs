@@ -16,31 +16,32 @@ using Quartz.Spi;
 using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
-using RequirementsScheduler2.Identity;
 using RequirementsScheduler.DAL;
+using RequirementsScheduler.DAL.Model;
 using RequirementsScheduler.DAL.Repository;
 using RequirementsScheduler.Extensions;
 using RequirementsScheduler.Library.Worker;
+using RequirementsScheduler2.Identity;
 
 namespace RequirementsScheduler
 {
     public class Startup
     {
+        // secretKey contains a secret passphrase only your server knows
+        private static readonly string secretKey = "501FC5DD-4268-4CC5-A791-44A6CEA41A43";
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public Startup(IWebHostEnvironment env)
+        private readonly SymmetricSecurityKey
+            _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+
+        public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
 
             _hostingEnvironment = env;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -85,10 +86,9 @@ namespace RequirementsScheduler
 
         private void ConfigureInMemoryRepositories(IServiceCollection services)
         {
-            services.AddSingleton<IRepository<DAL.Model.User, int>, UsersInMemoryRepository>();
-            services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, ExperimentsInMemoryRepository>();
-            services.AddSingleton<IRepository<DAL.Model.ExperimentResult, int>, ExperimentReportsInMemoryRepository>();
-
+            services.AddSingleton<IRepository<User, int>, UsersInMemoryRepository>();
+            services.AddSingleton<IRepository<Experiment, Guid>, ExperimentsInMemoryRepository>();
+            services.AddSingleton<IRepository<ExperimentResult, int>, ExperimentReportsInMemoryRepository>();
         }
 
         private void ConfigureRequirementsServices(IServiceCollection services)
@@ -97,16 +97,12 @@ namespace RequirementsScheduler
             //todo change to azure blob storage
             services.AddSingleton<IExperimentTestResultService, ExperimentTestResultFileService>();
 
-            services.AddSingleton<IRepository<DAL.Model.User, int>, Repository<DAL.Model.User, int>>();
-            services.AddSingleton<IRepository<DAL.Model.Experiment, Guid>, Repository<DAL.Model.Experiment, Guid>>();
+            services.AddSingleton<IRepository<User, int>, Repository<User, int>>();
+            services.AddSingleton<IRepository<Experiment, Guid>, Repository<Experiment, Guid>>();
             services
-                .AddSingleton<IRepository<DAL.Model.ExperimentResult, int>, Repository<DAL.Model.ExperimentResult, int>
+                .AddSingleton<IRepository<ExperimentResult, int>, Repository<ExperimentResult, int>
                 >();
         }
-
-        // secretKey contains a secret passphrase only your server knows
-        private static string secretKey = "501FC5DD-4268-4CC5-A791-44A6CEA41A43";
-        private SymmetricSecurityKey signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -115,22 +111,18 @@ namespace RequirementsScheduler
             app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
             if (_hostingEnvironment.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-                //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-                //{
-                //    HotModuleReplacement = true
-                //});
-            }
+            //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
+            //{
+            //    HotModuleReplacement = true
+            //});
             else
-            {
                 app.UseExceptionHandler("/Home/Error");
-            }
 
             app.UseStaticFiles();
-            
+
             app.UseRouting();
-            
+
             // Add JWT generation endpoint:
             var options = new TokenProviderOptions
             {
@@ -138,16 +130,18 @@ namespace RequirementsScheduler
                 Audience = "ExampleAudience",
                 Issuer = "RequirementsScheduler",
                 Expiration = TimeSpan.FromDays(1),
-                SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256),
+                SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256)
             };
 
             app.UseMiddleware<TokenProviderMiddleware>(Options.Create(options));
-            
+
             app.UseAuthorization();
-            
+
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-            
-            app.UseQuartz(c => c.AddJob<ExperimentWorker>("experimentJob", "experimentGroup", (int) TimeSpan.FromMinutes(1).TotalSeconds));
+
+            app.UseQuartz(c =>
+                c.AddJob<ExperimentWorker>("experimentJob", "experimentGroup",
+                    (int) TimeSpan.FromMinutes(1).TotalSeconds));
         }
 
         private void ConfigureOAuth(IServiceCollection services)
@@ -156,7 +150,7 @@ namespace RequirementsScheduler
             {
                 // The signing key must match!
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = signingKey,
+                IssuerSigningKey = _signingKey,
 
                 // Validate the JWT Issuer (iss) claim
                 ValidateIssuer = true,

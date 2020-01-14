@@ -1,5 +1,4 @@
 ﻿using System;
-using RequirementsScheduler.Core.Service;
 
 namespace RequirementsScheduler.BLL.Service
 {

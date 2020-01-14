@@ -9,36 +9,15 @@ using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.DAL;
+using RequirementsScheduler.DAL.Model;
 using RequirementsScheduler.Library.Worker;
 using Xunit;
+using Experiment = RequirementsScheduler.BLL.Model.Experiment;
 
 namespace RequirementsScheduler.Library.Tests
 {
     public class ExperimentPipelineTests
     {
-        [Fact]
-        public async Task RunDirectTest()
-        {
-            var experimentPipeline = new ExperimentPipeline(
-                new ExperimentGenerator(),
-                Mock.Of<IWorkerExperimentService>(),
-                Mock.Of<IExperimentTestResultService>(),
-                Mock.Of<IReportsService>(),
-                Mock.Of<ILogger<ExperimentPipeline>>(),
-                Mock.Of<IOptions<DbSettings>>());
-
-            await experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(new Experiment
-            {
-                Id = Guid.NewGuid(),
-                N1 = 10, N2 = 40, N12 = 10, N21 = 40,
-                RequirementsAmount = 10000,
-                TestsAmount = 100,
-                BorderGenerationType = "uniform", PGenerationType = "uniform",
-                MinPercentageFromA = 50, MaxPercentageFromA = 50,
-                MinBoundaryRange = 10, MaxBoundaryRange = 1000
-            }));
-        }
-
         [Theory]
         [MemberData(nameof(DataTest))]
         public async Task Test1(
@@ -55,7 +34,7 @@ namespace RequirementsScheduler.Library.Tests
             experimentInfo.J12.AddRange(j12);
             experimentInfo.J21.AddRange(j21);
 
-            var experiment = new Experiment()
+            var experiment = new Experiment
             {
                 Id = Guid.NewGuid(),
                 TestsAmount = 1
@@ -92,7 +71,7 @@ namespace RequirementsScheduler.Library.Tests
 
         public static IEnumerable<object[]> DataTest()
         {
-            var time = new ProcessingTime(1, 5);
+            var time = new ProcessingTime(1, 5, Distribution.Uniform);
             yield return new object[]
             {
                 Enumerable.Empty<Detail>(),
@@ -114,6 +93,29 @@ namespace RequirementsScheduler.Library.Tests
                 Enumerable.Range(1, 2).Select(i => new LaboriousDetail(time, time, i)),
                 Enumerable.Range(3, 1).Select(i => new LaboriousDetail(time, time, i))
             }; // should be run without exceptions
+        }
+
+        [Fact]
+        public async Task RunDirectTest()
+        {
+            var experimentPipeline = new ExperimentPipeline(
+                new ExperimentGenerator(),
+                Mock.Of<IWorkerExperimentService>(),
+                Mock.Of<IExperimentTestResultService>(),
+                Mock.Of<IReportsService>(),
+                Mock.Of<ILogger<ExperimentPipeline>>(),
+                Mock.Of<IOptions<DbSettings>>());
+
+            await experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(new Experiment
+            {
+                Id = Guid.NewGuid(),
+                N1 = 10, N2 = 40, N12 = 10, N21 = 40,
+                RequirementsAmount = 10000,
+                TestsAmount = 100,
+                BorderGenerationType = Distribution.Uniform, PGenerationType = Distribution.Uniform,
+                MinPercentageFromA = 50, MaxPercentageFromA = 50,
+                MinBoundaryRange = 10, MaxBoundaryRange = 1000
+            }));
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using RequirementsScheduler.BLL.Model;
@@ -9,17 +8,14 @@ namespace RequirementsScheduler2.Controllers
     [Route("api/[controller]")]
     public class ReportsController : Controller
     {
-        private IReportsService ReportsService { get; }
-
         public ReportsController(IReportsService reportsService)
         {
             ReportsService = reportsService;
         }
 
+        private IReportsService ReportsService { get; }
+
         [HttpGet]
-        public IEnumerable<ExperimentReport> Get()
-        {
-            return ReportsService.GetAll();
-        }
+        public IEnumerable<ExperimentReport> Get() => ReportsService.GetAll();
     }
 }

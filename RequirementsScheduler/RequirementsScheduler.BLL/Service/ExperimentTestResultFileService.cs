@@ -13,6 +13,17 @@ namespace RequirementsScheduler.BLL.Service
         private static string ServiceFolder =>
             Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "experiments-results");
 
+        private JsonSerializerSettings SerializerSettings => new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.All,
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
+
+#if DEBUG
+            Formatting = Formatting.Indented
+#endif
+        };
+
         public async Task SaveExperimentTestResult(Guid experimentId, ExperimentInfo experimentInfo)
         {
 //            var experimentPath = Path.Combine(ServiceFolder, experimentId.ToString());
@@ -27,24 +38,10 @@ namespace RequirementsScheduler.BLL.Service
 //            await System.Text.Json.JsonSerializer.SerializeAsync(fileStream, experimentInfo);
         }
 
-        private JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.All,
-            DefaultValueHandling = DefaultValueHandling.Ignore,
-            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
-
-#if DEBUG
-            Formatting = Formatting.Indented
-#endif
-        };
-
         public async Task<ExperimentInfo> GetExperimentTestResult(Guid experimentId, int testNumber)
         {
             var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), $"{testNumber.ToString()}.json");
-            if (!File.Exists(fileName))
-            {
-                throw new ArgumentException();
-            }
+            if (!File.Exists(fileName)) throw new ArgumentException();
 
             var fileStream = File.OpenRead(fileName);
             using (var reader = new StreamReader(fileStream))
@@ -66,11 +63,8 @@ namespace RequirementsScheduler.BLL.Service
         {
             var fileName = Path.Combine(ServiceFolder, experimentId.ToString(), "aggregated.json");
 
-            if (!File.Exists(fileName))
-            {
-                return new Dictionary<int, ResultInfo>();
-            }
-            
+            if (!File.Exists(fileName)) return new Dictionary<int, ResultInfo>();
+
             var fileStream = File.OpenRead(fileName);
             using (var reader = new StreamReader(fileStream))
             {
