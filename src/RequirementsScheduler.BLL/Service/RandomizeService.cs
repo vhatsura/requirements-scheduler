@@ -19,10 +19,18 @@ namespace RequirementsScheduler.BLL.Service
 
         private static double GammaDistribution(double min, double max)
         {
+            var funcs = new Func<double>[2]
+            {
+                () => Accord.Statistics.Distributions.Univariate.GammaDistribution.Random(0.5, 1, Random),
+                () => Accord.Statistics.Distributions.Univariate.GammaDistribution.Random(7.5, 1, Random)
+            };
+
+            var distribution = Random.Next(0, 2);
+
             double value;
             do
             {
-                value = Accord.Statistics.Distributions.Univariate.GammaDistribution.Random(1, 1, Random);
+                value = funcs[distribution].Invoke();
             } while (value + min > max);
 
             return value + min;
