@@ -1,4 +1,6 @@
-﻿CREATE TABLE [dbo].[ExperimentsFailures]
+﻿USE [model]
+
+CREATE TABLE [dbo].[ExperimentsFailures]
 (
     [Id] INT NOT NULL PRIMARY KEY, 
     [ExperimentId] UNIQUEIDENTIFIER NOT NULL, 

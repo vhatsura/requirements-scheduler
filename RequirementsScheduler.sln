@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.15
@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.BLL", "src\RequirementsScheduler.BLL\RequirementsScheduler.BLL.csproj", "{7E7F1799-E122-4F03-97E2-466E300E8D91}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "RequirementsSchedulerDb", "src\RequirementsSchedulerDb\RequirementsSchedulerDb.sqlproj", "{71E32A85-CF8F-4F04-AED0-A33E662C798D}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "RequirementsSchedulerDb", "db\RequirementsSchedulerDb.sqlproj", "{71E32A85-CF8F-4F04-AED0-A33E662C798D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Library.Tests", "tests\RequirementsScheduler.Library.Tests\RequirementsScheduler.Library.Tests.csproj", "{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}"
 EndProject
@@ -22,6 +22,7 @@ ProjectSection(SolutionItems) = preProject
 	.gitattributes = .gitattributes
 	.gitignore = .gitignore
 	README.md = README.md
+	docker-compose.yml = docker-compose.yml
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6CA5D002-BE9F-4770-BD3B-855D6ADC443F}"

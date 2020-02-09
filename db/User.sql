@@ -1,4 +1,6 @@
-﻿CREATE TABLE [dbo].[User]
+﻿USE [model]
+
+CREATE TABLE [dbo].[User]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
 	[Username] NVARCHAR(MAX) NULL, 

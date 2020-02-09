@@ -1,4 +1,6 @@
-﻿CREATE TABLE [dbo].[ExperimentResult]
+﻿USE [model]
+
+CREATE TABLE [dbo].[ExperimentResult]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
 	[Stop1Percentage] FLOAT NULL, 
