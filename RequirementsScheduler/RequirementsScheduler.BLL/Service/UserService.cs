@@ -1,36 +1,34 @@
 ﻿using System.Collections.Generic;
-using RequirementsScheduler.DAL.Repository;
 using System.Linq;
 using AutoMapper;
-using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.DAL.Model;
+using RequirementsScheduler.DAL.Repository;
 
 namespace RequirementsScheduler.Core.Service
 {
     public sealed class UserService : IUserService
     {
-        private IRepository<DAL.Model.User, int> Repository { get; }
-        private IMapper Mapper { get; }
-
-        public UserService(IMapper mapper, IRepository<DAL.Model.User, int> repository)
+        public UserService(IMapper mapper, IRepository<User, int> repository)
         {
             Mapper = mapper;
             Repository = repository;
         }
 
-        public IEnumerable<User> GetAllUsers()
+        private IRepository<User, int> Repository { get; }
+        private IMapper Mapper { get; }
+
+        public IEnumerable<BLL.Model.User> GetAllUsers()
         {
             return Repository
                 .Get()
                 .Select(user => Mapper.Map<BLL.Model.User>(user));
         }
 
-        public User GetUserById(int id)
-        {
-            return Mapper
+        public BLL.Model.User GetUserById(int id) =>
+            Mapper
                 .Map<BLL.Model.User>(Repository.Get(id));
-        }
 
-        public User GetByUserName(string username)
+        public BLL.Model.User GetByUserName(string username)
         {
             return Mapper.Map<BLL.Model.User>(
                 Repository
@@ -38,13 +36,13 @@ namespace RequirementsScheduler.Core.Service
                     .FirstOrDefault());
         }
 
-        public bool AddUser(User value)
+        public bool AddUser(BLL.Model.User value)
         {
-            var existedUser = this.GetByUserName(value.Username);
+            var existedUser = GetByUserName(value.Username);
             if (existedUser != null)
                 return false;
 
-            Repository.Add(Mapper.Map<DAL.Model.User>(value));
+            Repository.Add(Mapper.Map<User>(value));
             return true;
         }
     }

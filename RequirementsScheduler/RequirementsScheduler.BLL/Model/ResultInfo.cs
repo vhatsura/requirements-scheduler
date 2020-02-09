@@ -20,7 +20,7 @@ namespace RequirementsScheduler.BLL.Model
         public int OfflineResolvedConflictAmount { get; set; }
         public int OnlineResolvedConflictAmount { get; set; }
         public int OnlineUnResolvedConflictAmount { get; set; }
-        
+
         public bool IsResolvedOnCheck3InOnline { get; set; }
 
         public bool IsStop3OnOnline { get; set; }

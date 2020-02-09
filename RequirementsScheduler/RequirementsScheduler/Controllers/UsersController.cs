@@ -13,44 +13,35 @@ namespace RequirementsScheduler.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private IUserService Service { get; }
-
         public UsersController(IUserService service)
         {
             Service = service;
         }
 
+        private IUserService Service { get; }
+
         // GET: api/values
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-        public IEnumerable<User> Get()
-        {
-            return Service.GetAllUsers();
-        }
+        public IEnumerable<User> Get() => Service.GetAllUsers();
 
         // GET api/values/5
         [HttpGet("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-        public User Get(int id)
-        {
-            return Service.GetUserById(id);
-        }
+        public User Get(int id) => Service.GetUserById(id);
 
         // POST api/values
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-        public ActionResult Post([FromBody]User value)
+        public ActionResult Post([FromBody] User value)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(new { Message =  $"User isn't valid: {ModelState.ErrorsToString()}"});
-            }
+                return BadRequest(new {Message = $"User isn't valid: {ModelState.ErrorsToString()}"});
 
             var result = Service.AddUser(value);
             if (result)
-                return Ok(new { Message = "User added successfully" });
-            return BadRequest(new { Message = "The user with the same username already exists" });
+                return Ok(new {Message = "User added successfully"});
+            return BadRequest(new {Message = "The user with the same username already exists"});
         }
     }
 }
-

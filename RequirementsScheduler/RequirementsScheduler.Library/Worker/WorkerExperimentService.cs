@@ -11,17 +11,17 @@ namespace RequirementsScheduler.Library.Worker
 {
     public sealed class WorkerExperimentService : ExperimentsService, IWorkerExperimentService
     {
-        private ILogger Logger { get; }
-
         public WorkerExperimentService(
             IMapper mapper,
             IUserService userService,
             IRepository<Experiment, Guid> repository,
-            ILogger<WorkerExperimentService> logger) 
+            ILogger<WorkerExperimentService> logger)
             : base(mapper, userService, repository)
         {
             Logger = logger;
         }
+
+        private ILogger Logger { get; }
 
         public void StartExperiment(Guid experimentId)
         {
@@ -35,13 +35,12 @@ namespace RequirementsScheduler.Library.Worker
             {
                 Logger.LogCritical(new EventId(), ex, "Error during start experiment");
             }
-            
         }
 
         public void StopExperiment(Guid experimentId)
         {
             var experiment = Repository.Get(experimentId);
-            experiment.Status = (int)ExperimentStatus.Completed;
+            experiment.Status = (int) ExperimentStatus.Completed;
             Repository.Update(experimentId, experiment);
         }
     }

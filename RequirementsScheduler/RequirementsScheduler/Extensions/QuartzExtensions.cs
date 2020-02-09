@@ -9,7 +9,7 @@ namespace RequirementsScheduler.Extensions
         internal static void UseQuartz(this IApplicationBuilder app, Action<Quartz.Quartz> configuration)
         {
             // Job Factory through IOC container
-            var jobFactory = (IJobFactory)app.ApplicationServices.GetService(typeof(IJobFactory));
+            var jobFactory = (IJobFactory) app.ApplicationServices.GetService(typeof(IJobFactory));
             // Set job factory
             Quartz.Quartz.Instance.UseJobFactory(jobFactory);
 

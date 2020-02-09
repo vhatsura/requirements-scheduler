@@ -7,18 +7,17 @@ namespace RequirementsScheduler.Quartz
 {
     internal class Quartz
     {
-        private IScheduler _scheduler;
-
-        public static IScheduler Scheduler => Instance._scheduler;
-
         private static readonly Lazy<Quartz> _instance = new Lazy<Quartz>(() => new Quartz());
-
-        public static Quartz Instance => _instance.Value;
+        private IScheduler _scheduler;
 
         private Quartz()
         {
             Init();
         }
+
+        public static IScheduler Scheduler => Instance._scheduler;
+
+        public static Quartz Instance => _instance.Value;
 
         private async void Init()
         {

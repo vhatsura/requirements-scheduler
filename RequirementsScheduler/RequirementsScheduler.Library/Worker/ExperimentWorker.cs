@@ -9,14 +9,14 @@ namespace RequirementsScheduler.Library.Worker
     [DisallowConcurrentExecution]
     public sealed class ExperimentWorker : IJob
     {
-        private IExperimentsService Service { get; }
-        private IExperimentPipeline Pipeline { get; }
-
         public ExperimentWorker(IExperimentsService service, IExperimentPipeline pipeline)
         {
             Service = service;
             Pipeline = pipeline;
         }
+
+        private IExperimentsService Service { get; }
+        private IExperimentPipeline Pipeline { get; }
 
         public async Task Execute(IJobExecutionContext context)
         {
@@ -28,7 +28,6 @@ namespace RequirementsScheduler.Library.Worker
             catch (Exception ex)
             {
             }
-            
         }
     }
 }

@@ -3,30 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.DAL.Model;
 using RequirementsScheduler.DAL.Repository;
+using Experiment = RequirementsScheduler.DAL.Model.Experiment;
 
 namespace RequirementsScheduler.BLL.Service
 {
-    public class ReportsService: IReportsService
+    public class ReportsService : IReportsService
     {
-        private IMapper Mapper { get; }
-
-        protected IRepository<DAL.Model.ExperimentResult, int> ResultRepository { get; }
-        protected IRepository<DAL.Model.Experiment, Guid> ExperimentRepository { get; }
-
         public ReportsService(
             IMapper mapper,
-            IRepository<DAL.Model.ExperimentResult, int> resultRepository,
-            IRepository<DAL.Model.Experiment, Guid> experimentRepository)
+            IRepository<ExperimentResult, int> resultRepository,
+            IRepository<Experiment, Guid> experimentRepository)
         {
             Mapper = mapper;
             ResultRepository = resultRepository;
             ExperimentRepository = experimentRepository;
         }
-       
+
+        private IMapper Mapper { get; }
+
+        protected IRepository<ExperimentResult, int> ResultRepository { get; }
+        protected IRepository<Experiment, Guid> ExperimentRepository { get; }
+
         public IEnumerable<ExperimentReport> GetAll()
         {
-                return ResultRepository
+            return ResultRepository
                 .GetWith(e => e.Experiment)
 #if IN_MEMORY
                 .Select(r => {
@@ -39,7 +41,7 @@ namespace RequirementsScheduler.BLL.Service
 
         public void Save(ExperimentReport report)
         {
-            ResultRepository.Add(Mapper.Map<DAL.Model.ExperimentResult>(report));
+            ResultRepository.Add(Mapper.Map<ExperimentResult>(report));
         }
     }
 }

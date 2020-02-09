@@ -15,22 +15,14 @@ using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
 using RequirementsScheduler.DAL;
-using RequirementsScheduler.Library.Extensions;
 using RequirementsScheduler.Library.Worker;
 using RequirementsScheduler2.Extensions;
-
-// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace RequirementsScheduler.Controllers
 {
     [Route("api/[controller]")]
     public class ExperimentsController : Controller
     {
-        private IExperimentsService Service { get; }
-        private IUserService UserService { get; }
-        private IExperimentTestResultService ResultService { get; }
-        private IServiceProvider Container { get; }
-
         public ExperimentsController(
             IExperimentsService service,
             IUserService userService,
@@ -44,26 +36,33 @@ namespace RequirementsScheduler.Controllers
             Container = container;
         }
 
+        private IExperimentsService Service { get; }
+        private IUserService UserService { get; }
+        private IExperimentTestResultService ResultService { get; }
+        private IServiceProvider Container { get; }
+
+        private string UserName
+        {
+            get
+            {
+                var identity = User.Identity as ClaimsIdentity;
+                return identity?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+            }
+        }
+
         // GET: api/values
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IEnumerable<Experiment> Get()
         {
             var username = UserName;
-            return string.IsNullOrWhiteSpace(username) ?
-                Enumerable.Empty<Experiment>() :
-                Service.GetAll(username);
+            return string.IsNullOrWhiteSpace(username) ? Enumerable.Empty<Experiment>() : Service.GetAll(username);
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult Get(int id)
-        {
-            //var username = UserName;
-            
-            return Ok("value");
-        }
+        public IActionResult Get(int id) => Ok("value");
 
         [HttpGet("{id}/resultinfo")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -72,10 +71,7 @@ namespace RequirementsScheduler.Controllers
             var username = UserName;
 
             var experiment = Service.Get(id, username);
-            if (experiment == null)
-            {
-                return BadRequest();
-            }
+            if (experiment == null) return BadRequest();
 
             var aggregatedResult = await ResultService.GetAggregatedResult(experiment.Id);
 
@@ -89,10 +85,7 @@ namespace RequirementsScheduler.Controllers
             var username = UserName;
 
             var experiment = Service.Get(id, username);
-            if (experiment == null)
-            {
-                return BadRequest();
-            }
+            if (experiment == null) return BadRequest();
 
             var infos = new List<ExperimentInfo>();
 
@@ -104,18 +97,15 @@ namespace RequirementsScheduler.Controllers
 
             return Ok(infos);
         }
-        
+
         [HttpGet("{id}/result/{testNumber}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Result(Guid id, int testNumber)
         {
             // todo add check that testNumber don't more than test number in experiment
-            if (testNumber <= 0)
-            {
-                return BadRequest("Invalid test number");
-            }
+            if (testNumber <= 0) return BadRequest("Invalid test number");
             //var username = UserName;
-            var experimentInfo =  await ResultService.GetExperimentTestResult(id, testNumber);
+            var experimentInfo = await ResultService.GetExperimentTestResult(id, testNumber);
 
             return Ok(experimentInfo);
         }
@@ -125,34 +115,24 @@ namespace RequirementsScheduler.Controllers
         public IActionResult GetByStatus(string status)
         {
             var username = UserName;
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                return new ObjectResult(Enumerable.Empty<Experiment>());
-            }
+            if (string.IsNullOrWhiteSpace(username)) return new ObjectResult(Enumerable.Empty<Experiment>());
 
             if (Enum.TryParse(status, true, out ExperimentStatus experimentStatus))
-            {
                 return new ObjectResult(Service.GetByStatus(experimentStatus, username));
-            }
 
-            return BadRequest(new { Message = "Invalid status of experiment" });
+            return BadRequest(new {Message = "Invalid status of experiment"});
         }
 
         // POST api/values
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult Post([FromBody]Experiment value)
+        public ActionResult Post([FromBody] Experiment value)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(new { Message = $"Experiment isn't valid: { ModelState.ErrorsToString() }" });
-            }
+                return BadRequest(new {Message = $"Experiment isn't valid: {ModelState.ErrorsToString()}"});
 
             var username = UserName;
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                return Forbid();
-            }
+            if (string.IsNullOrWhiteSpace(username)) return Forbid();
 
             var experiment = Service.AddExperiment(value, username);
 
@@ -162,41 +142,32 @@ namespace RequirementsScheduler.Controllers
         // POST api/values
         [HttpPost("[action]")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult Test([FromBody]TestExperiment value)
+        public ActionResult Test([FromBody] TestExperiment value)
         {
             var username = UserName;
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                return Forbid();
-            }
+            if (string.IsNullOrWhiteSpace(username)) return Forbid();
 
             var experimentInfo = new ExperimentInfo();
-            int number = 0;
+            var number = 0;
             if (value.J1.Any())
-            {
-                experimentInfo.J1.AddRange(value.J1.Select(time => new Detail(time.A, time.B, ++number)));
-            }
+                experimentInfo.J1.AddRange(value.J1.Select(time =>
+                    new Detail(time.A, time.B, time.Distribution, ++number)));
 
             if (value.J2.Any())
-            {
-                experimentInfo.J2.AddRange(value.J2.Select(time => new Detail(time.A, time.B, ++number)));
-            }
+                experimentInfo.J2.AddRange(value.J2.Select(time =>
+                    new Detail(time.A, time.B, time.Distribution, ++number)));
 
             if (value.J12 != null)
-            {
                 experimentInfo.J12
                     .AddRange(value.J12.OnFirst.Zip(
                         value.J12.OnSecond,
                         (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, ++number)));
-            }
 
             if (value.J21 != null)
-            {
                 experimentInfo.J21
                     .AddRange(value.J21.OnFirst.Zip(
                         value.J21.OnSecond,
                         (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, ++number)));
-            }
 
             var detailTimes = Enumerable.Empty<double>()
                 .Concat(experimentInfo.J1.Select(detail => detail.Time.A))
@@ -230,16 +201,24 @@ namespace RequirementsScheduler.Controllers
             var minPercentageFromA = detailTimesPercentage.Min();
             var maxPercentageFromA = detailTimesPercentage.Max();
 
-            var experiment = new Experiment()
+            var experiment = new Experiment
             {
                 TestsAmount = 1,
                 RequirementsAmount = number,
-                N1 = experimentInfo.J1.Count == 0 ? 0 : (int) Math.Ceiling(((double) experimentInfo.J1.Count / number) * 100),
-                N2 = experimentInfo.J2.Count == 0 ? 0 : (int)Math.Ceiling(((double)experimentInfo.J2.Count / number) * 100),
-                N12 = experimentInfo.J12.Count == 0 ? 0 : (int)Math.Ceiling(((double)experimentInfo.J12.Count / number) * 100),
-                N21 = experimentInfo.J21.Count == 0 ? 0 : (int)Math.Ceiling(((double)experimentInfo.J21.Count / number) * 100),
-                MinBoundaryRange = (int)Math.Floor(minBoundaryRange),
-                MaxBoundaryRange = (int)Math.Ceiling(maxBoundaryRange),
+                N1 = experimentInfo.J1.Count == 0
+                    ? 0
+                    : (int) Math.Ceiling((double) experimentInfo.J1.Count / number * 100),
+                N2 = experimentInfo.J2.Count == 0
+                    ? 0
+                    : (int) Math.Ceiling((double) experimentInfo.J2.Count / number * 100),
+                N12 = experimentInfo.J12.Count == 0
+                    ? 0
+                    : (int) Math.Ceiling((double) experimentInfo.J12.Count / number * 100),
+                N21 = experimentInfo.J21.Count == 0
+                    ? 0
+                    : (int) Math.Ceiling((double) experimentInfo.J21.Count / number * 100),
+                MinBoundaryRange = (int) Math.Floor(minBoundaryRange),
+                MaxBoundaryRange = (int) Math.Ceiling(maxBoundaryRange),
                 Status = ExperimentStatus.InProgress,
                 MinPercentageFromA = (int) Math.Floor(minPercentageFromA * 100),
                 MaxPercentageFromA = (int) Math.Ceiling(maxPercentageFromA * 100)
@@ -249,9 +228,10 @@ namespace RequirementsScheduler.Controllers
 
             var generatorMock = new Mock<IExperimentGenerator>();
 
-            generatorMock.Setup(g => g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
+            generatorMock.Setup(g =>
+                    g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
                 .Returns(() => experimentInfo);
-                                     
+
             var experimentPipeline = new ExperimentPipeline(
                 generatorMock.Object,
                 Container.GetService<IWorkerExperimentService>(),
@@ -264,15 +244,6 @@ namespace RequirementsScheduler.Controllers
                 () => experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment)));
 
             return Ok(experiment);
-        }
-
-        private string UserName
-        {
-            get
-            {
-                var identity = User.Identity as ClaimsIdentity;
-                return identity?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
-            }
         }
     }
 }

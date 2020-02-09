@@ -9,5 +9,4 @@ namespace RequirementsScheduler.BLL.Model
 
         void GenerateP();
     }
-
 }

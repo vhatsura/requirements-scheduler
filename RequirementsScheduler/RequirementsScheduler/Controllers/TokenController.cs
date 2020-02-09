@@ -10,7 +10,7 @@ namespace RequirementsScheduler2.Controllers
     {
         // POST api/values
         [HttpPost]
-        public void Post([FromForm]User value)
+        public void Post([FromForm] User value)
         {
         }
     }

@@ -55,23 +55,25 @@ namespace RequirementsScheduler.Library.Worker
                 TestNumber = testNumber
             };
 
-            int number = 1;
+            var number = 1;
 
-            experimentInfo.J1.AddRange(firstABoundaries.Zip(firstBBoundaries, (a, b) => new Detail(a, b, number++)));
-            experimentInfo.J2.AddRange(secondABoundaries.Zip(secondBBoundaries, (a, b) => new Detail(a, b, number++)));
+            experimentInfo.J1.AddRange(firstABoundaries.Zip(firstBBoundaries,
+                (a, b) => new Detail(a, b, experiment.PGenerationType, number++)));
+            experimentInfo.J2.AddRange(secondABoundaries.Zip(secondBBoundaries,
+                (a, b) => new Detail(a, b, experiment.PGenerationType, number++)));
 
             var onFirstDetails = firstSecondFirstABoundaries.Zip(firstSecondFirstBBoundaries,
-                (a, b) => new ProcessingTime(a, b));
+                (a, b) => new ProcessingTime(a, b, experiment.PGenerationType));
             var onSecondDetails = firstSecondSecondABoundaries.Zip(firstSecondSecondBBoundaries,
-                (a, b) => new ProcessingTime(a, b));
+                (a, b) => new ProcessingTime(a, b, experiment.PGenerationType));
 
             experimentInfo.J12.AddRange(onFirstDetails.Zip(onSecondDetails,
                 (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, number++)));
 
             onFirstDetails = secondFirstFirstABoundaries.Zip(secondFirstFirstBBoundaries,
-                (a, b) => new ProcessingTime(a, b));
+                (a, b) => new ProcessingTime(a, b, experiment.PGenerationType));
             onSecondDetails = secondFirstSecondABoundaries.Zip(secondFirstSecondBBoundaries,
-                (a, b) => new ProcessingTime(a, b));
+                (a, b) => new ProcessingTime(a, b, experiment.PGenerationType));
 
             experimentInfo.J21.AddRange(onFirstDetails.Zip(onSecondDetails,
                 (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, number++)));
@@ -80,16 +82,20 @@ namespace RequirementsScheduler.Library.Worker
         }
 
         private static ICollection<double> GetABoundaries(int min, int max, int amount)
-            => Enumerable
+        {
+            return Enumerable
                 .Range(0, amount)
                 .Select(i => RandomizeService.GetRandomDouble(min, max))
                 .ToList();
+        }
 
         private static ICollection<double> GetBBoundaries(IEnumerable<double> aBoundaries, int minPercentage,
             int maxPercentage)
-            => aBoundaries
+        {
+            return aBoundaries
                 .Select(a => RandomizeService.GetRandomDouble(minPercentage, maxPercentage) * a / 100 + a)
                 .ToList();
+        }
 
         #region Triangle Distribution
 

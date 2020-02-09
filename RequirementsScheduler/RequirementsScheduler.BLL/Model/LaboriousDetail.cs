@@ -4,32 +4,28 @@ using Newtonsoft.Json;
 
 namespace RequirementsScheduler.BLL.Model
 {
-    [DebuggerDisplay("Number: {" + nameof(Number) + "}, OnFirst: {" + nameof(OnFirst) + "}, OnSecond: {" + nameof(OnSecond) + "}")]
+    [DebuggerDisplay("Number: {" + nameof(Number) + "}, OnFirst: {" + nameof(OnFirst) + "}, OnSecond: {" +
+                     nameof(OnSecond) + "}")]
     public class LaboriousDetail : IChainNode, IEquatable<LaboriousDetail>
     {
-        public ChainType Type => ChainType.Detail;
-
-        public int Number { get; }
-
-        public Detail OnFirst { get; }
-        public Detail OnSecond { get; }
-
         [JsonConstructor]
-        public LaboriousDetail(Detail onFirst, Detail onSecond, int number)
+        public LaboriousDetail(Detail onFirst, Detail onSecond, int number) : this(onFirst.Time, onSecond.Time, number)
         {
-            Number = number;
-
-            OnFirst = new Detail(onFirst.Time.A, onFirst.Time.B, this.Number);
-            OnSecond = new Detail(onSecond.Time.A, onSecond.Time.B, this.Number);
         }
 
         public LaboriousDetail(ProcessingTime onFirst, ProcessingTime onSecond, int number)
         {
             Number = number;
 
-            OnFirst = new Detail(onFirst.A, onFirst.B, this.Number);
-            OnSecond = new Detail(onSecond.A, onSecond.B, this.Number);
+            OnFirst = new Detail(onFirst.A, onFirst.B, onFirst.Distribution, Number);
+            OnSecond = new Detail(onSecond.A, onSecond.B, onSecond.Distribution, Number);
         }
+
+        public int Number { get; }
+
+        public Detail OnFirst { get; }
+        public Detail OnSecond { get; }
+        public ChainType Type => ChainType.Detail;
 
         public bool Equals(LaboriousDetail other)
         {
@@ -42,7 +38,7 @@ namespace RequirementsScheduler.BLL.Model
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((LaboriousDetail) obj);
         }
 
@@ -50,7 +46,8 @@ namespace RequirementsScheduler.BLL.Model
         {
             unchecked
             {
-                return ((OnFirst != null ? OnFirst.GetHashCode() : 0) * 397) ^ (OnSecond != null ? OnSecond.GetHashCode() : 0);
+                return ((OnFirst != null ? OnFirst.GetHashCode() : 0) * 397) ^
+                       (OnSecond != null ? OnSecond.GetHashCode() : 0);
             }
         }
     }

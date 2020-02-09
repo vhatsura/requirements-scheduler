@@ -1,5 +1,5 @@
 ﻿using System;
-using Experiment = RequirementsScheduler.DAL.Model.Experiment;
+using RequirementsScheduler.DAL.Model;
 
 namespace RequirementsScheduler.DAL.Repository
 {

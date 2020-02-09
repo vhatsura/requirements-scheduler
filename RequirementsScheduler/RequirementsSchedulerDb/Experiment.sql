@@ -10,9 +10,11 @@
 	[MinBoundaryRange] INT NOT NULL, 
 	[MaxBoundaryRange] INT NOT NULL, 
 	[MinPercentageFromA] INT NOT NULL, 
-	[MaxPercentageFromA] INT NOT NULL, 
+	[MaxPercentageFromA] INT NOT NULL,
+	[BorderGenerationType] INT NOT NULL,
+    [PGenerationType] INT NOT NULL,
 	[Status] INT NOT NULL DEFAULT 0, 
 	[UserId] INT NOT NULL, 
-	[Created] DATETIME2 NOT NULL DEFAULT GETDATE(), 
+	[Created] DATETIME2 NOT NULL DEFAULT GETDATE(),
 	CONSTRAINT [FK_Experiment_User] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User]([Id])
 )
