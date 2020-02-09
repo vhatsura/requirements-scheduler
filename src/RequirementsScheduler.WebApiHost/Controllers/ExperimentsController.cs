@@ -10,15 +10,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using RequirementsScheduler.BLL;
-using RequirementsScheduler.BLL.Model;
-using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Core.Service;
-using RequirementsScheduler.DAL;
-using RequirementsScheduler.Library.Worker;
+using RequirementsScheduler.WebApiHost.BLL;
+using RequirementsScheduler.WebApiHost.BLL.Model;
+using RequirementsScheduler.WebApiHost.BLL.Service;
+using RequirementsScheduler.WebApiHost.Core.Service;
+using RequirementsScheduler.WebApiHost.DAL;
+using RequirementsScheduler.WebApiHost.Library.Worker;
 using RequirementsScheduler2.Extensions;
 
-namespace RequirementsScheduler.Controllers
+namespace RequirementsScheduler.WebApiHost.Controllers
 {
     [Route("api/[controller]")]
     public class ExperimentsController : Controller

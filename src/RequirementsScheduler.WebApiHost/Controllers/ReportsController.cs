@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using RequirementsScheduler.BLL.Model;
-using RequirementsScheduler.BLL.Service;
+using RequirementsScheduler.WebApiHost.BLL.Model;
+using RequirementsScheduler.WebApiHost.BLL.Service;
 
 namespace RequirementsScheduler2.Controllers
 {

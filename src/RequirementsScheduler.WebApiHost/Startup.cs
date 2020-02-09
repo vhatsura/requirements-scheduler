@@ -13,17 +13,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz.Spi;
-using RequirementsScheduler.BLL;
-using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Core.Service;
-using RequirementsScheduler.DAL;
-using RequirementsScheduler.DAL.Model;
-using RequirementsScheduler.DAL.Repository;
-using RequirementsScheduler.Extensions;
-using RequirementsScheduler.Library.Worker;
+using RequirementsScheduler.WebApiHost.BLL;
+using RequirementsScheduler.WebApiHost.BLL.Service;
+using RequirementsScheduler.WebApiHost.Core.Service;
+using RequirementsScheduler.WebApiHost.DAL;
+using RequirementsScheduler.WebApiHost.DAL.Model;
+using RequirementsScheduler.WebApiHost.DAL.Repository;
+using RequirementsScheduler.WebApiHost.Extensions;
+using RequirementsScheduler.WebApiHost.Library.Worker;
 using RequirementsScheduler2.Identity;
 
-namespace RequirementsScheduler
+namespace RequirementsScheduler.WebApiHost
 {
     public class Startup
     {

@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <AssemblyName>RequirementsScheduler.Host.Console</AssemblyName>
     <OutputType>Exe</OutputType>
+    <RootNamespace>RequirementsScheduler.Host.Console</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

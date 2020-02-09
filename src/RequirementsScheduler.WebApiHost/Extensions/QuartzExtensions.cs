@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Quartz.Spi;
 
-namespace RequirementsScheduler.Extensions
+namespace RequirementsScheduler.WebApiHost.Extensions
 {
     public static class QuartzExtensions
     {

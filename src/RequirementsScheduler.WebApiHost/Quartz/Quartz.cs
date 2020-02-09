@@ -3,7 +3,7 @@ using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
 
-namespace RequirementsScheduler.Quartz
+namespace RequirementsScheduler.WebApiHost.Quartz
 {
     internal class Quartz
     {
