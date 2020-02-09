@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using RequirementsScheduler.BLL.Model;
-using RequirementsScheduler.Core.Service;
+using RequirementsScheduler.WebApiHost.BLL.Model;
+using RequirementsScheduler.WebApiHost.Core.Service;
 
-namespace RequirementsScheduler.WebApiHost.Identity
+namespace RequirementsScheduler2.Identity
 {
     public class TokenProviderMiddleware
     {

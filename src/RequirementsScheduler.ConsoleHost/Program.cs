@@ -4,12 +4,12 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using RequirementsScheduler.BLL.Model;
-using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.DAL;
-using RequirementsScheduler.Library.Worker;
+using RequirementsScheduler.Host.BLL.Model;
+using RequirementsScheduler.Host.BLL.Service;
+using RequirementsScheduler.Host.DAL;
+using RequirementsScheduler.Host.Library.Worker;
 
-namespace RequirementsScheduler.ConsoleHost
+namespace RequirementsScheduler.Host.Console
 {
     public class Program
     {

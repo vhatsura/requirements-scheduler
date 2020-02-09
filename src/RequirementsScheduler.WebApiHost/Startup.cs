@@ -9,18 +9,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz.Spi;
-using RequirementsScheduler.BLL;
-using RequirementsScheduler.BLL.Service;
-using RequirementsScheduler.Core.Service;
-using RequirementsScheduler.DAL;
-using RequirementsScheduler.DAL.Model;
-using RequirementsScheduler.DAL.Repository;
-using RequirementsScheduler.Library.Worker;
+using RequirementsScheduler.WebApiHost.BLL;
+using RequirementsScheduler.WebApiHost.BLL.Service;
+using RequirementsScheduler.WebApiHost.Core.Service;
+using RequirementsScheduler.WebApiHost.DAL;
+using RequirementsScheduler.WebApiHost.DAL.Model;
+using RequirementsScheduler.WebApiHost.DAL.Repository;
 using RequirementsScheduler.WebApiHost.Extensions;
-using RequirementsScheduler.WebApiHost.Identity;
+using RequirementsScheduler.WebApiHost.Library.Worker;
+using RequirementsScheduler2.Identity;
 
 namespace RequirementsScheduler.WebApiHost
 {
@@ -57,6 +58,8 @@ namespace RequirementsScheduler.WebApiHost
             services.AddSingleton(physicalProvider);
 
             services.AddAutoMapper(typeof(MappingProfile));
+
+            Mapper.AssertConfigurationIsValid();
 
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IExperimentsService, ExperimentsService>();
@@ -103,8 +106,10 @@ namespace RequirementsScheduler.WebApiHost
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
+            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
+
             if (_hostingEnvironment.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
@@ -178,14 +183,14 @@ namespace RequirementsScheduler.WebApiHost
                     {
                         OnAuthenticationFailed = context =>
                         {
-                            // Console.WriteLine("OnAuthenticationFailed: " +
-                            //                   context.Exception.Message);
+                            Console.WriteLine("OnAuthenticationFailed: " +
+                                              context.Exception.Message);
                             return Task.CompletedTask;
                         },
                         OnTokenValidated = context =>
                         {
-                            // Console.WriteLine("OnTokenValidated: " +
-                            //                   context.SecurityToken);
+                            Console.WriteLine("OnTokenValidated: " +
+                                              context.SecurityToken);
                             return Task.CompletedTask;
                         }
                     };
