@@ -68,4 +68,8 @@
   <ItemGroup>
     <RefactorLog Include="RequirementsSchedulerDb.refactorlog" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="docker-db-init.sh" />
+    <Content Include="docker-entrypoint.sh" />
+  </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RequirementsScheduler.Library\RequirementsScheduler.Library.csproj" />
+    <ProjectReference Include="..\..\src\RequirementsScheduler.Library\RequirementsScheduler.Library.csproj" />
   </ItemGroup>
 
   <ItemGroup>

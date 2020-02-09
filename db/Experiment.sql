@@ -1,4 +1,6 @@
-﻿CREATE TABLE [dbo].[Experiment]
+﻿USE [model]
+
+CREATE TABLE [dbo].[Experiment]
 (
 	[Id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(), 
 	[TestsAmount] INT NOT NULL, 

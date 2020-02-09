@@ -3,25 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Host.Console", "RequirementsScheduler.Host.Console\RequirementsScheduler.Host.Console.csproj", "{2DD39EC2-F419-43E4-A170-41F8DF61C37F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Host.Console", "src\RequirementsScheduler.Host.Console\RequirementsScheduler.Host.Console.csproj", "{2DD39EC2-F419-43E4-A170-41F8DF61C37F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Library", "RequirementsScheduler.Library\RequirementsScheduler.Library.csproj", "{D81BF138-4292-4315-A63B-9513D0A2B12B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Library", "src\RequirementsScheduler.Library\RequirementsScheduler.Library.csproj", "{D81BF138-4292-4315-A63B-9513D0A2B12B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.DAL", "RequirementsScheduler.DAL\RequirementsScheduler.DAL.csproj", "{07FEBFE2-F902-4AC1-8ACB-81E603B9F786}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.DAL", "src\RequirementsScheduler.DAL\RequirementsScheduler.DAL.csproj", "{07FEBFE2-F902-4AC1-8ACB-81E603B9F786}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler", "RequirementsScheduler\RequirementsScheduler.csproj", "{1E72C40F-662E-4DD8-B179-6A9A360D866A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler", "src\RequirementsScheduler\RequirementsScheduler.csproj", "{1E72C40F-662E-4DD8-B179-6A9A360D866A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.BLL", "RequirementsScheduler.BLL\RequirementsScheduler.BLL.csproj", "{7E7F1799-E122-4F03-97E2-466E300E8D91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.BLL", "src\RequirementsScheduler.BLL\RequirementsScheduler.BLL.csproj", "{7E7F1799-E122-4F03-97E2-466E300E8D91}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "RequirementsSchedulerDb", "RequirementsSchedulerDb\RequirementsSchedulerDb.sqlproj", "{71E32A85-CF8F-4F04-AED0-A33E662C798D}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "RequirementsSchedulerDb", "db\RequirementsSchedulerDb.sqlproj", "{71E32A85-CF8F-4F04-AED0-A33E662C798D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Library.Tests", "RequirementsScheduler.Library.Tests\RequirementsScheduler.Library.Tests.csproj", "{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequirementsScheduler.Library.Tests", "tests\RequirementsScheduler.Library.Tests\RequirementsScheduler.Library.Tests.csproj", "{B4ED6FC0-7FCE-41F2-AC34-5F64F024EF27}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{6EE7AA53-DDE7-47F8-AE85-B5F036A0D274}"
 ProjectSection(SolutionItems) = preProject
-	..\.gitattributes = ..\.gitattributes
-	..\.gitignore = ..\.gitignore
-	..\README.md = ..\README.md
+	.gitattributes = .gitattributes
+	.gitignore = .gitignore
+	README.md = README.md
+	docker-compose.yml = docker-compose.yml
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6CA5D002-BE9F-4770-BD3B-855D6ADC443F}"

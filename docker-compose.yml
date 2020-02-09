@@ -1,0 +1,45 @@
+version: "3.5"
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+    networks:
+      - elastic
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.5.2
+    ports:
+      - "5601:5601"
+    networks: 
+      - elastic
+    depends_on:
+      - "elasticsearch"  
+  
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    command: /bin/bash ./entrypoint.sh
+    ports:
+      - "1433:1433"
+    networks:
+      - mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=P4ssw0rd
+    volumes:
+      - ./db/docker-entrypoint.sh:/entrypoint.sh
+      - ./db/docker-db-init.sh:/db-init.sh
+      - ./db/User.sql:/User.sql
+      - ./db/Experiment.sql:/Experiment.sql
+      - ./db/ExperimentResult.sql:/ExperimentResult.sql
+      - ./db/ExperimentFailure.sql:/ExperimentFailure.sql
+  
+networks:
+  elastic:
+    name: elastic_network
+  mssql:
+    name: mssql_network
