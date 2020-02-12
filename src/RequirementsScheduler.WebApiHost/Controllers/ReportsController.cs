@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using RequirementsScheduler.WebApiHost.BLL.Model;
-using RequirementsScheduler.WebApiHost.BLL.Service;
+using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Service;
 
-namespace RequirementsScheduler2.Controllers
+namespace RequirementsScheduler.WebApiHost.Controllers
 {
     [Route("api/[controller]")]
     public class ReportsController : Controller

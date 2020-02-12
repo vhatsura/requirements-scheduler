@@ -13,15 +13,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz.Spi;
-using RequirementsScheduler.WebApiHost.BLL;
-using RequirementsScheduler.WebApiHost.BLL.Service;
-using RequirementsScheduler.WebApiHost.Core.Service;
-using RequirementsScheduler.WebApiHost.DAL;
-using RequirementsScheduler.WebApiHost.DAL.Model;
-using RequirementsScheduler.WebApiHost.DAL.Repository;
+using RequirementsScheduler.BLL;
+using RequirementsScheduler.BLL.Service;
+using RequirementsScheduler.Core.Service;
+using RequirementsScheduler.DAL;
+using RequirementsScheduler.DAL.Model;
+using RequirementsScheduler.DAL.Repository;
+using RequirementsScheduler.Library.Worker;
 using RequirementsScheduler.WebApiHost.Extensions;
-using RequirementsScheduler.WebApiHost.Library.Worker;
-using RequirementsScheduler2.Identity;
+using RequirementsScheduler.WebApiHost.Identity;
 
 namespace RequirementsScheduler.WebApiHost
 {
@@ -183,14 +183,14 @@ namespace RequirementsScheduler.WebApiHost
                     {
                         OnAuthenticationFailed = context =>
                         {
-                            Console.WriteLine("OnAuthenticationFailed: " +
-                                              context.Exception.Message);
+                            // Console.WriteLine("OnAuthenticationFailed: " +
+                            //                   context.Exception.Message);
                             return Task.CompletedTask;
                         },
                         OnTokenValidated = context =>
                         {
-                            Console.WriteLine("OnTokenValidated: " +
-                                              context.SecurityToken);
+                            // Console.WriteLine("OnTokenValidated: " +
+                            //                   context.SecurityToken);
                             return Task.CompletedTask;
                         }
                     };

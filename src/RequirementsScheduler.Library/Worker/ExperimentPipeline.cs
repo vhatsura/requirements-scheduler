@@ -62,9 +62,9 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     Logger.LogCritical(ex, "Exception occurred during tests run for experiment.");
 
-                    await using var db = new Database(Settings).Open();
-                    await db.GetTable<ExperimentFailure>()
-                        .InsertAsync(() => new ExperimentFailure
+                    using var db = new Database(Settings).Open();
+                    db.GetTable<ExperimentFailure>()
+                        .Insert(() => new ExperimentFailure
                         {
                             ExperimentId = experiment.Id,
                             ErrorMessage = JsonConvert.SerializeObject(ex)
@@ -119,14 +119,12 @@ namespace RequirementsScheduler.Library.Worker
                 }
                 catch (Exception ex)
                 {
-                    if (stopOnException) throw;
-
                     Logger.LogCritical(ex,
                         "Exception occurred during test run in scope of experiment. {@ExperimentInfo}", experimentInfo);
 
-                    await using var db = new Database(Settings).Open();
-                    await db.GetTable<ExperimentFailure>()
-                        .InsertAsync(() => new ExperimentFailure
+                    using var db = new Database(Settings).Open();
+                    db.GetTable<ExperimentFailure>()
+                        .Insert(() => new ExperimentFailure
                         {
                             ExperimentId = experiment.Id,
                             ErrorMessage = JsonConvert.SerializeObject(ex)
@@ -134,7 +132,7 @@ namespace RequirementsScheduler.Library.Worker
                 }
 
                 Logger.LogInformation("Test in experiment was executed.");
-                await ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+                ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
 
                 aggregationResult.Add(experimentInfo.TestNumber, experimentInfo.Result);
             }
