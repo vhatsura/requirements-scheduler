@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.IdentityModel.Tokens;
 
-namespace RequirementsScheduler2.Identity
+namespace RequirementsScheduler.WebApiHost.Identity
 {
     public class TokenProviderOptions
     {

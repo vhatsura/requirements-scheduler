@@ -4,12 +4,13 @@ using RequirementsScheduler.DAL.Repository;
 
 namespace RequirementsScheduler.DAL.Model
 {
-    public class ExperimentFailure : IRepositoryModel<int>
+    [Table("ExperimentsFailures")]
+    public class ExperimentFailure
     {
+        [Column]
         public Guid ExperimentId { get; set; }
 
+        [Column]
         public string ErrorMessage { get; set; }
-
-        [PrimaryKey] [Identity] public int Id { get; set; }
     }
 }

@@ -47,15 +47,21 @@ namespace RequirementsScheduler.Library.Worker
         {
             foreach (var experiment in experiments)
             {
+                var experimentIdLoggerScope = Logger.BeginScope("{ExperimentId}", experiment.Id);
+                Logger.LogInformation("Start to execute experiment");
+
                 experiment.Status = ExperimentStatus.InProgress;
                 Service.StartExperiment(experiment.Id);
 
                 try
                 {
                     await RunTests(experiment);
+                    Logger.LogInformation("Experiment was executed");
                 }
                 catch (Exception ex)
                 {
+                    Logger.LogCritical(ex, "Exception occurred during tests run for experiment.");
+
                     using var db = new Database(Settings).Open();
                     db.GetTable<ExperimentFailure>()
                         .Insert(() => new ExperimentFailure
@@ -68,6 +74,7 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     experiment.Status = ExperimentStatus.Completed;
                     Service.StopExperiment(experiment.Id);
+                    experimentIdLoggerScope?.Dispose();
                 }
             }
         }
@@ -94,22 +101,41 @@ namespace RequirementsScheduler.Library.Worker
             var onlineExecutionTimeInMilliseconds = 0.0d;
             var offlineExecutionTimeInMilliseconds = 0.0d;
 
-            var aggregationResult = Enumerable.Range(0, experiment.TestsAmount)
-                //.AsParallel()
-                .Select(i =>
-                {
-                    var experimentInfo = Generator.GenerateDataForTest(experiment, i + 1);
+            var aggregationResult = new Dictionary<int, ResultInfo>();
 
+            foreach (var testRun in Enumerable.Range(0, experiment.TestsAmount))
+            {
+                using var _ = Logger.BeginScope("{TestNumber}", testRun + 1);
+                Logger.LogInformation("Start to execute test in experiment.");
+
+                var experimentInfo = Generator.GenerateDataForTest(experiment, testRun + 1);
+
+                try
+                {
                     RunTest(experimentInfo, ref stop1, ref stop2, ref stop3, ref stop4, ref sumOfDeltaCmax,
                         ref deltaCmaxMax, ref offlineExecutionTimeInMilliseconds, ref onlineExecutionTimeInMilliseconds,
                         ref offlineResolvedConflictAmount,
                         ref onlineResolvedConflictAmount, ref onlineUnResolvedConflictAmount);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(ex,
+                        "Exception occurred during test run in scope of experiment. {@ExperimentInfo}", experimentInfo);
 
-                    ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+                    using var db = new Database(Settings).Open();
+                    db.GetTable<ExperimentFailure>()
+                        .Insert(() => new ExperimentFailure
+                        {
+                            ExperimentId = experiment.Id,
+                            ErrorMessage = JsonConvert.SerializeObject(ex)
+                        });
+                }
 
-                    return experimentInfo;
-                })
-                .ToDictionary(x => x.TestNumber, x => x.Result);
+                Logger.LogInformation("Test in experiment was executed.");
+                ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+
+                aggregationResult.Add(experimentInfo.TestNumber, experimentInfo.Result);
+            }
 
             experimentReport.OfflineExecutionTime = TimeSpan.FromMilliseconds(offlineExecutionTimeInMilliseconds);
             experimentReport.OnlineExecutionTime = TimeSpan.FromMilliseconds(onlineExecutionTimeInMilliseconds);
@@ -282,12 +308,16 @@ namespace RequirementsScheduler.Library.Worker
             return onlineChain;
         }
 
-        private static void RunOnlineMode(ExperimentInfo experimentInfo)
+        private void RunOnlineMode(ExperimentInfo experimentInfo)
         {
+            Logger.LogInformation("Start to execute online mode.");
+
             experimentInfo.OnlineChainOnFirstMachine.GenerateP();
             experimentInfo.OnlineChainOnSecondMachine.GenerateP();
 
             DoRunInOnlineMode(experimentInfo);
+
+            Logger.LogInformation("Online mode was executed.");
         }
 
         private static void ProcessDetailOnMachine(
@@ -340,7 +370,7 @@ namespace RequirementsScheduler.Library.Worker
             hasDetailOnCurrentMachine = nodeOnCurrentMachine != null;
         }
 
-        private static void DoRunInOnlineMode(ExperimentInfo experimentInfo)
+        private void DoRunInOnlineMode(ExperimentInfo experimentInfo)
         {
             var processedDetailNumbersOnFirst = experimentInfo.J21.Select(d => d.Number)
                 .Union(experimentInfo.J2.Select(d => d.Number)).ToHashSet();
@@ -470,7 +500,7 @@ namespace RequirementsScheduler.Library.Worker
             experimentInfo.Result.DeltaCmax = (float) ((cMax - cOpt) / cOpt * 100);
         }
 
-        private static double CalculateCOpt(double time1, double time2, ExperimentInfo experimentInfo, double cMax)
+        private double CalculateCOpt(double time1, double time2, ExperimentInfo experimentInfo, double cMax)
         {
             double cOpt;
             if (time2 >= time1 && !experimentInfo.OnlineChainOnSecondMachine.Any(node => node is Downtime) ||
@@ -480,6 +510,10 @@ namespace RequirementsScheduler.Library.Worker
             }
             else
             {
+                Logger.LogInformation(
+                    "Experiment info before run in online mode and after P generation. {@J1}, {@J2}, {@J12}, {@J21}",
+                    experimentInfo.J1, experimentInfo.J2, experimentInfo.J12, experimentInfo.J21);
+
                 if (time2 > time1)
                 {
                     var j12Numbers = experimentInfo.J12.Select(detail => detail.Number);
