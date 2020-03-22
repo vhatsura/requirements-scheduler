@@ -158,6 +158,7 @@ namespace RequirementsScheduler.Library.Worker
             var jConflict = new Conflict();
 
             foreach (var chainElement in firstChain)
+            {
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
@@ -169,16 +170,7 @@ namespace RequirementsScheduler.Library.Worker
                         while (chainNode != null)
                         {
                             var nodeValue = chainNode.Value;
-                            if (nodeValue.Type == ChainType.Conflict)
-                            {
-                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
-                            }
-                            else
-                            {
-                                var laboriousDetail = nodeValue as LaboriousDetail;
-                                jConflict.Details.Add(laboriousDetail.Number, laboriousDetail);
-                            }
-
+                            jConflict.AddDetails(nodeValue);
                             chainNode = chainNode.Next;
                         }
 
@@ -198,16 +190,7 @@ namespace RequirementsScheduler.Library.Worker
                         while (chainNode != null)
                         {
                             var nodeValue = chainNode.Value;
-                            if (nodeValue.Type == ChainType.Conflict)
-                            {
-                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
-                            }
-                            else
-                            {
-                                var laboriousDetail = nodeValue as LaboriousDetail;
-                                jConflict.Details.Add(laboriousDetail.Number, laboriousDetail);
-                            }
-
+                            jConflict.AddDetails(nodeValue);
                             chainNode = chainNode.Next;
                         }
 
@@ -216,11 +199,13 @@ namespace RequirementsScheduler.Library.Worker
 
                     resultChain.AddLast(chainElement);
                 }
+            }
 
             jConflict.Details.AddRange(boxes.Item3.Select(x =>
                 new KeyValuePair<int, LaboriousDetail>(x.Number, x)));
 
             foreach (var chainElement in secondChain)
+            {
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
@@ -265,6 +250,7 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     }
                 }
+            }
 
             if (jConflict != null) resultChain.AddLast(jConflict);
 
@@ -326,16 +312,16 @@ namespace RequirementsScheduler.Library.Worker
 
         private static Chain TryToOptimizeJ21(ExperimentInfo experimentInfo)
         {
-            var boxes = SplitToBoxes(
+            var (firstBox, secondBox, asteriskBox) = SplitToBoxes(
                 experimentInfo.J21,
                 detail => detail.OnSecond.Time.B <= detail.OnFirst.Time.A,
                 detail => detail.OnFirst.Time.B <= detail.OnSecond.Time.A);
 
-            var sortedFirstBox = boxes.Item1
+            var sortedFirstBox = firstBox
                 .OrderBy(detail => detail.OnSecond.Time.A)
                 .ToList();
 
-            var sortedSecondBox = boxes.Item2
+            var sortedSecondBox = secondBox
                 .OrderBy(detail => detail.OnFirst.Time.A)
                 .Reverse()
                 .ToList();
@@ -348,13 +334,13 @@ namespace RequirementsScheduler.Library.Worker
                 sortedSecondBox,
                 (previousDetail, currentDetail) => previousDetail.OnFirst.Time.A < currentDetail.OnFirst.Time.B);
 
-            if (!boxes.Item3.Any()) return new Chain(firstChain.Concat(secondChain));
+            if (!asteriskBox.Any()) return new Chain(firstChain.Concat(secondChain));
 
-            if (boxes.Item3.Count() == 1) return new Chain(firstChain.Append(boxes.Item3.First()).Concat(secondChain));
+            if (asteriskBox.Count() == 1) return new Chain(firstChain.Append(asteriskBox.First()).Concat(secondChain));
 
             //find conflict borders
-            var minAOnFirst = boxes.Item3.Min(detail => detail.OnFirst.Time.A);
-            var minAOnSecond = boxes.Item3.Min(detail => detail.OnSecond.Time.A);
+            var minAOnFirst = asteriskBox.Min(detail => detail.OnFirst.Time.A);
+            var minAOnSecond = asteriskBox.Min(detail => detail.OnSecond.Time.A);
 
             var resultChain = new Chain();
             var jConflict = new Conflict();
@@ -371,16 +357,7 @@ namespace RequirementsScheduler.Library.Worker
                         while (chainNode != null)
                         {
                             var nodeValue = chainNode.Value;
-                            if (nodeValue.Type == ChainType.Conflict)
-                            {
-                                jConflict.Details.AddRange((nodeValue as Conflict).Details);
-                            }
-                            else
-                            {
-                                var laboriousDetail = nodeValue as LaboriousDetail;
-                                jConflict.Details.Add(laboriousDetail.Number, laboriousDetail);
-                            }
-
+                            jConflict.AddDetails(nodeValue);
                             chainNode = chainNode.Next;
                         }
 
@@ -399,7 +376,7 @@ namespace RequirementsScheduler.Library.Worker
 
                         while (chainNode != null)
                         {
-                            jConflict.AddDetail(chainNode.Value);
+                            jConflict.AddDetails(chainNode.Value);
                             chainNode = chainNode.Next;
                         }
 
@@ -409,7 +386,7 @@ namespace RequirementsScheduler.Library.Worker
                     resultChain.AddLast(chainElement);
                 }
 
-            jConflict.Details.AddRange(boxes.Item3.Select(x =>
+            jConflict.Details.AddRange(asteriskBox.Select(x =>
                 new KeyValuePair<int, LaboriousDetail>(x.Number, x)));
 
             foreach (var chainElement in secondChain)
@@ -463,20 +440,37 @@ namespace RequirementsScheduler.Library.Worker
             return resultChain;
         }
 
-        private static (IEnumerable<LaboriousDetail> FirstBox, IEnumerable<LaboriousDetail> SecondBox,
-            IEnumerable<LaboriousDetail> AsteriskBox)
-            SplitToBoxes(
-                LaboriousDetailList details,
-                Func<LaboriousDetail, bool> firstBoxSelector,
-                Func<LaboriousDetail, bool> secondBoxSelector)
+        private static (IList<LaboriousDetail> FirstBox, IList<LaboriousDetail> SecondBox, IList<LaboriousDetail>
+            AsteriskBox) SplitToBoxes(LaboriousDetailList details, Func<LaboriousDetail, bool> firstBoxPredicate,
+                Func<LaboriousDetail, bool> secondBoxPredicate)
         {
+            // var firstBox = new List<LaboriousDetail>();
+            // var secondBox = new List<LaboriousDetail>();
+            // var asteriskBox = new List<LaboriousDetail>();
+            //
+            // foreach (var detail in details)
+            // {
+            //     if (firstBoxPredicate.Invoke(detail))
+            //     {
+            //         firstBox.Add(detail);
+            //     }
+            //     else if (secondBoxPredicate.Invoke(detail))
+            //     {
+            //         secondBox.Add(detail);
+            //     }
+            //     else
+            //     {
+            //         asteriskBox.Add(detail);
+            //     }
+            // }
+
             var firstBox = details
-                .Where(firstBoxSelector)
+                .Where(firstBoxPredicate)
                 .ToList();
 
             var secondBox = details
                 .Except(firstBox)
-                .Where(secondBoxSelector)
+                .Where(secondBoxPredicate)
                 .ToList();
 
             var asteriskBox = details
@@ -580,6 +574,7 @@ namespace RequirementsScheduler.Library.Worker
         private static bool CheckStopOneAndFour(ExperimentInfo experimentInfo)
         {
             if (experimentInfo.J12Chain != null && !experimentInfo.J12Chain.IsOptimized)
+            {
                 for (var node = experimentInfo.J12Chain.Last; node != null; node = node.Previous)
                 {
                     if (node.Value.Type != ChainType.Conflict) continue;
@@ -706,8 +701,10 @@ namespace RequirementsScheduler.Library.Worker
                         node = insertedNode;
                     }
                 }
+            }
 
             if (experimentInfo.J21Chain != null && !experimentInfo.J21Chain.IsOptimized)
+            {
                 for (var node = experimentInfo.J21Chain.Last; node != null; node = node.Previous)
                 {
                     if (node.Value.Type != ChainType.Conflict) continue;
@@ -834,6 +831,7 @@ namespace RequirementsScheduler.Library.Worker
                         node = insertedNode;
                     }
                 }
+            }
 
             return experimentInfo.IsOptimized;
         }

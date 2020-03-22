@@ -41,7 +41,6 @@ namespace RequirementsScheduler.WebApiHost
                             if (!x.TryGetScalarPropertyValue("SourceContext", out var value)) return false;
                             return value.ToString() == "\"RequirementsScheduler.Library.Worker.ExperimentPipeline\"" &&
                                    x.Level != LogEventLevel.Error && x.Level != LogEventLevel.Fatal;
-                            return false;
                         }).WriteTo.Console())
                         .Enrich.FromLogContext();
                 });
