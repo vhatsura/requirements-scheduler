@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz.Spi;
@@ -59,8 +58,6 @@ namespace RequirementsScheduler.WebApiHost
 
             services.AddAutoMapper(typeof(MappingProfile));
 
-            Mapper.AssertConfigurationIsValid();
-
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IExperimentsService, ExperimentsService>();
             services.AddSingleton<IReportsService, ReportsService>();
@@ -106,10 +103,8 @@ namespace RequirementsScheduler.WebApiHost
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app)
         {
-            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
-
             if (_hostingEnvironment.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
