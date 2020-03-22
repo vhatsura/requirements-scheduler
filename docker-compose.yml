@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -12,7 +12,7 @@ services:
       - elastic
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.5.2
+    image: docker.elastic.co/kibana/kibana:7.6.1
     ports:
       - "5601:5601"
     networks: 
@@ -21,7 +21,7 @@ services:
       - "elasticsearch"  
   
   mssql:
-    image: mcr.microsoft.com/mssql/server:2017-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
     command: /bin/bash ./entrypoint.sh
     ports:
       - "1433:1433"
