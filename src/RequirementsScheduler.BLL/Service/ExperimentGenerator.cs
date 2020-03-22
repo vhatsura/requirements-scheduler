@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
-using RequirementsScheduler.BLL.Service;
 
-namespace RequirementsScheduler.Library.Worker
+namespace RequirementsScheduler.BLL.Service
 {
     public class ExperimentGenerator : IExperimentGenerator
     {
+        private readonly IRandomizeService _randomizeService;
+
+        public ExperimentGenerator(IRandomizeService randomizeService)
+        {
+            _randomizeService = randomizeService;
+        }
+        
         public ExperimentInfo GenerateDataForTest(Experiment experiment, int testNumber)
         {
             var firstRequirementsAmount =
@@ -81,19 +86,21 @@ namespace RequirementsScheduler.Library.Worker
             return experimentInfo;
         }
 
-        private static ICollection<double> GetABoundaries(int min, int max, int amount)
+        public void GenerateP(IOnlineChainNode node) => node.GenerateP(_randomizeService);
+        
+        private ICollection<double> GetABoundaries(int min, int max, int amount)
         {
             return Enumerable
                 .Range(0, amount)
-                .Select(i => RandomizeService.GetRandomDouble(min, max))
+                .Select(i => _randomizeService.GetRandomDouble(min, max))
                 .ToList();
         }
 
-        private static ICollection<double> GetBBoundaries(IEnumerable<double> aBoundaries, int minPercentage,
+        private ICollection<double> GetBBoundaries(IEnumerable<double> aBoundaries, int minPercentage,
             int maxPercentage)
         {
             return aBoundaries
-                .Select(a => RandomizeService.GetRandomDouble(minPercentage, maxPercentage) * a / 100 + a)
+                .Select(a => _randomizeService.GetRandomDouble(minPercentage, maxPercentage) * a / 100 + a)
                 .ToList();
         }
 

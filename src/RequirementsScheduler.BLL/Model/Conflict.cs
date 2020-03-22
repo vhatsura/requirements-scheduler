@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.BLL.Model
 {
@@ -31,9 +32,9 @@ namespace RequirementsScheduler.BLL.Model
 
         OnlineChainType IOnlineChainNode.Type => OnlineChainType.Conflict;
 
-        public void GenerateP()
+        public void GenerateP(IRandomizeService randomizeService)
         {
-            foreach (var detail in Details.Values) detail.GenerateP();
+            foreach (var detail in Details.Values) detail.GenerateP(randomizeService);
         }
     }
 }

@@ -2,11 +2,9 @@
 
 namespace RequirementsScheduler.BLL.Model
 {
-    public interface IOnlineChainNode
+    public interface IOnlineChainNode : IPGenerator
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         OnlineChainType Type { get; }
-
-        void GenerateP();
     }
 }
