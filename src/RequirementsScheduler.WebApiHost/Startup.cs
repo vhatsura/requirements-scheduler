@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quartz.Spi;
@@ -19,11 +18,11 @@ using RequirementsScheduler.Core.Service;
 using RequirementsScheduler.DAL;
 using RequirementsScheduler.DAL.Model;
 using RequirementsScheduler.DAL.Repository;
-using RequirementsScheduler.Extensions;
 using RequirementsScheduler.Library.Worker;
-using RequirementsScheduler2.Identity;
+using RequirementsScheduler.WebApiHost.Extensions;
+using RequirementsScheduler.WebApiHost.Identity;
 
-namespace RequirementsScheduler
+namespace RequirementsScheduler.WebApiHost
 {
     public class Startup
     {
@@ -58,8 +57,6 @@ namespace RequirementsScheduler
             services.AddSingleton(physicalProvider);
 
             services.AddAutoMapper(typeof(MappingProfile));
-
-            Mapper.AssertConfigurationIsValid();
 
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IExperimentsService, ExperimentsService>();
@@ -106,10 +103,8 @@ namespace RequirementsScheduler
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app)
         {
-            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
-
             if (_hostingEnvironment.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
@@ -183,14 +178,14 @@ namespace RequirementsScheduler
                     {
                         OnAuthenticationFailed = context =>
                         {
-                            Console.WriteLine("OnAuthenticationFailed: " +
-                                              context.Exception.Message);
+                            // Console.WriteLine("OnAuthenticationFailed: " +
+                            //                   context.Exception.Message);
                             return Task.CompletedTask;
                         },
                         OnTokenValidated = context =>
                         {
-                            Console.WriteLine("OnTokenValidated: " +
-                                              context.SecurityToken);
+                            // Console.WriteLine("OnTokenValidated: " +
+                            //                   context.SecurityToken);
                             return Task.CompletedTask;
                         }
                     };

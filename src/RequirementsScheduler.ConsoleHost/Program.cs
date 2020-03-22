@@ -9,7 +9,7 @@ using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Worker;
 
-namespace RequirementsScheduler.Host.Console
+namespace RequirementsScheduler.ConsoleHost
 {
     public class Program
     {

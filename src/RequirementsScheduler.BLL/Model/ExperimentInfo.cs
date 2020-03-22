@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -19,9 +19,9 @@ namespace RequirementsScheduler.BLL.Model
         public DetailList J1 { get; } = new DetailList();
         public DetailList J2 { get; } = new DetailList();
 
-        [JsonIgnore] public LaboriousDetailList J12 { get; } = new LaboriousDetailList();
+        public LaboriousDetailList J12 { get; } = new LaboriousDetailList();
 
-        [JsonIgnore] public LaboriousDetailList J21 { get; } = new LaboriousDetailList();
+        public LaboriousDetailList J21 { get; } = new LaboriousDetailList();
 
         public Chain J12Chain { get; set; }
         public Chain J21Chain { get; set; }

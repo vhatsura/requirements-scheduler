@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.Core.Service;
 
-namespace RequirementsScheduler2.Identity
+namespace RequirementsScheduler.WebApiHost.Identity
 {
     public class TokenProviderMiddleware
     {

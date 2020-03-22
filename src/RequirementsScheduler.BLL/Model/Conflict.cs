@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace RequirementsScheduler.BLL.Model
@@ -7,7 +7,7 @@ namespace RequirementsScheduler.BLL.Model
     {
         public ChainType Type => ChainType.Conflict;
 
-        public void AddDetail(IChainNode node)
+        public void AddDetails(IChainNode node)
         {
             switch (node.Type)
             {

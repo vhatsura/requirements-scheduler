@@ -18,7 +18,7 @@ using RequirementsScheduler.DAL;
 using RequirementsScheduler.Library.Worker;
 using RequirementsScheduler2.Extensions;
 
-namespace RequirementsScheduler.Controllers
+namespace RequirementsScheduler.WebApiHost.Controllers
 {
     [Route("api/[controller]")]
     public class ExperimentsController : Controller
@@ -46,7 +46,7 @@ namespace RequirementsScheduler.Controllers
             get
             {
                 var identity = User.Identity as ClaimsIdentity;
-                return identity?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+                return identity?.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -47,18 +47,24 @@ namespace RequirementsScheduler.Library.Worker
         {
             foreach (var experiment in experiments)
             {
+                var experimentIdLoggerScope = Logger.BeginScope("{ExperimentId}", experiment.Id);
+                Logger.LogInformation("Start to execute experiment");
+
                 experiment.Status = ExperimentStatus.InProgress;
                 Service.StartExperiment(experiment.Id);
 
                 try
                 {
                     await RunTests(experiment);
+                    Logger.LogInformation("Experiment was executed");
                 }
                 catch (Exception ex)
                 {
-                    using var db = new Database(Settings).Open();
-                    db.GetTable<ExperimentFailure>()
-                        .Insert(() => new ExperimentFailure
+                    Logger.LogCritical(ex, "Exception occurred during tests run for experiment.");
+
+                    await using var db = new Database(Settings).Open();
+                    await db.GetTable<ExperimentFailure>()
+                        .InsertAsync(() => new ExperimentFailure
                         {
                             ExperimentId = experiment.Id,
                             ErrorMessage = JsonConvert.SerializeObject(ex)
@@ -68,11 +74,12 @@ namespace RequirementsScheduler.Library.Worker
                 {
                     experiment.Status = ExperimentStatus.Completed;
                     Service.StopExperiment(experiment.Id);
+                    experimentIdLoggerScope?.Dispose();
                 }
             }
         }
 
-        private Task RunTests(Experiment experiment)
+        private async Task RunTests(Experiment experiment, bool stopOnException = false)
         {
             var experimentReport = new ExperimentReport
             {
@@ -94,22 +101,43 @@ namespace RequirementsScheduler.Library.Worker
             var onlineExecutionTimeInMilliseconds = 0.0d;
             var offlineExecutionTimeInMilliseconds = 0.0d;
 
-            var aggregationResult = Enumerable.Range(0, experiment.TestsAmount)
-                //.AsParallel()
-                .Select(i =>
-                {
-                    var experimentInfo = Generator.GenerateDataForTest(experiment, i + 1);
+            var aggregationResult = new Dictionary<int, ResultInfo>();
 
+            foreach (var testRun in Enumerable.Range(0, experiment.TestsAmount))
+            {
+                using var _ = Logger.BeginScope("{TestNumber}", testRun + 1);
+                Logger.LogInformation("Start to execute test in experiment.");
+
+                var experimentInfo = Generator.GenerateDataForTest(experiment, testRun + 1);
+
+                try
+                {
                     RunTest(experimentInfo, ref stop1, ref stop2, ref stop3, ref stop4, ref sumOfDeltaCmax,
                         ref deltaCmaxMax, ref offlineExecutionTimeInMilliseconds, ref onlineExecutionTimeInMilliseconds,
                         ref offlineResolvedConflictAmount,
                         ref onlineResolvedConflictAmount, ref onlineUnResolvedConflictAmount);
+                }
+                catch (Exception ex)
+                {
+                    if (stopOnException) throw;
 
-                    ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+                    Logger.LogCritical(ex,
+                        "Exception occurred during test run in scope of experiment. {@ExperimentInfo}", experimentInfo);
 
-                    return experimentInfo;
-                })
-                .ToDictionary(x => x.TestNumber, x => x.Result);
+                    await using var db = new Database(Settings).Open();
+                    await db.GetTable<ExperimentFailure>()
+                        .InsertAsync(() => new ExperimentFailure
+                        {
+                            ExperimentId = experiment.Id,
+                            ErrorMessage = JsonConvert.SerializeObject(ex)
+                        });
+                }
+
+                Logger.LogInformation("Test in experiment was executed.");
+                await ResultService.SaveExperimentTestResult(experiment.Id, experimentInfo);
+
+                aggregationResult.Add(experimentInfo.TestNumber, experimentInfo.Result);
+            }
 
             experimentReport.OfflineExecutionTime = TimeSpan.FromMilliseconds(offlineExecutionTimeInMilliseconds);
             experimentReport.OnlineExecutionTime = TimeSpan.FromMilliseconds(onlineExecutionTimeInMilliseconds);
@@ -130,11 +158,9 @@ namespace RequirementsScheduler.Library.Worker
             else
                 experimentReport.DeltaCmaxAverage = 0;
 
-            ResultService.SaveAggregatedResult(experiment.Id, aggregationResult);
+            await ResultService.SaveAggregatedResult(experiment.Id, aggregationResult);
 
             ReportService.Save(experimentReport);
-
-            return Task.FromResult(0);
         }
 
         private void RunTest(ExperimentInfo experimentInfo, ref int stop1, ref int stop2, ref int stop3, ref int stop4,
@@ -145,15 +171,18 @@ namespace RequirementsScheduler.Library.Worker
         {
             var offlineResult = OfflineExecutor.RunInOffline(experimentInfo);
 
-            if (experimentInfo.J12Chain == null ||
-                experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any())
-                experimentInfo.J12Chain = new Chain(experimentInfo.J12
-                    .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+            if (experimentInfo.J12Chain == null || experimentInfo.J12.Any() && !experimentInfo.J12Chain.Any())
+            {
+                experimentInfo.J12Chain = new Chain(experimentInfo.J12);
+                // new Chain(experimentInfo.J12.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+            }
 
-            if (experimentInfo.J21Chain == null ||
-                experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
-                experimentInfo.J21Chain = new Chain(experimentInfo.J21
-                    .Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+
+            if (experimentInfo.J21Chain == null || experimentInfo.J21.Any() && !experimentInfo.J21Chain.Any())
+            {
+                experimentInfo.J21Chain = new Chain(experimentInfo.J21);
+                // new Chain(experimentInfo.J21.Select(d => new LaboriousDetail(d.OnFirst, d.OnSecond, d.Number)));
+            }
 
             if (!offlineResult)
             {
@@ -282,12 +311,16 @@ namespace RequirementsScheduler.Library.Worker
             return onlineChain;
         }
 
-        private static void RunOnlineMode(ExperimentInfo experimentInfo)
+        private void RunOnlineMode(ExperimentInfo experimentInfo)
         {
+            Logger.LogInformation("Start to execute online mode.");
+
             experimentInfo.OnlineChainOnFirstMachine.GenerateP();
             experimentInfo.OnlineChainOnSecondMachine.GenerateP();
 
             DoRunInOnlineMode(experimentInfo);
+
+            Logger.LogInformation("Online mode was executed.");
         }
 
         private static void ProcessDetailOnMachine(
@@ -340,7 +373,7 @@ namespace RequirementsScheduler.Library.Worker
             hasDetailOnCurrentMachine = nodeOnCurrentMachine != null;
         }
 
-        private static void DoRunInOnlineMode(ExperimentInfo experimentInfo)
+        private void DoRunInOnlineMode(ExperimentInfo experimentInfo)
         {
             var processedDetailNumbersOnFirst = experimentInfo.J21.Select(d => d.Number)
                 .Union(experimentInfo.J2.Select(d => d.Number)).ToHashSet();
@@ -470,7 +503,7 @@ namespace RequirementsScheduler.Library.Worker
             experimentInfo.Result.DeltaCmax = (float) ((cMax - cOpt) / cOpt * 100);
         }
 
-        private static double CalculateCOpt(double time1, double time2, ExperimentInfo experimentInfo, double cMax)
+        private double CalculateCOpt(double time1, double time2, ExperimentInfo experimentInfo, double cMax)
         {
             double cOpt;
             if (time2 >= time1 && !experimentInfo.OnlineChainOnSecondMachine.Any(node => node is Downtime) ||
@@ -480,6 +513,10 @@ namespace RequirementsScheduler.Library.Worker
             }
             else
             {
+                Logger.LogInformation(
+                    "Experiment info before run in online mode and after P generation. {@J1}, {@J2}, {@J12}, {@J21}",
+                    experimentInfo.J1, experimentInfo.J2, experimentInfo.J12, experimentInfo.J21);
+
                 if (time2 > time1)
                 {
                     var j12Numbers = experimentInfo.J12.Select(detail => detail.Number);
@@ -541,9 +578,9 @@ namespace RequirementsScheduler.Library.Worker
                         throw new InvalidOperationException("Wrong finding algorithm of maxCfact");
 
                     var l = j12OnFirstMachine
-                                .Take(jOfMaxSumOfP)
-                                .Sum(detail => detail.Time.P) - j12OnSecondMachine.Take(jOfMaxSumOfP - 1)
-                                .Sum(detail => detail.Time.P);
+                        .Take(jOfMaxSumOfP)
+                        .Sum(detail => detail.Time.P) - j12OnSecondMachine.Take(jOfMaxSumOfP - 1)
+                        .Sum(detail => detail.Time.P);
                     var q = experimentInfo.OnlineChainOnSecondMachine
                         .OfType<Detail>()
                         .Where(detail => !j12Numbers.Contains(detail.Number))

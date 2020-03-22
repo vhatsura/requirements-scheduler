@@ -22,7 +22,7 @@ namespace RequirementsScheduler.BLL.Service
             var funcs = new Func<double>[2]
             {
                 () => Accord.Statistics.Distributions.Univariate.GammaDistribution.Random(0.5, 1, Random),
-                () => Accord.Statistics.Distributions.Univariate.GammaDistribution.Random(7.5, 1, Random)
+                () => Accord.Statistics.Distributions.Univariate.GammaDistribution.Random(7.5, 3, Random)
             };
 
             var distribution = Random.Next(0, 2);
