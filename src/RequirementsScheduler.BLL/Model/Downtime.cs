@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.BLL.Model
 {
@@ -25,7 +26,7 @@ namespace RequirementsScheduler.BLL.Model
 
         public OnlineChainType Type => OnlineChainType.Downtime;
 
-        public void GenerateP()
+        public void GenerateP(IRandomizeService randomizeService)
         {
             throw new InvalidOperationException();
         }

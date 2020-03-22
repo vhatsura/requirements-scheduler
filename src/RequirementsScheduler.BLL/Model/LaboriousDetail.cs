@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using Newtonsoft.Json;
 
@@ -9,8 +9,12 @@ namespace RequirementsScheduler.BLL.Model
     public class LaboriousDetail : IChainNode, IEquatable<LaboriousDetail>
     {
         [JsonConstructor]
-        public LaboriousDetail(Detail onFirst, Detail onSecond, int number) : this(onFirst.Time, onSecond.Time, number)
+        public LaboriousDetail(Detail onFirst, Detail onSecond, int number)
         {
+            Number = number;
+            
+            OnFirst = new Detail(onFirst);
+            OnSecond = new Detail(onSecond);
         }
 
         public LaboriousDetail(ProcessingTime onFirst, ProcessingTime onSecond, int number)

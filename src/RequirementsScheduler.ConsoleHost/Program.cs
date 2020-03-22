@@ -79,7 +79,7 @@ namespace RequirementsScheduler.ConsoleHost
                 .Callback<ExperimentReport>(rep => report = rep);
 
             var pipeline = new ExperimentPipeline(
-                new ExperimentGenerator(),
+                new ExperimentGenerator(new RandomizeService()),
                 Mock.Of<IWorkerExperimentService>(),
                 new ExperimentTestResultFileService(),
                 reportsServiceMock.Object,

@@ -3,11 +3,11 @@ using RequirementsScheduler.DAL.Model;
 
 namespace RequirementsScheduler.BLL.Service
 {
-    public static class RandomizeService
+    public class RandomizeService: IRandomizeService
     {
         private static readonly Random Random = new Random();
 
-        public static double GetRandomDouble(double min, double max, Distribution distribution)
+        public double GetRandomDouble(double min, double max, Distribution distribution)
         {
             return distribution switch
             {
@@ -30,13 +30,14 @@ namespace RequirementsScheduler.BLL.Service
             double value;
             do
             {
-                value = funcs[distribution].Invoke();
-            } while (value + min > max);
+                value = funcs[0].Invoke();
+                // value = funcs[distribution].Invoke();
+            } while (distribution == 0 ? value + min > max : max - value < min);
 
-            return value + min;
+            return distribution == 0 ? value + min : max - value;
         }
 
-        public static double GetRandomDouble(int min, int max, Distribution distribution = Distribution.Uniform) =>
+        public double GetRandomDouble(int min, int max, Distribution distribution = Distribution.Uniform) =>
             GetRandomDouble(min, (double) max, distribution);
     }
 }

@@ -6,6 +6,6 @@ namespace RequirementsScheduler.Library.Worker
 {
     public interface IExperimentPipeline
     {
-        Task Run(IEnumerable<Experiment> experiments);
+        Task Run(IEnumerable<Experiment> experiments, bool reportExceptions = true, bool stopOnException = false);
     }
 }

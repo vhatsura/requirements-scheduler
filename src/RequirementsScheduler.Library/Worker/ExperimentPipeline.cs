@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -43,7 +43,8 @@ namespace RequirementsScheduler.Library.Worker
 
         private IOptions<DbSettings> Settings { get; }
 
-        public async Task Run(IEnumerable<Experiment> experiments)
+        public async Task Run(IEnumerable<Experiment> experiments, bool reportExceptions = true,
+            bool stopOnException = false)
         {
             foreach (var experiment in experiments)
             {
@@ -55,11 +56,12 @@ namespace RequirementsScheduler.Library.Worker
 
                 try
                 {
-                    await RunTests(experiment);
+                    await RunTests(experiment, stopOnException);
                     Logger.LogInformation("Experiment was executed");
                 }
                 catch (Exception ex)
                 {
+                    if (!reportExceptions) throw;
                     Logger.LogCritical(ex, "Exception occurred during tests run for experiment.");
 
                     await using var db = new Database(Settings).Open();
@@ -315,9 +317,6 @@ namespace RequirementsScheduler.Library.Worker
         {
             Logger.LogInformation("Start to execute online mode.");
 
-            experimentInfo.OnlineChainOnFirstMachine.GenerateP();
-            experimentInfo.OnlineChainOnSecondMachine.GenerateP();
-
             DoRunInOnlineMode(experimentInfo);
 
             Logger.LogInformation("Online mode was executed.");
@@ -375,6 +374,8 @@ namespace RequirementsScheduler.Library.Worker
 
         private void DoRunInOnlineMode(ExperimentInfo experimentInfo)
         {
+            experimentInfo.GenerateP(Generator);
+
             var processedDetailNumbersOnFirst = experimentInfo.J21.Select(d => d.Number)
                 .Union(experimentInfo.J2.Select(d => d.Number)).ToHashSet();
 

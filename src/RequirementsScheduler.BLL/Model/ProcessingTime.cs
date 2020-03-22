@@ -7,7 +7,6 @@ namespace RequirementsScheduler.BLL.Model
 {
     public class ProcessingTime : IEquatable<ProcessingTime>
     {
-        [JsonConstructor]
         public ProcessingTime(double a, double b, Distribution distribution)
         {
             if (a > b || a <= 0 || b <= 0)
@@ -16,6 +15,16 @@ namespace RequirementsScheduler.BLL.Model
             A = a;
             B = b;
             Distribution = distribution;
+        }
+
+        [JsonConstructor]
+        internal ProcessingTime(double a, double b, double p, Distribution distribution)
+            : this(a, b, distribution)
+        {
+            if (p < a || p > b)
+                throw new ArgumentOutOfRangeException(nameof(p), "The value must be between 'a' and 'b'.");
+
+            P = p;
         }
 
         public double A { get; }
@@ -33,9 +42,9 @@ namespace RequirementsScheduler.BLL.Model
             return A.Equals(other.A) && B.Equals(other.B);
         }
 
-        public void GenerateP()
+        public void GenerateP(IRandomizeService randomizeService)
         {
-            P = RandomizeService.GetRandomDouble(A, B, Distribution);
+            P = randomizeService.GetRandomDouble(A, B, Distribution);
         }
 
         public override bool Equals(object obj)
@@ -45,14 +54,8 @@ namespace RequirementsScheduler.BLL.Model
             return obj.GetType() == GetType() && Equals((ProcessingTime) obj);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (A.GetHashCode() * 397) ^ B.GetHashCode();
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(A, B, Distribution);
 
-        public override string ToString() => $"A: {A:0.###} B: {B:0.###} P: {P:0.###}";
+        public override string ToString() => $"A: {A:0.###} B: {B:0.###} P: {P:0.###}. {Distribution}";
     }
 }
