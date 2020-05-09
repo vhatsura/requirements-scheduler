@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Model.Conflicts;
 
 namespace RequirementsScheduler.Library.Worker
 {
@@ -120,20 +121,28 @@ namespace RequirementsScheduler.Library.Worker
             {
                 for (var node = nodeOnFirstMachine; node != null; node = node.Next)
                     if (node.Value is Detail detail)
+                    {
                         time1 += detail.Time.P;
+                    }
                     else
+                    {
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
+                    }
             }
             else
             {
                 // details only on second machine
                 for (var node = nodeOnSecondMachine; node != null; node = node.Next)
                     if (node.Value is Detail detail)
+                    {
                         time2 += detail.Time.P;
+                    }
                     else
+                    {
                         throw new InvalidOperationException(
                             "There can be no conflicts and downtimes when one of machine finished work");
+                    }
             }
 
             timeFromMachinesStart = Math.Max(time1, time2);
@@ -144,9 +153,6 @@ namespace RequirementsScheduler.Library.Worker
 
             return context;
         }
-
-        private delegate void ConflictResolverDelegate(OnlineConflict conflict,
-            ref LinkedListNode<IOnlineChainNode> node, OnlineExecutionContext context, bool isFirst);
 
         private static void ProcessDetailOnMachine(
             OnlineChain chain,
@@ -173,14 +179,18 @@ namespace RequirementsScheduler.Library.Worker
 
 
                 if (node.Value.Type != OnlineChainType.Detail)
+                {
                     throw new InvalidOperationException("Conflict resolver didn't change current node");
+                }
 
                 currentDetail = node.Value;
             }
 
             if (!(currentDetail is Detail detail))
+            {
                 throw new InvalidCastException(
                     $"Try cast {currentDetail.GetType().FullName} to {typeof(Detail).FullName}");
+            }
 
             if (processedDetailNumbersOnAnotherMachine.Contains(detail.Number))
             {
@@ -216,7 +226,9 @@ namespace RequirementsScheduler.Library.Worker
                     i.Type == OnlineChainType.Conflict &&
                     (i as OnlineConflict).Details.Keys.SequenceEqual(conflict.Details.Keys)) is OnlineConflict
                 conflictOnAnotherMachine))
+            {
                 throw new InvalidOperationException("Not found conflict on another machine");
+            }
 
             var conflictNodeOnAnotherMachine = chainOnAnotherMachine.Find(conflictOnAnotherMachine);
             var nodeOnCurrentMachineToRemove = nodeOnCurrentMachine;
@@ -390,16 +402,19 @@ namespace RequirementsScheduler.Library.Worker
 
             var isFirstAdd = true;
             foreach (var detail in conflictSequence)
-            {
                 if (isFirstAdd)
                 {
                     nodeOnCurrentMachine = chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
                     if (nodeOnAnotherMachine.Value.Type == OnlineChainType.Conflict)
+                    {
                         nodeOnAnotherMachine = chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
                             conflictOnAnotherMachine.Details[detail.Number]);
+                    }
                     else
+                    {
                         chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
                             conflictOnAnotherMachine.Details[detail.Number]);
+                    }
 
                     isFirstAdd = false;
                 }
@@ -409,7 +424,6 @@ namespace RequirementsScheduler.Library.Worker
                     chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
                         conflictOnAnotherMachine.Details[detail.Number]);
                 }
-            }
 
             chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
             chainOnAnotherMachine.Remove(conflictNodeOnAnotherMachine);
@@ -432,7 +446,10 @@ namespace RequirementsScheduler.Library.Worker
             bool isFirstDetail,
             OnlineExecutionContext context)
         {
-            if (currentDetail is Detail detail1) processedDetailNumbersOnCurrentMachine.Add(detail1.Number);
+            if (currentDetail is Detail detail1)
+            {
+                processedDetailNumbersOnCurrentMachine.Add(detail1.Number);
+            }
 
             currentDetail = nodeOnCurrentMachine.Value;
 
@@ -460,12 +477,21 @@ namespace RequirementsScheduler.Library.Worker
 
             nodeOnAnotherMachine = anotherMachine;
 
-            if (currentDetail is OnlineConflict) currentDetail = nodeOnCurrentMachine.Value;
+            if (currentDetail is OnlineConflict)
+            {
+                currentDetail = nodeOnCurrentMachine.Value;
+            }
 
-            if (nodeOnCurrentMachine.Value is Downtime) currentDetail = null;
+            if (nodeOnCurrentMachine.Value is Downtime)
+            {
+                currentDetail = null;
+            }
 
             nodeOnCurrentMachine = nodeOnCurrentMachine.Next;
             hasDetailOnCurrentMachine = nodeOnCurrentMachine != null;
         }
+
+        private delegate void ConflictResolverDelegate(OnlineConflict conflict,
+            ref LinkedListNode<IOnlineChainNode> node, OnlineExecutionContext context, bool isFirst);
     }
 }

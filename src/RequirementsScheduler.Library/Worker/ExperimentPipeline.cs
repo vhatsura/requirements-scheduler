@@ -332,7 +332,10 @@ namespace RequirementsScheduler.Library.Worker
             var cOpt = CalculateCOpt(onlineContext.TimeFromMachinesStart, onlineContext.Time2,
                 experimentInfo, cMax);
 
-            if (Math.Abs(cOpt - cMax) < 0.0001) experimentInfo.Result.IsStop3OnOnline = true;
+            if (Math.Abs(cOpt - cMax) < 0.0001)
+            {
+                experimentInfo.Result.IsStop3OnOnline = true;
+            }
 
             experimentInfo.Result.DeltaCmax = (float) ((cMax - cOpt) / cOpt * 100);
             experimentInfo.Result.Online = onlineContext;
