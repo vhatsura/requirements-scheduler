@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -70,10 +71,12 @@ namespace RequirementsScheduler.WebApiHost
 #endif
 
             services.AddTransient<IJobFactory, WorkerJobFactory>(provider => new WorkerJobFactory(provider));
+            services.AddTransient<IRandomizeService, RandomizeService>();
             services.AddTransient<IExperimentPipeline, ExperimentPipeline>();
             services.AddTransient<IExperimentGenerator, ExperimentGenerator>();
             services.AddSingleton<IWorkerExperimentService, WorkerExperimentService>();
             services.AddSingleton<ExperimentWorker, ExperimentWorker>();
+            services.AddSingleton<IOnlineExecutor, OnlineExecutor>();
 
             services.Configure<DbSettings>(options =>
             {

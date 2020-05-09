@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.BLL.Model
@@ -25,6 +26,12 @@ namespace RequirementsScheduler.BLL.Model
 
     public class OnlineConflict : BaseConflict<Detail>, IOnlineChainNode
     {
+        [JsonConstructor]
+        public OnlineConflict(Dictionary<int, Detail> details)
+        {
+            Details.AddRange(details);
+        }
+
         public OnlineConflict(IEnumerable<KeyValuePair<int, Detail>> details)
         {
             Details.AddRange(details);

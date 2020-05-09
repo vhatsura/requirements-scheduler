@@ -84,7 +84,8 @@ namespace RequirementsScheduler.ConsoleHost
                 new ExperimentTestResultFileService(),
                 reportsServiceMock.Object,
                 Mock.Of<ILogger<ExperimentPipeline>>(),
-                Mock.Of<IOptions<DbSettings>>());
+                Mock.Of<IOptions<DbSettings>>(),
+                new OnlineExecutor());
 
             var stopwatch = Stopwatch.StartNew();
             pipeline.Run(new List<Experiment> {experiment}).ConfigureAwait(false);

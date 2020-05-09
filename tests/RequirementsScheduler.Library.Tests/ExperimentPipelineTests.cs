@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -74,7 +75,8 @@ namespace RequirementsScheduler.Library.Tests
                 experimentTestResultService.Object,
                 Mock.Of<IReportsService>(),
                 Mock.Of<ILogger<ExperimentPipeline>>(),
-                Mock.Of<IOptions<DbSettings>>());
+                Mock.Of<IOptions<DbSettings>>(),
+                new OnlineExecutor());
 
             // Act
             await experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment));
@@ -118,18 +120,24 @@ namespace RequirementsScheduler.Library.Tests
                 Mock.Of<IExperimentTestResultService>(),
                 Mock.Of<IReportsService>(),
                 Mock.Of<ILogger<ExperimentPipeline>>(),
-                Mock.Of<IOptions<DbSettings>>());
+                Mock.Of<IOptions<DbSettings>>(),
+                new OnlineExecutor());
 
-            await experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(new Experiment
+            var experiments = new List<Experiment>
             {
-                Id = Guid.NewGuid(),
-                N1 = 10, N2 = 40, N12 = 10, N21 = 40,
-                RequirementsAmount = 10000,
-                TestsAmount = 100,
-                BorderGenerationType = Distribution.Uniform, PGenerationType = Distribution.Uniform,
-                MinPercentageFromA = 50, MaxPercentageFromA = 50,
-                MinBoundaryRange = 10, MaxBoundaryRange = 1000
-            }));
+                new Experiment
+                {
+                    Id = Guid.NewGuid(),
+                    N1 = 10, N2 = 40, N12 = 10, N21 = 40,
+                    RequirementsAmount = 10000,
+                    TestsAmount = 100,
+                    BorderGenerationType = Distribution.Uniform, PGenerationType = Distribution.Uniform,
+                    MinPercentageFromA = 50, MaxPercentageFromA = 50,
+                    MinBoundaryRange = 10, MaxBoundaryRange = 1000
+                }
+            };
+
+            await experimentPipeline.Run(experiments, reportExceptions: false, stopOnException: true);
         }
 
         [Theory]
@@ -149,10 +157,9 @@ namespace RequirementsScheduler.Library.Tests
             generatorMock.Setup(g =>
                     g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
                 .Returns(() => experimentInfo);
-
             ExperimentInfo resultInfo = null;
-
             var experimentTestResultService = new Mock<IExperimentTestResultService>();
+
             experimentTestResultService
                 .Setup(e => e.SaveExperimentTestResult(It.Is<Guid>(id => id == experiment.Id),
                     It.IsAny<ExperimentInfo>()))
@@ -164,12 +171,17 @@ namespace RequirementsScheduler.Library.Tests
                 experimentTestResultService.Object,
                 Mock.Of<IReportsService>(),
                 Mock.Of<ILogger<ExperimentPipeline>>(),
-                Mock.Of<IOptions<DbSettings>>());
+                Mock.Of<IOptions<DbSettings>>(),
+                new OnlineExecutor());
 
             // Act
-            await experimentPipeline.Run(new[] {experiment}, false, true);
+            await experimentPipeline.Run(new[]
+            {
+                experiment
+            }, false, true);
 
             // Assert
+            resultInfo.Should().NotBeNull();
         }
     }
 }

@@ -33,6 +33,7 @@ namespace RequirementsScheduler.BLL.Model
 
         public double P { get; private set; }
 
+        [JsonIgnore]
         public double Average => (B + A) / 2;
 
         public bool Equals(ProcessingTime other)

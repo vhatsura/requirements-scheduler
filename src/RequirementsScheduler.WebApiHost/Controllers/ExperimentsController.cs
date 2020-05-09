@@ -140,110 +140,110 @@ namespace RequirementsScheduler.WebApiHost.Controllers
         }
 
         // POST api/values
-        [HttpPost("[action]")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult Test([FromBody] TestExperiment value)
-        {
-            var username = UserName;
-            if (string.IsNullOrWhiteSpace(username)) return Forbid();
-
-            var experimentInfo = new ExperimentInfo();
-            var number = 0;
-            if (value.J1.Any())
-                experimentInfo.J1.AddRange(value.J1.Select(time =>
-                    new Detail(time.A, time.B, time.Distribution, ++number)));
-
-            if (value.J2.Any())
-                experimentInfo.J2.AddRange(value.J2.Select(time =>
-                    new Detail(time.A, time.B, time.Distribution, ++number)));
-
-            if (value.J12 != null)
-                experimentInfo.J12
-                    .AddRange(value.J12.OnFirst.Zip(
-                        value.J12.OnSecond,
-                        (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, ++number)));
-
-            if (value.J21 != null)
-                experimentInfo.J21
-                    .AddRange(value.J21.OnFirst.Zip(
-                        value.J21.OnSecond,
-                        (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, ++number)));
-
-            var detailTimes = Enumerable.Empty<double>()
-                .Concat(experimentInfo.J1.Select(detail => detail.Time.A))
-                .Concat(experimentInfo.J2.Select(detail => detail.Time.A))
-                .Concat(experimentInfo.J12.Select(detail => detail.OnFirst.Time.A))
-                .Concat(experimentInfo.J12.Select(detail => detail.OnSecond.Time.A))
-                .Concat(experimentInfo.J21.Select(detail => detail.OnFirst.Time.A))
-                .Concat(experimentInfo.J21.Select(detail => detail.OnSecond.Time.A))
-                .ToList();
-
-            var minBoundaryRange = detailTimes.Min();
-            var maxBoundaryRange = detailTimes.Max();
-
-            var detailTimesPercentage = Enumerable.Empty<double>()
-                .Concat(experimentInfo.J1.Select(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
-                .Concat(experimentInfo.J2.Select(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
-                .Concat(
-                    experimentInfo.J12.Select(
-                        detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
-                .Concat(
-                    experimentInfo.J12.Select(
-                        detail => (detail.OnSecond.Time.B - detail.OnFirst.Time.A) / detail.OnSecond.Time.A))
-                .Concat(
-                    experimentInfo.J21.Select(
-                        detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
-                .Concat(
-                    experimentInfo.J21.Select(
-                        detail => (detail.OnSecond.Time.B - detail.OnSecond.Time.A) / detail.OnFirst.Time.A))
-                .ToList();
-
-            var minPercentageFromA = detailTimesPercentage.Min();
-            var maxPercentageFromA = detailTimesPercentage.Max();
-
-            var experiment = new Experiment
-            {
-                TestsAmount = 1,
-                RequirementsAmount = number,
-                N1 = experimentInfo.J1.Count == 0
-                    ? 0
-                    : (int) Math.Ceiling((double) experimentInfo.J1.Count / number * 100),
-                N2 = experimentInfo.J2.Count == 0
-                    ? 0
-                    : (int) Math.Ceiling((double) experimentInfo.J2.Count / number * 100),
-                N12 = experimentInfo.J12.Count == 0
-                    ? 0
-                    : (int) Math.Ceiling((double) experimentInfo.J12.Count / number * 100),
-                N21 = experimentInfo.J21.Count == 0
-                    ? 0
-                    : (int) Math.Ceiling((double) experimentInfo.J21.Count / number * 100),
-                MinBoundaryRange = (int) Math.Floor(minBoundaryRange),
-                MaxBoundaryRange = (int) Math.Ceiling(maxBoundaryRange),
-                Status = ExperimentStatus.InProgress,
-                MinPercentageFromA = (int) Math.Floor(minPercentageFromA * 100),
-                MaxPercentageFromA = (int) Math.Ceiling(maxPercentageFromA * 100)
-            };
-
-            experiment = Service.AddExperiment(experiment, username);
-
-            var generatorMock = new Mock<IExperimentGenerator>();
-
-            generatorMock.Setup(g =>
-                    g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
-                .Returns(() => experimentInfo);
-
-            var experimentPipeline = new ExperimentPipeline(
-                generatorMock.Object,
-                Container.GetService<IWorkerExperimentService>(),
-                Container.GetService<IExperimentTestResultService>(),
-                Container.GetService<IReportsService>(),
-                Container.GetService<ILogger<ExperimentPipeline>>(),
-                Container.GetService<IOptions<DbSettings>>());
-
-            Task.Factory.StartNew(
-                () => experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment)));
-
-            return Ok(experiment);
-        }
+        // [HttpPost("[action]")]
+        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // public ActionResult Test([FromBody] TestExperiment value)
+        // {
+        //     var username = UserName;
+        //     if (string.IsNullOrWhiteSpace(username)) return Forbid();
+        //
+        //     var experimentInfo = new ExperimentInfo();
+        //     var number = 0;
+        //     if (value.J1.Any())
+        //         experimentInfo.J1.AddRange(value.J1.Select(time =>
+        //             new Detail(time.A, time.B, time.Distribution, ++number)));
+        //
+        //     if (value.J2.Any())
+        //         experimentInfo.J2.AddRange(value.J2.Select(time =>
+        //             new Detail(time.A, time.B, time.Distribution, ++number)));
+        //
+        //     if (value.J12 != null)
+        //         experimentInfo.J12
+        //             .AddRange(value.J12.OnFirst.Zip(
+        //                 value.J12.OnSecond,
+        //                 (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, ++number)));
+        //
+        //     if (value.J21 != null)
+        //         experimentInfo.J21
+        //             .AddRange(value.J21.OnFirst.Zip(
+        //                 value.J21.OnSecond,
+        //                 (onFirst, onSecond) => new LaboriousDetail(onFirst, onSecond, ++number)));
+        //
+        //     var detailTimes = Enumerable.Empty<double>()
+        //         .Concat(experimentInfo.J1.Select(detail => detail.Time.A))
+        //         .Concat(experimentInfo.J2.Select(detail => detail.Time.A))
+        //         .Concat(experimentInfo.J12.Select(detail => detail.OnFirst.Time.A))
+        //         .Concat(experimentInfo.J12.Select(detail => detail.OnSecond.Time.A))
+        //         .Concat(experimentInfo.J21.Select(detail => detail.OnFirst.Time.A))
+        //         .Concat(experimentInfo.J21.Select(detail => detail.OnSecond.Time.A))
+        //         .ToList();
+        //
+        //     var minBoundaryRange = detailTimes.Min();
+        //     var maxBoundaryRange = detailTimes.Max();
+        //
+        //     var detailTimesPercentage = Enumerable.Empty<double>()
+        //         .Concat(experimentInfo.J1.Select(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
+        //         .Concat(experimentInfo.J2.Select(detail => (detail.Time.B - detail.Time.A) / detail.Time.A))
+        //         .Concat(
+        //             experimentInfo.J12.Select(
+        //                 detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
+        //         .Concat(
+        //             experimentInfo.J12.Select(
+        //                 detail => (detail.OnSecond.Time.B - detail.OnFirst.Time.A) / detail.OnSecond.Time.A))
+        //         .Concat(
+        //             experimentInfo.J21.Select(
+        //                 detail => (detail.OnFirst.Time.B - detail.OnFirst.Time.A) / detail.OnFirst.Time.A))
+        //         .Concat(
+        //             experimentInfo.J21.Select(
+        //                 detail => (detail.OnSecond.Time.B - detail.OnSecond.Time.A) / detail.OnFirst.Time.A))
+        //         .ToList();
+        //
+        //     var minPercentageFromA = detailTimesPercentage.Min();
+        //     var maxPercentageFromA = detailTimesPercentage.Max();
+        //
+        //     var experiment = new Experiment
+        //     {
+        //         TestsAmount = 1,
+        //         RequirementsAmount = number,
+        //         N1 = experimentInfo.J1.Count == 0
+        //             ? 0
+        //             : (int) Math.Ceiling((double) experimentInfo.J1.Count / number * 100),
+        //         N2 = experimentInfo.J2.Count == 0
+        //             ? 0
+        //             : (int) Math.Ceiling((double) experimentInfo.J2.Count / number * 100),
+        //         N12 = experimentInfo.J12.Count == 0
+        //             ? 0
+        //             : (int) Math.Ceiling((double) experimentInfo.J12.Count / number * 100),
+        //         N21 = experimentInfo.J21.Count == 0
+        //             ? 0
+        //             : (int) Math.Ceiling((double) experimentInfo.J21.Count / number * 100),
+        //         MinBoundaryRange = (int) Math.Floor(minBoundaryRange),
+        //         MaxBoundaryRange = (int) Math.Ceiling(maxBoundaryRange),
+        //         Status = ExperimentStatus.InProgress,
+        //         MinPercentageFromA = (int) Math.Floor(minPercentageFromA * 100),
+        //         MaxPercentageFromA = (int) Math.Ceiling(maxPercentageFromA * 100)
+        //     };
+        //
+        //     experiment = Service.AddExperiment(experiment, username);
+        //
+        //     var generatorMock = new Mock<IExperimentGenerator>();
+        //
+        //     generatorMock.Setup(g =>
+        //             g.GenerateDataForTest(It.Is<Experiment>(ex => ex.Id == experiment.Id), It.IsAny<int>()))
+        //         .Returns(() => experimentInfo);
+        //
+        //     var experimentPipeline = new ExperimentPipeline(
+        //         generatorMock.Object,
+        //         Container.GetService<IWorkerExperimentService>(),
+        //         Container.GetService<IExperimentTestResultService>(),
+        //         Container.GetService<IReportsService>(),
+        //         Container.GetService<ILogger<ExperimentPipeline>>(),
+        //         Container.GetService<IOptions<DbSettings>>());
+        //
+        //     Task.Factory.StartNew(
+        //         () => experimentPipeline.Run(Enumerable.Empty<Experiment>().Append(experiment)));
+        //
+        //     return Ok(experiment);
+        // }
     }
 }
