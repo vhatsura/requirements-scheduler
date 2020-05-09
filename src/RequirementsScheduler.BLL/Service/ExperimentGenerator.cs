@@ -13,7 +13,7 @@ namespace RequirementsScheduler.BLL.Service
         {
             _randomizeService = randomizeService;
         }
-        
+
         public ExperimentInfo GenerateDataForTest(Experiment experiment, int testNumber)
         {
             var firstRequirementsAmount =
@@ -87,7 +87,7 @@ namespace RequirementsScheduler.BLL.Service
         }
 
         public void GenerateP(IOnlineChainNode node) => node.GenerateP(_randomizeService);
-        
+
         private ICollection<double> GetABoundaries(int min, int max, int amount)
         {
             return Enumerable

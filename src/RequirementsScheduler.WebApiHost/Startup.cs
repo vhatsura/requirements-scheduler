@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -109,13 +108,17 @@ namespace RequirementsScheduler.WebApiHost
         public void Configure(IApplicationBuilder app)
         {
             if (_hostingEnvironment.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
+            }
             //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
             //{
             //    HotModuleReplacement = true
             //});
             else
+            {
                 app.UseExceptionHandler("/Home/Error");
+            }
 
             app.UseStaticFiles();
 

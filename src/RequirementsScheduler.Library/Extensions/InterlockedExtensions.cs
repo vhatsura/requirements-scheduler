@@ -14,7 +14,9 @@ namespace RequirementsScheduler.Library.Extensions
                 var newValue = currentValue + value;
                 newCurrentValue = Interlocked.CompareExchange(ref location1, newValue, currentValue);
                 if (newCurrentValue == currentValue)
+                {
                     return;
+                }
             }
         }
 
@@ -26,7 +28,7 @@ namespace RequirementsScheduler.Library.Extensions
                 initialValue = location;
                 newValue = Math.Max(initialValue, value);
             } while (Interlocked.CompareExchange(ref location, newValue,
-                         initialValue) != initialValue);
+                initialValue) != initialValue);
         }
     }
 }

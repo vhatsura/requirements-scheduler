@@ -19,7 +19,7 @@ namespace RequirementsScheduler.BLL.Model
         {
             Online = new OnlineExecutionContext();
         }
-        
+
         public ResultType? Type { get; set; }
 
         public int OfflineResolvedConflictAmount { get; set; }

@@ -21,12 +21,12 @@ namespace RequirementsScheduler.Library.Tests
 {
     public class ExperimentPipelineTests
     {
-        private readonly ITestOutputHelper _outputHelper;
-
         public ExperimentPipelineTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }
+
+        private readonly ITestOutputHelper _outputHelper;
 
         [Theory]
         [MemberData(nameof(DataTest))]
@@ -111,35 +111,6 @@ namespace RequirementsScheduler.Library.Tests
             }; // should be run without exceptions
         }
 
-        [Fact]
-        public async Task RunDirectTest()
-        {
-            var experimentPipeline = new ExperimentPipeline(
-                new ExperimentGenerator(new RandomizeService()),
-                Mock.Of<IWorkerExperimentService>(),
-                Mock.Of<IExperimentTestResultService>(),
-                Mock.Of<IReportsService>(),
-                Mock.Of<ILogger<ExperimentPipeline>>(),
-                Mock.Of<IOptions<DbSettings>>(),
-                new OnlineExecutor());
-
-            var experiments = new List<Experiment>
-            {
-                new Experiment
-                {
-                    Id = Guid.NewGuid(),
-                    N1 = 10, N2 = 40, N12 = 10, N21 = 40,
-                    RequirementsAmount = 10000,
-                    TestsAmount = 100,
-                    BorderGenerationType = Distribution.Uniform, PGenerationType = Distribution.Uniform,
-                    MinPercentageFromA = 50, MaxPercentageFromA = 50,
-                    MinBoundaryRange = 10, MaxBoundaryRange = 1000
-                }
-            };
-
-            await experimentPipeline.Run(experiments, reportExceptions: false, stopOnException: true);
-        }
-
         [Theory]
         [ClassData(typeof(ExperimentsWithUnExpectedFailures))]
         public async Task Experiment_ShouldBeFinishedWithoutAnyExceptions(string path, ExperimentInfo experimentInfo)
@@ -182,6 +153,35 @@ namespace RequirementsScheduler.Library.Tests
 
             // Assert
             resultInfo.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task RunDirectTest()
+        {
+            var experimentPipeline = new ExperimentPipeline(
+                new ExperimentGenerator(new RandomizeService()),
+                Mock.Of<IWorkerExperimentService>(),
+                Mock.Of<IExperimentTestResultService>(),
+                Mock.Of<IReportsService>(),
+                Mock.Of<ILogger<ExperimentPipeline>>(),
+                Mock.Of<IOptions<DbSettings>>(),
+                new OnlineExecutor());
+
+            var experiments = new List<Experiment>
+            {
+                new Experiment
+                {
+                    Id = Guid.NewGuid(),
+                    N1 = 10, N2 = 40, N12 = 10, N21 = 40,
+                    RequirementsAmount = 10000,
+                    TestsAmount = 100,
+                    BorderGenerationType = Distribution.Uniform, PGenerationType = Distribution.Uniform,
+                    MinPercentageFromA = 50, MaxPercentageFromA = 50,
+                    MinBoundaryRange = 10, MaxBoundaryRange = 1000
+                }
+            };
+
+            await experimentPipeline.Run(experiments, false, true);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
+using RequirementsScheduler.BLL.Model.Conflicts;
 using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.BLL.Model
@@ -12,7 +13,7 @@ namespace RequirementsScheduler.BLL.Model
 
         [JsonIgnore]
         public int OfflineConflictCount => J12Chain?.Where(node => node is Conflict).Count() ?? 0 +
-                                           J21Chain?.Where(node => node is Conflict).Count() ?? 0;
+            J21Chain?.Where(node => node is Conflict).Count() ?? 0;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public ResultInfo Result { get; } = new ResultInfo();
@@ -38,15 +39,9 @@ namespace RequirementsScheduler.BLL.Model
 
         public void GenerateP(IExperimentGenerator experimentGenerator)
         {
-            foreach (var node in OnlineChainOnFirstMachine)
-            {
-                experimentGenerator.GenerateP(node);
-            }
+            foreach (var node in OnlineChainOnFirstMachine) experimentGenerator.GenerateP(node);
 
-            foreach (var node in OnlineChainOnSecondMachine)
-            {
-                experimentGenerator.GenerateP(node);
-            }
+            foreach (var node in OnlineChainOnSecondMachine) experimentGenerator.GenerateP(node);
         }
     }
 }

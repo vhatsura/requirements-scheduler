@@ -47,7 +47,9 @@ namespace RequirementsScheduler.DAL.Repository
         public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
         {
             if (filter == null)
+            {
                 throw new ArgumentNullException(nameof(filter));
+            }
 
             var filteredCollection = ModelsCollection
                 .Select(pair => pair.Value)
@@ -70,7 +72,9 @@ namespace RequirementsScheduler.DAL.Repository
             foreach (var value in values)
             {
                 if (Equals(value.Id, default(TKey)))
+                {
                     throw new ArgumentOutOfRangeException();
+                }
 
                 ModelsCollection.TryAdd(value.Id, value);
             }

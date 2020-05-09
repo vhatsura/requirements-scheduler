@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Model.Conflicts;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.DAL;
 using RequirementsScheduler.DAL.Model;
@@ -63,7 +64,11 @@ namespace RequirementsScheduler.Library.Worker
                 }
                 catch (Exception ex)
                 {
-                    if (!reportExceptions) throw;
+                    if (!reportExceptions)
+                    {
+                        throw;
+                    }
+
                     Logger.LogCritical(ex, "Exception occurred during tests run for experiment.");
 
                     await using var db = new Database(Settings).Open();
@@ -123,7 +128,10 @@ namespace RequirementsScheduler.Library.Worker
                 }
                 catch (Exception ex)
                 {
-                    if (stopOnException) throw;
+                    if (stopOnException)
+                    {
+                        throw;
+                    }
 
                     Logger.LogCritical(ex,
                         "Exception occurred during test run in scope of experiment. {@ExperimentInfo}", experimentInfo);
@@ -158,9 +166,13 @@ namespace RequirementsScheduler.Library.Worker
             experimentReport.Stop4Percentage = (float) Math.Round(stop4 / (float) experiment.TestsAmount * 100, 1);
 
             if (stop4 != 0)
+            {
                 experimentReport.DeltaCmaxAverage = (float) sumOfDeltaCmax / experiment.TestsAmount;
+            }
             else
+            {
                 experimentReport.DeltaCmaxAverage = 0;
+            }
 
             await ResultService.SaveAggregatedResult(experiment.Id, aggregationResult);
 
@@ -320,7 +332,10 @@ namespace RequirementsScheduler.Library.Worker
             var cOpt = CalculateCOpt(onlineContext.TimeFromMachinesStart, onlineContext.Time2,
                 experimentInfo, cMax);
 
-            if (Math.Abs(cOpt - cMax) < 0.0001) experimentInfo.Result.IsStop3OnOnline = true;
+            if (Math.Abs(cOpt - cMax) < 0.0001)
+            {
+                experimentInfo.Result.IsStop3OnOnline = true;
+            }
 
             experimentInfo.Result.DeltaCmax = (float) ((cMax - cOpt) / cOpt * 100);
             experimentInfo.Result.Online = onlineContext;
@@ -359,7 +374,9 @@ namespace RequirementsScheduler.Library.Worker
                     if (j12OnFirstMachine.Count != j12OnSecondMachine.Count &&
                         !j12OnFirstMachine.Select(detail => detail.Number)
                             .SequenceEqual(j12OnSecondMachine.Select(detail => detail.Number)))
+                    {
                         throw new InvalidOperationException("Wrong get J12 from online chains");
+                    }
 
                     var x1 = j12OnFirstMachine
                         .Where(detail =>
@@ -400,7 +417,9 @@ namespace RequirementsScheduler.Library.Worker
                     }
 
                     if (jOfMaxSumOfP == 0)
+                    {
                         throw new InvalidOperationException("Wrong finding algorithm of maxCfact");
+                    }
 
                     var l = j12OnFirstMachine
                         .Take(jOfMaxSumOfP)
@@ -412,9 +431,13 @@ namespace RequirementsScheduler.Library.Worker
                         .Sum(detail => detail.Time.P);
 
                     if (q >= l)
+                    {
                         cOpt = maxSumOfP + (q - l);
+                    }
                     else
+                    {
                         cOpt = maxSumOfP;
+                    }
                 }
                 else
                 {
@@ -433,7 +456,9 @@ namespace RequirementsScheduler.Library.Worker
                     if (j21OnFirstMachine.Count != j21OnSecondMachine.Count &&
                         !j21OnFirstMachine.Select(detail => detail.Number)
                             .SequenceEqual(j21OnSecondMachine.Select(detail => detail.Number)))
+                    {
                         throw new InvalidOperationException("Wrong get J21 from online chains");
+                    }
 
                     var x1 = j21OnFirstMachine
                         .Where(detail =>
@@ -474,7 +499,9 @@ namespace RequirementsScheduler.Library.Worker
                     }
 
                     if (jOfMaxSumOfP == 0)
+                    {
                         throw new InvalidOperationException("Wrong finding algorithm of maxCfact");
+                    }
 
                     var l = j21OnSecondMachine.Take(jOfMaxSumOfP).Sum(detail => detail.Time.P) -
                             j21OnFirstMachine.Take(jOfMaxSumOfP - 1).Sum(detail => detail.Time.P);
@@ -484,9 +511,13 @@ namespace RequirementsScheduler.Library.Worker
                         .Sum(detail => detail.Time.P);
 
                     if (q >= l)
+                    {
                         cOpt = maxSumOfP + (q - l);
+                    }
                     else
+                    {
                         cOpt = maxSumOfP;
+                    }
                 }
             }
 

@@ -33,6 +33,8 @@ namespace RequirementsScheduler.DAL.Model
         [Association(ThisKey = nameof(Id), OtherKey = nameof(ExperimentResult.ExperimentId), CanBeNull = true)]
         public ExperimentResult Result { get; set; }
 
-        [PrimaryKey] [Identity] public Guid Id { get; set; }
+        [PrimaryKey]
+        [Identity]
+        public Guid Id { get; set; }
     }
 }

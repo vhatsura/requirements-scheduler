@@ -6,16 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Moq;
-using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
 using RequirementsScheduler.BLL.Service;
 using RequirementsScheduler.Core.Service;
-using RequirementsScheduler.DAL;
-using RequirementsScheduler.Library.Worker;
 using RequirementsScheduler2.Extensions;
 
 namespace RequirementsScheduler.WebApiHost.Controllers
@@ -71,7 +64,10 @@ namespace RequirementsScheduler.WebApiHost.Controllers
             var username = UserName;
 
             var experiment = Service.Get(id, username);
-            if (experiment == null) return BadRequest();
+            if (experiment == null)
+            {
+                return BadRequest();
+            }
 
             var aggregatedResult = await ResultService.GetAggregatedResult(experiment.Id);
 
@@ -85,7 +81,10 @@ namespace RequirementsScheduler.WebApiHost.Controllers
             var username = UserName;
 
             var experiment = Service.Get(id, username);
-            if (experiment == null) return BadRequest();
+            if (experiment == null)
+            {
+                return BadRequest();
+            }
 
             var infos = new List<ExperimentInfo>();
 
@@ -103,7 +102,11 @@ namespace RequirementsScheduler.WebApiHost.Controllers
         public async Task<IActionResult> Result(Guid id, int testNumber)
         {
             // todo add check that testNumber don't more than test number in experiment
-            if (testNumber <= 0) return BadRequest("Invalid test number");
+            if (testNumber <= 0)
+            {
+                return BadRequest("Invalid test number");
+            }
+
             //var username = UserName;
             var experimentInfo = await ResultService.GetExperimentTestResult(id, testNumber);
 
@@ -115,10 +118,15 @@ namespace RequirementsScheduler.WebApiHost.Controllers
         public IActionResult GetByStatus(string status)
         {
             var username = UserName;
-            if (string.IsNullOrWhiteSpace(username)) return new ObjectResult(Enumerable.Empty<Experiment>());
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return new ObjectResult(Enumerable.Empty<Experiment>());
+            }
 
             if (Enum.TryParse(status, true, out ExperimentStatus experimentStatus))
+            {
                 return new ObjectResult(Service.GetByStatus(experimentStatus, username));
+            }
 
             return BadRequest(new {Message = "Invalid status of experiment"});
         }
@@ -129,10 +137,15 @@ namespace RequirementsScheduler.WebApiHost.Controllers
         public ActionResult Post([FromBody] Experiment value)
         {
             if (!ModelState.IsValid)
+            {
                 return BadRequest(new {Message = $"Experiment isn't valid: {ModelState.ErrorsToString()}"});
+            }
 
             var username = UserName;
-            if (string.IsNullOrWhiteSpace(username)) return Forbid();
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return Forbid();
+            }
 
             var experiment = Service.AddExperiment(value, username);
 

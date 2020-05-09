@@ -12,7 +12,8 @@ namespace RequirementsScheduler.Library.Worker
     {
         private readonly ILogger<ExperimentWorker> _logger;
 
-        public ExperimentWorker(IExperimentsService service, IExperimentPipeline pipeline, ILogger<ExperimentWorker> logger)
+        public ExperimentWorker(IExperimentsService service, IExperimentPipeline pipeline,
+            ILogger<ExperimentWorker> logger)
         {
             _logger = logger;
             Service = service;

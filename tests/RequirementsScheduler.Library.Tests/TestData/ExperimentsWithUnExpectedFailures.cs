@@ -14,8 +14,8 @@ namespace RequirementsScheduler.Library.Tests.TestData
             {
                 var text = File.ReadAllText(filePath);
                 var experimentInfo = JsonConvert.DeserializeObject<ExperimentInfo>(text);
-                
-                yield return new object[]{filePath, experimentInfo};
+
+                yield return new object[] {filePath, experimentInfo};
             }
         }
 

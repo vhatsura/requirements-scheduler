@@ -10,7 +10,9 @@ namespace RequirementsScheduler.BLL.Model
         public ProcessingTime(double a, double b, Distribution distribution)
         {
             if (a > b || a <= 0 || b <= 0)
+            {
                 throw new ArgumentOutOfRangeException();
+            }
 
             A = a;
             B = b;
@@ -22,7 +24,9 @@ namespace RequirementsScheduler.BLL.Model
             : this(a, b, distribution)
         {
             if (p < a || p > b)
+            {
                 throw new ArgumentOutOfRangeException(nameof(p), "The value must be between 'a' and 'b'.");
+            }
 
             P = p;
         }
@@ -38,8 +42,16 @@ namespace RequirementsScheduler.BLL.Model
 
         public bool Equals(ProcessingTime other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return A.Equals(other.A) && B.Equals(other.B);
         }
 
@@ -50,8 +62,16 @@ namespace RequirementsScheduler.BLL.Model
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
             return obj.GetType() == GetType() && Equals((ProcessingTime) obj);
         }
 
