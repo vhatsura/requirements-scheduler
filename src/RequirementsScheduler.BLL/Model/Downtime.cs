@@ -26,12 +26,7 @@ namespace RequirementsScheduler.BLL.Model
                 return false;
             }
 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return Time.Equals(other.Time);
+            return ReferenceEquals(this, other) || Time.Equals(other.Time);
         }
 
         public OnlineChainType Type => OnlineChainType.Downtime;
@@ -53,7 +48,7 @@ namespace RequirementsScheduler.BLL.Model
                 return true;
             }
 
-            return obj is Downtime && Equals((Downtime) obj);
+            return obj is Downtime downtime && Equals(downtime);
         }
 
         public override int GetHashCode() => Time.GetHashCode();
