@@ -25,10 +25,7 @@
     <None Update="TestData\*.testData.NullReferenceException.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\OnlineExecutor\NREOnOnline\1.onlineChainOnFirst.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TestData\OnlineExecutor\NREOnOnline\1.onlineChainOnSecond.json">
+    <None Update="TestData\OnlineExecutor\NREOnOnline\*.testData.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

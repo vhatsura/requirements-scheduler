@@ -6,6 +6,8 @@ namespace RequirementsScheduler.DAL.Model
 {
     public class ExperimentResult : IRepositoryModel<int>
     {
+        public int DowntimeAmount { get; set; }
+        
         public int OfflineResolvedConflictAmount { get; set; }
         public int OnlineResolvedConflictAmount { get; set; }
         public int OnlineUnResolvedConflictAmount { get; set; }

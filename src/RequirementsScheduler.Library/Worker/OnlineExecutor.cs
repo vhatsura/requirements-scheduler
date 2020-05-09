@@ -248,8 +248,18 @@ namespace RequirementsScheduler.Library.Worker
 
                 var localNodeOnAnotherMachine = nodeOnAnotherMachine;
 
+                // var sumOfPOnAnother = chainOnAnotherMachine
+                //     .TakeWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
+                //     .Sum(i => i.Type switch
+                //     {
+                //         OnlineChainType.Detail when i is Detail detail => detail.Time.P,
+                //         OnlineChainType.Downtime when i is Downtime downtime => downtime.Time,
+                //         _ => throw new InvalidOperationException()
+                //     });
                 var sumOfPOnAnother = chainOnAnotherMachine
-                    .TakeWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
+                    .TakeWhile(i =>
+                        localNodeOnAnotherMachine.Previous != null &&
+                        !Equals(i, localNodeOnAnotherMachine.Previous.Value))
                     .Sum(i => i.Type switch
                     {
                         OnlineChainType.Detail when i is Detail detail => detail.Time.P,
@@ -259,21 +269,18 @@ namespace RequirementsScheduler.Library.Worker
 
                 var l = timeFromMachinesStart - sumOfPOnAnother;
 
-                // TODO: bullshit
-                // var currentAOnAnother = ((nodeOnAnotherMachine.Value is Detail d)
-                //     ? d.Time.A
-                //     : (nodeOnAnotherMachine.Value as OnlineConflict).Details.Values.Sum(x => x.Time.A));
-                // var sumOnAnother = l <= currentAOnAnother
-                //     ? currentAOnAnother
-                //     : l;
-
-                var sumOnAnother = l <= (nodeOnAnotherMachine.Value as Detail).Time.A
-                     ? (nodeOnAnotherMachine.Value as Detail).Time.A
-                     : l;
+                var previousTimeOnAnother = nodeOnAnotherMachine.Previous.Value switch
+                {
+                    Detail detail => detail.Time.A,
+                    Downtime downtime => downtime.Time,
+                    _ => throw new InvalidOperationException()
+                };
+                var sumOnAnother = l <= previousTimeOnAnother
+                    ? previousTimeOnAnother
+                    : l;
 
                 var sumOfAOnAnother = chainOnAnotherMachine
                     .SkipWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
-                    .Skip(1)
                     .TakeWhile(i => !Equals(i, conflictOnAnotherMachine))
                     .Sum(i => i.Type switch
                     {
@@ -339,7 +346,7 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     }
                 }
-                    
+
                 if (isOptimized)
                 {
                     nodeOnCurrentMachine = nodeOnCurrentMachineToRemove.Previous;
@@ -413,10 +420,12 @@ namespace RequirementsScheduler.Library.Worker
 
             var isFirstAdd = true;
             foreach (var detail in conflictSequence)
+            {
                 if (isFirstAdd)
                 {
                     nodeOnCurrentMachine = chainOnCurrentMachine.AddBefore(nodeOnCurrentMachineToRemove, detail);
-                    if (nodeOnAnotherMachine.Value.Type == OnlineChainType.Conflict)
+                    if (nodeOnAnotherMachine.Value is OnlineConflict onlineConflictOnAnother && onlineConflictOnAnother
+                        .Details.Keys.ToHashSet().SetEquals(conflict.Details.Keys))
                     {
                         nodeOnAnotherMachine = chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
                             conflictOnAnotherMachine.Details[detail.Number]);
@@ -435,6 +444,7 @@ namespace RequirementsScheduler.Library.Worker
                     chainOnAnotherMachine.AddBefore(conflictNodeOnAnotherMachine,
                         conflictOnAnotherMachine.Details[detail.Number]);
                 }
+            }
 
             chainOnCurrentMachine.Remove(nodeOnCurrentMachineToRemove);
             chainOnAnotherMachine.Remove(conflictNodeOnAnotherMachine);

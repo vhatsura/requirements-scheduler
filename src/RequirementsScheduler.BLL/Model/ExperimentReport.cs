@@ -54,5 +54,7 @@ namespace RequirementsScheduler.BLL.Model
 
         public TimeSpan OfflineExecutionTime { get; set; }
         public TimeSpan OnlineExecutionTime { get; set; }
+        
+        public int DowntimeAmount { get; set; }
     }
 }
