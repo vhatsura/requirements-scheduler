@@ -258,9 +258,18 @@ namespace RequirementsScheduler.Library.Worker
                     });
 
                 var l = timeFromMachinesStart - sumOfPOnAnother;
+
+                // TODO: bullshit
+                // var currentAOnAnother = ((nodeOnAnotherMachine.Value is Detail d)
+                //     ? d.Time.A
+                //     : (nodeOnAnotherMachine.Value as OnlineConflict).Details.Values.Sum(x => x.Time.A));
+                // var sumOnAnother = l <= currentAOnAnother
+                //     ? currentAOnAnother
+                //     : l;
+
                 var sumOnAnother = l <= (nodeOnAnotherMachine.Value as Detail).Time.A
-                    ? (nodeOnAnotherMachine.Value as Detail).Time.A
-                    : l;
+                     ? (nodeOnAnotherMachine.Value as Detail).Time.A
+                     : l;
 
                 var sumOfAOnAnother = chainOnAnotherMachine
                     .SkipWhile(i => !Equals(i, localNodeOnAnotherMachine.Value))
@@ -317,6 +326,7 @@ namespace RequirementsScheduler.Library.Worker
                 var isOptimized = true;
 
                 foreach (var detail in conflictSequence)
+                {
                     //todo check all conditions
                     if (firstSum + detail.Time.B <= secondSum)
                     {
@@ -328,7 +338,8 @@ namespace RequirementsScheduler.Library.Worker
                         isOptimized = false;
                         break;
                     }
-
+                }
+                    
                 if (isOptimized)
                 {
                     nodeOnCurrentMachine = nodeOnCurrentMachineToRemove.Previous;
