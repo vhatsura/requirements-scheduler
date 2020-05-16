@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
 using RequirementsScheduler.BLL.Service;
@@ -6,6 +7,7 @@ using RequirementsScheduler.DAL.Model;
 
 namespace RequirementsScheduler.BLL.Model.Conflicts
 {
+    [DebuggerDisplay("{ToString()}")]
     public class OnlineConflict : BaseConflict<Detail>, IOnlineChainNode
     {
         [JsonConstructor]
@@ -37,5 +39,8 @@ namespace RequirementsScheduler.BLL.Model.Conflicts
         {
             foreach (var detail in Details.Values) detail.GenerateP(randomizeService);
         }
+
+        public override string ToString() =>
+            $"{Details.Count} details. #({Details.Values.FirstOrDefault()?.Number ?? 0})";
     }
 }

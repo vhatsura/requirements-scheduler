@@ -15,5 +15,6 @@ CREATE TABLE [dbo].[ExperimentResult]
 	[OnlineUnResolvedConflictAmount] INT NULL, 
 	[DeltaCmaxMax] FLOAT NULL, 
 	[DeltaCmaxAverage] FLOAT NULL, 
+	[DowntimeAmount] INT NOT NULL
 	CONSTRAINT [FK_ExperimentResult_Experiment] FOREIGN KEY ([ExperimentId]) REFERENCES [dbo].[Experiment]([Id])
 )

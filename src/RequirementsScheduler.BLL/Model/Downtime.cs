@@ -4,7 +4,7 @@ using RequirementsScheduler.BLL.Service;
 
 namespace RequirementsScheduler.BLL.Model
 {
-    [DebuggerDisplay("Time: {Time.ToString(\"0.###\")}")]
+    //[DebuggerDisplay("Time: {Time.ToString(\"0.###\")}")]
     public sealed class Downtime : IOnlineChainNode, IEquatable<Downtime>
     {
         public Downtime(double time)
@@ -52,5 +52,7 @@ namespace RequirementsScheduler.BLL.Model
         }
 
         public override int GetHashCode() => Time.GetHashCode();
+
+        public override string ToString() => $"Time: {Time:0.###}";
     }
 }

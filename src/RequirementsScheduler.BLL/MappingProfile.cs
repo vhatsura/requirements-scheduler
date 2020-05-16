@@ -39,6 +39,7 @@ namespace RequirementsScheduler.BLL
                     opt => opt.MapFrom(src => TimeSpan.FromSeconds(src.OnlineExecutionTime.TotalSeconds)))
                 .ForMember(dest => dest.OfflineExecutionTime,
                     opt => opt.MapFrom(src => TimeSpan.FromSeconds(src.OfflineExecutionTime.TotalSeconds)))
+                .ForMember(dest => dest.DowntimeAmount, opt => opt.MapFrom(src => src.DowntimeAmount))
                 .ReverseMap();
 
             CreateMap<ExperimentResult, ReportInfo>();

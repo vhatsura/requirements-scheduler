@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper.Configuration.Conventions;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -136,11 +137,16 @@ namespace RequirementsScheduler.Library.Tests
                     It.IsAny<ExperimentInfo>()))
                 .Callback<Guid, ExperimentInfo>((id, info) => resultInfo = info);
 
+            ExperimentReport experimentReport = null;
+            var reportServiceMock = new Mock<IReportsService>();
+            reportServiceMock.Setup(x => x.Save(It.Is<ExperimentReport>(r => r.ExperimentId == experiment.Id)))
+                .Callback<ExperimentReport>((report) => experimentReport = report);
+
             var experimentPipeline = new ExperimentPipeline(
                 generatorMock.Object,
                 Mock.Of<IWorkerExperimentService>(),
                 experimentTestResultService.Object,
-                Mock.Of<IReportsService>(),
+                reportServiceMock.Object,
                 Mock.Of<ILogger<ExperimentPipeline>>(),
                 Mock.Of<IOptions<DbSettings>>(),
                 new OnlineExecutor());
@@ -153,6 +159,7 @@ namespace RequirementsScheduler.Library.Tests
 
             // Assert
             resultInfo.Should().NotBeNull();
+            experimentReport.Should().NotBeNull();
         }
 
         [Fact]

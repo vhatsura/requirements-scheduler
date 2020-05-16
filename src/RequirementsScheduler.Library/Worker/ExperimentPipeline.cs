@@ -100,6 +100,8 @@ namespace RequirementsScheduler.Library.Worker
             var stop3 = 0;
             var stop4 = 0;
 
+            var downtimeAmount = 0;
+
             var sumOfDeltaCmax = 0.0;
             var deltaCmaxMax = 0.0f;
 
@@ -124,7 +126,7 @@ namespace RequirementsScheduler.Library.Worker
                     RunTest(experimentInfo, ref stop1, ref stop2, ref stop3, ref stop4, ref sumOfDeltaCmax,
                         ref deltaCmaxMax, ref offlineExecutionTimeInMilliseconds, ref onlineExecutionTimeInMilliseconds,
                         ref offlineResolvedConflictAmount,
-                        ref onlineResolvedConflictAmount, ref onlineUnResolvedConflictAmount);
+                        ref onlineResolvedConflictAmount, ref onlineUnResolvedConflictAmount, ref downtimeAmount);
                 }
                 catch (Exception ex)
                 {
@@ -141,7 +143,9 @@ namespace RequirementsScheduler.Library.Worker
                         .InsertAsync(() => new ExperimentFailure
                         {
                             ExperimentId = experiment.Id,
-                            ErrorMessage = JsonConvert.SerializeObject(ex)
+                            ErrorMessage = JsonConvert.SerializeObject(ex),
+                            ExperimentInfo = JsonConvert.SerializeObject(experimentInfo,
+                                new JsonSerializerSettings {TypeNameHandling = TypeNameHandling.Auto})
                         });
                 }
 
@@ -165,6 +169,8 @@ namespace RequirementsScheduler.Library.Worker
             experimentReport.Stop3Percentage = (float) Math.Round(stop3 / (float) experiment.TestsAmount * 100, 1);
             experimentReport.Stop4Percentage = (float) Math.Round(stop4 / (float) experiment.TestsAmount * 100, 1);
 
+            experimentReport.DowntimeAmount = downtimeAmount;
+
             if (stop4 != 0)
             {
                 experimentReport.DeltaCmaxAverage = (float) sumOfDeltaCmax / experiment.TestsAmount;
@@ -183,7 +189,7 @@ namespace RequirementsScheduler.Library.Worker
             ref double sumOfDeltaCmax, ref float deltaCmaxMax, ref double offlineExecutionTimeInMilliseconds,
             ref double onlineExecutionTimeInMilliseconds,
             ref int offlineResolvedConflictAmount, ref int onlineResolvedConflictAmount,
-            ref int onlineUnResolvedConflictAmount)
+            ref int onlineUnResolvedConflictAmount, ref int downtimeAmount)
         {
             var offlineResult = OfflineExecutor.RunInOffline(experimentInfo);
 
@@ -221,6 +227,10 @@ namespace RequirementsScheduler.Library.Worker
                     InterlockedExtensions.Add(ref sumOfDeltaCmax, experimentInfo.Result.DeltaCmax);
                     InterlockedExtensions.Max(ref deltaCmaxMax, experimentInfo.Result.DeltaCmax);
                 }
+
+                Interlocked.Add(ref downtimeAmount,
+                    experimentInfo.OnlineChainOnFirstMachine.Count(x => x.Type == OnlineChainType.Downtime) +
+                    experimentInfo.OnlineChainOnSecondMachine.Count(x => x.Type == OnlineChainType.Downtime));
             }
             else
             {

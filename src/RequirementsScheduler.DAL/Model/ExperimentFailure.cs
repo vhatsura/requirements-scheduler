@@ -11,5 +11,8 @@ namespace RequirementsScheduler.DAL.Model
 
         [Column]
         public string ErrorMessage { get; set; }
+        
+        [Column]
+        public string ExperimentInfo { get; set; }
     }
 }
