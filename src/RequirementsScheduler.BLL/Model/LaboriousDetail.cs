@@ -12,7 +12,7 @@ namespace RequirementsScheduler.BLL.Model
         public LaboriousDetail(Detail onFirst, Detail onSecond, int number)
         {
             Number = number;
-            
+
             OnFirst = new Detail(onFirst);
             OnSecond = new Detail(onSecond);
         }
@@ -33,16 +33,36 @@ namespace RequirementsScheduler.BLL.Model
 
         public bool Equals(LaboriousDetail other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return Equals(OnFirst, other.OnFirst) && Equals(OnSecond, other.OnSecond);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+
             return Equals((LaboriousDetail) obj);
         }
 

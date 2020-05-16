@@ -33,7 +33,10 @@ namespace RequirementsScheduler.WebApiHost.Identity
         public Task Invoke(HttpContext context)
         {
             // If the request path doesn't match, skip
-            if (!context.Request.Path.Equals(_options.Path, StringComparison.Ordinal)) return _next(context);
+            if (!context.Request.Path.Equals(_options.Path, StringComparison.Ordinal))
+            {
+                return _next(context);
+            }
 
             // Request must be POST with Content-Type: application/x-www-form-urlencoded
             if (!context.Request.Method.Equals("POST")
@@ -99,10 +102,12 @@ namespace RequirementsScheduler.WebApiHost.Identity
         private Task<ClaimsIdentity> GetIdentity(User user, string password)
         {
             if (user != null && user.Password == password)
+            {
                 return Task.FromResult(
                     new ClaimsIdentity(
                         new GenericIdentity(user.Username, "Token"),
                         new Claim[] { }));
+            }
 
             // Credentials are invalid, or account doesn't exist
             return Task.FromResult<ClaimsIdentity>(null);

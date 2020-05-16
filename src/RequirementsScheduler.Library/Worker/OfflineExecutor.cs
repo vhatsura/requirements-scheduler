@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using RequirementsScheduler.BLL;
 using RequirementsScheduler.BLL.Model;
+using RequirementsScheduler.BLL.Model.Conflicts;
 
 namespace RequirementsScheduler.Library.Worker
 {
@@ -75,7 +76,10 @@ namespace RequirementsScheduler.Library.Worker
         {
             CheckFirst(experimentInfo);
 
-            if (experimentInfo.IsOptimized) return true;
+            if (experimentInfo.IsOptimized)
+            {
+                return true;
+            }
 
             CheckSecond(experimentInfo);
             return experimentInfo.IsOptimized;
@@ -86,14 +90,20 @@ namespace RequirementsScheduler.Library.Worker
             if (experimentInfo.J12.Sum(detail => detail.OnFirst.Time.B) <=
                 experimentInfo.J21.Sum(detail => detail.OnSecond.Time.A) +
                 experimentInfo.J2.Sum(detail => detail.Time.A))
+            {
                 experimentInfo.J12.IsOptimized = true;
+            }
             else
+            {
                 return;
+            }
 
             if (experimentInfo.J12.Sum(detail => detail.OnSecond.Time.A) >=
                 experimentInfo.J1.Sum(detail => detail.Time.B) +
                 experimentInfo.J21.Sum(detail => detail.OnFirst.Time.B))
+            {
                 experimentInfo.J21.IsOptimized = true;
+            }
         }
 
         private static void CheckSecond(ExperimentInfo experimentInfo)
@@ -101,22 +111,34 @@ namespace RequirementsScheduler.Library.Worker
             if (experimentInfo.J21.Sum(detail => detail.OnSecond.Time.B) <=
                 experimentInfo.J12.Sum(detail => detail.OnFirst.Time.A) +
                 experimentInfo.J1.Sum(detail => detail.Time.A))
+            {
                 experimentInfo.J21.IsOptimized = true;
+            }
             else
+            {
                 return;
+            }
 
             //todo if J12 already optimized we don't need check it again
             if (experimentInfo.J21.Sum(detail => detail.OnFirst.Time.A) >=
                 experimentInfo.J2.Sum(detail => detail.Time.B) +
                 experimentInfo.J12.Sum(detail => detail.OnSecond.Time.B))
+            {
                 experimentInfo.J12.IsOptimized = true;
+            }
         }
 
         private static bool CheckStopOneAndTwo(ExperimentInfo experimentInfo)
         {
-            if (!experimentInfo.J12.IsOptimized) experimentInfo.J12Chain = TryToOptimizeJ12(experimentInfo);
+            if (!experimentInfo.J12.IsOptimized)
+            {
+                experimentInfo.J12Chain = TryToOptimizeJ12(experimentInfo);
+            }
 
-            if (!experimentInfo.J21.IsOptimized) experimentInfo.J21Chain = TryToOptimizeJ21(experimentInfo);
+            if (!experimentInfo.J21.IsOptimized)
+            {
+                experimentInfo.J21Chain = TryToOptimizeJ21(experimentInfo);
+            }
 
             return experimentInfo.IsOptimized;
         }
@@ -145,10 +167,15 @@ namespace RequirementsScheduler.Library.Worker
                 sortedSecondBox,
                 (previousDetail, currentDetail) => previousDetail.OnSecond.Time.A < currentDetail.OnSecond.Time.B);
 
-            if (!boxes.AsteriskBox.Any()) return new Chain(firstChain.Concat(secondChain));
+            if (!boxes.AsteriskBox.Any())
+            {
+                return new Chain(firstChain.Concat(secondChain));
+            }
 
             if (boxes.AsteriskBox.Count() == 1)
+            {
                 return new Chain(firstChain.Append(boxes.AsteriskBox.First()).Concat(secondChain));
+            }
 
             //find conflict borders
             var minAOnFirst = boxes.AsteriskBox.Min(detail => detail.OnFirst.Time.A);
@@ -158,7 +185,6 @@ namespace RequirementsScheduler.Library.Worker
             var jConflict = new Conflict();
 
             foreach (var chainElement in firstChain)
-            {
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
@@ -199,13 +225,11 @@ namespace RequirementsScheduler.Library.Worker
 
                     resultChain.AddLast(chainElement);
                 }
-            }
 
             jConflict.Details.AddRange(boxes.Item3.Select(x =>
                 new KeyValuePair<int, LaboriousDetail>(x.Number, x)));
 
             foreach (var chainElement in secondChain)
-            {
                 if (chainElement.Type == ChainType.Conflict)
                 {
                     var conflict = chainElement as Conflict;
@@ -250,9 +274,11 @@ namespace RequirementsScheduler.Library.Worker
                         break;
                     }
                 }
-            }
 
-            if (jConflict != null) resultChain.AddLast(jConflict);
+            if (jConflict != null)
+            {
+                resultChain.AddLast(jConflict);
+            }
 
             return resultChain;
         }
@@ -261,7 +287,10 @@ namespace RequirementsScheduler.Library.Worker
             IReadOnlyCollection<LaboriousDetail> sortedBox,
             Func<LaboriousDetail, LaboriousDetail, bool> conflictPredicate)
         {
-            if (sortedBox.Count == 1) return new Chain(sortedBox);
+            if (sortedBox.Count == 1)
+            {
+                return new Chain(sortedBox);
+            }
 
             var chain = new Chain();
 
@@ -278,9 +307,13 @@ namespace RequirementsScheduler.Library.Worker
                             conflictPredicate.Invoke(detail, detailFromSortedBox));
 
                         if (isConflict)
+                        {
                             conflict.Details.Add(detailFromSortedBox.Number, detailFromSortedBox);
+                        }
                         else
+                        {
                             chain.AddLast(detailFromSortedBox);
+                        }
                     }
                     else
                     {
@@ -334,9 +367,15 @@ namespace RequirementsScheduler.Library.Worker
                 sortedSecondBox,
                 (previousDetail, currentDetail) => previousDetail.OnFirst.Time.A < currentDetail.OnFirst.Time.B);
 
-            if (!asteriskBox.Any()) return new Chain(firstChain.Concat(secondChain));
+            if (!asteriskBox.Any())
+            {
+                return new Chain(firstChain.Concat(secondChain));
+            }
 
-            if (asteriskBox.Count() == 1) return new Chain(firstChain.Append(asteriskBox.First()).Concat(secondChain));
+            if (asteriskBox.Count() == 1)
+            {
+                return new Chain(firstChain.Append(asteriskBox.First()).Concat(secondChain));
+            }
 
             //find conflict borders
             var minAOnFirst = asteriskBox.Min(detail => detail.OnFirst.Time.A);
@@ -435,7 +474,10 @@ namespace RequirementsScheduler.Library.Worker
                     }
                 }
 
-            if (jConflict != null) resultChain.AddLast(jConflict);
+            if (jConflict != null)
+            {
+                resultChain.AddLast(jConflict);
+            }
 
             return resultChain;
         }
@@ -485,9 +527,13 @@ namespace RequirementsScheduler.Library.Worker
         private static bool CheckStopOneAndThree(ExperimentInfo experimentInfo)
         {
             if (experimentInfo.J12Chain != null && !experimentInfo.J12Chain.IsOptimized)
+            {
                 for (var node = experimentInfo.J12Chain.First; node != null; node = node.Next)
                 {
-                    if (node.Value.Type != ChainType.Conflict) continue;
+                    if (node.Value.Type != ChainType.Conflict)
+                    {
+                        continue;
+                    }
 
                     var sumOfBOnFirst = 0.0;
                     var sumOfAOnSecond = 0.0;
@@ -525,11 +571,16 @@ namespace RequirementsScheduler.Library.Worker
                         node = insertedNode;
                     }
                 }
+            }
 
             if (experimentInfo.J21Chain != null && !experimentInfo.J21Chain.IsOptimized)
+            {
                 for (var node = experimentInfo.J21Chain.First; node != null; node = node.Next)
                 {
-                    if (node.Value.Type != ChainType.Conflict) continue;
+                    if (node.Value.Type != ChainType.Conflict)
+                    {
+                        continue;
+                    }
 
                     var sumOfBOnSecond = 0.0;
                     var sumOfAOnFirst = 0.0;
@@ -567,6 +618,7 @@ namespace RequirementsScheduler.Library.Worker
                         node = insertedNode;
                     }
                 }
+            }
 
             return experimentInfo.IsOptimized;
         }
@@ -577,7 +629,10 @@ namespace RequirementsScheduler.Library.Worker
             {
                 for (var node = experimentInfo.J12Chain.Last; node != null; node = node.Previous)
                 {
-                    if (node.Value.Type != ChainType.Conflict) continue;
+                    if (node.Value.Type != ChainType.Conflict)
+                    {
+                        continue;
+                    }
 
                     var conflict = node.Value as Conflict;
                     var x1Box = conflict.Details.Values
@@ -665,7 +720,10 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         aOfDetailAfterConflict = experimentInfo.J1?.Sum(detail => detail.Time.A) ??
                                                  0.0 + experimentInfo.J21?.Sum(detail => detail.OnFirst.Time.A) ?? 0.0;
-                        if (aOfDetailAfterConflict == 0.0) break;
+                        if (aOfDetailAfterConflict == 0.0)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
@@ -707,7 +765,10 @@ namespace RequirementsScheduler.Library.Worker
             {
                 for (var node = experimentInfo.J21Chain.Last; node != null; node = node.Previous)
                 {
-                    if (node.Value.Type != ChainType.Conflict) continue;
+                    if (node.Value.Type != ChainType.Conflict)
+                    {
+                        continue;
+                    }
 
                     var conflict = node.Value as Conflict;
                     var x1Box = conflict.Details.Values
@@ -795,7 +856,10 @@ namespace RequirementsScheduler.Library.Worker
                     {
                         aOfDetailAfterConflict = experimentInfo.J2?.Sum(detail => detail.Time.A) ??
                                                  0.0 + experimentInfo.J12?.Sum(detail => detail.OnSecond.Time.A) ?? 0.0;
-                        if (aOfDetailAfterConflict == 0.0) break;
+                        if (aOfDetailAfterConflict == 0.0)
+                        {
+                            break;
+                        }
                     }
                     else
                     {

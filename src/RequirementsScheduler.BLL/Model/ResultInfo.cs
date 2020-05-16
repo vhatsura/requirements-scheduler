@@ -15,19 +15,21 @@ namespace RequirementsScheduler.BLL.Model
 
     public class ResultInfo
     {
+        public ResultInfo()
+        {
+            Online = new OnlineExecutionContext();
+        }
+
         public ResultType? Type { get; set; }
 
         public int OfflineResolvedConflictAmount { get; set; }
-        public int OnlineResolvedConflictAmount { get; set; }
-        public int OnlineUnResolvedConflictAmount { get; set; }
-
-        public bool IsResolvedOnCheck3InOnline { get; set; }
 
         public bool IsStop3OnOnline { get; set; }
 
         public float DeltaCmax { get; set; }
 
         public TimeSpan OfflineExecutionTime { get; set; }
-        public TimeSpan OnlineExecutionTime { get; set; }
+
+        public OnlineExecutionContext Online { get; set; }
     }
 }

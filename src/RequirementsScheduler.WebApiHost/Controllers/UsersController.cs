@@ -36,11 +36,16 @@ namespace RequirementsScheduler.WebApiHost.Controllers
         public ActionResult Post([FromBody] User value)
         {
             if (!ModelState.IsValid)
+            {
                 return BadRequest(new {Message = $"User isn't valid: {ModelState.ErrorsToString()}"});
+            }
 
             var result = Service.AddUser(value);
             if (result)
+            {
                 return Ok(new {Message = "User added successfully"});
+            }
+
             return BadRequest(new {Message = "The user with the same username already exists"});
         }
     }

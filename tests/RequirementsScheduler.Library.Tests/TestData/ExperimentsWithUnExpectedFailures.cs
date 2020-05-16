@@ -13,9 +13,10 @@ namespace RequirementsScheduler.Library.Tests.TestData
             foreach (var filePath in Directory.GetFiles("./TestData", "*.json"))
             {
                 var text = File.ReadAllText(filePath);
-                var experimentInfo = JsonConvert.DeserializeObject<ExperimentInfo>(text);
-                
-                yield return new object[]{filePath, experimentInfo};
+                var experimentInfo = JsonConvert.DeserializeObject<ExperimentInfo>(text,
+                    new JsonSerializerSettings {TypeNameHandling = TypeNameHandling.Auto});
+
+                yield return new object[] {filePath, experimentInfo};
             }
         }
 

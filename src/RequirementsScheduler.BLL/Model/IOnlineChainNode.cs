@@ -6,5 +6,7 @@ namespace RequirementsScheduler.BLL.Model
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         OnlineChainType Type { get; }
+        
+        //public ProcessingTime Time { get; }
     }
 }

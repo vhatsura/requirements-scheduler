@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
-using Accord.Statistics.Kernels;
 using Elastic.CommonSchema.Serilog;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Debugging;
 using Serilog.Events;
 
 namespace RequirementsScheduler.WebApiHost
@@ -19,7 +19,7 @@ namespace RequirementsScheduler.WebApiHost
 
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
-            Serilog.Debugging.SelfLog.Enable(msg => logger.LogError(msg));
+            SelfLog.Enable(msg => logger.LogError(msg));
 
             await host.RunAsync();
         }
@@ -38,7 +38,11 @@ namespace RequirementsScheduler.WebApiHost
                             customFormatter: new EcsTextFormatter(ecsTextFormatterConfiguration), connectionTimeout: 20)
                         .WriteTo.Logger(lc => lc.Filter.ByExcluding(x =>
                         {
-                            if (!x.TryGetScalarPropertyValue("SourceContext", out var value)) return false;
+                            if (!x.TryGetScalarPropertyValue("SourceContext", out var value))
+                            {
+                                return false;
+                            }
+
                             return value.ToString() == "\"RequirementsScheduler.Library.Worker.ExperimentPipeline\"" &&
                                    x.Level != LogEventLevel.Error && x.Level != LogEventLevel.Fatal;
                         }).WriteTo.Console())

@@ -11,6 +11,8 @@ namespace RequirementsScheduler.DAL.Model
 
         public string Role { get; set; }
 
-        [PrimaryKey] [Identity] public int Id { get; set; }
+        [PrimaryKey]
+        [Identity]
+        public int Id { get; set; }
     }
 }

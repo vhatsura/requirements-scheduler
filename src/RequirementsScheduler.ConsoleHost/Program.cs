@@ -29,12 +29,12 @@ namespace RequirementsScheduler.ConsoleHost
 
         private static void ReadFromConsole<T>(Action<T> setter, string message)
         {
-            System.Console.Write(message);
-            var line = System.Console.ReadLine();
+            Console.Write(message);
+            var line = Console.ReadLine();
 
             if (!ConvertValue(line, out T value))
             {
-                System.Console.Write("Error input");
+                Console.Write("Error input");
                 return;
             }
 
@@ -70,7 +70,10 @@ namespace RequirementsScheduler.ConsoleHost
         public static void Main(string[] args)
         {
             var experiment = ReadExperimentFromConsole();
-            if (experiment == null) return;
+            if (experiment == null)
+            {
+                return;
+            }
 
             var reportsServiceMock = new Mock<IReportsService>();
             ExperimentReport report = null;
@@ -84,27 +87,28 @@ namespace RequirementsScheduler.ConsoleHost
                 new ExperimentTestResultFileService(),
                 reportsServiceMock.Object,
                 Mock.Of<ILogger<ExperimentPipeline>>(),
-                Mock.Of<IOptions<DbSettings>>());
+                Mock.Of<IOptions<DbSettings>>(),
+                new OnlineExecutor());
 
             var stopwatch = Stopwatch.StartNew();
             pipeline.Run(new List<Experiment> {experiment}).ConfigureAwait(false);
             stopwatch.Stop();
 
-            System.Console.ForegroundColor = ConsoleColor.DarkGreen;
-            System.Console.WriteLine("\n\n---------   RESULTS OF EXPERIMENTS' EXECUTION   ---------");
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("\n\n---------   RESULTS OF EXPERIMENTS' EXECUTION   ---------");
 
-            System.Console.WriteLine(
+            Console.WriteLine(
                 $"Time of execution experiments: {TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds):%m' minute(s) '%s' second(s)'}\n\n");
 
-            System.Console.WriteLine($"Amounts of tests: {experiment.TestsAmount}");
-            System.Console.WriteLine(
+            Console.WriteLine($"Amounts of tests: {experiment.TestsAmount}");
+            Console.WriteLine(
                 $"Amounts of resolved tests in offline mode: {experiment.Results.Count}, {experiment.Results.Count * 100 / (double) experiment.TestsAmount:0.###}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.1: {report?.Stop1Percentage}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.2: {report?.Stop2Percentage}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.3: {report?.Stop3Percentage}%");
-            System.Console.WriteLine($"Amounts of resolved tests in STOP 1.4: {report?.Stop4Percentage}%");
+            Console.WriteLine($"Amounts of resolved tests in STOP 1.1: {report?.Stop1Percentage}%");
+            Console.WriteLine($"Amounts of resolved tests in STOP 1.2: {report?.Stop2Percentage}%");
+            Console.WriteLine($"Amounts of resolved tests in STOP 1.3: {report?.Stop3Percentage}%");
+            Console.WriteLine($"Amounts of resolved tests in STOP 1.4: {report?.Stop4Percentage}%");
 
-            System.Console.ReadKey();
+            Console.ReadKey();
         }
     }
 }

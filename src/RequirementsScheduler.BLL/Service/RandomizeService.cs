@@ -3,7 +3,7 @@ using RequirementsScheduler.DAL.Model;
 
 namespace RequirementsScheduler.BLL.Service
 {
-    public class RandomizeService: IRandomizeService
+    public class RandomizeService : IRandomizeService
     {
         private static readonly Random Random = new Random();
 
@@ -16,6 +16,9 @@ namespace RequirementsScheduler.BLL.Service
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
+
+        public double GetRandomDouble(int min, int max, Distribution distribution = Distribution.Uniform) =>
+            GetRandomDouble(min, (double) max, distribution);
 
         private static double GammaDistribution(double min, double max)
         {
@@ -36,8 +39,5 @@ namespace RequirementsScheduler.BLL.Service
 
             return distribution == 0 ? value + min : max - value;
         }
-
-        public double GetRandomDouble(int min, int max, Distribution distribution = Distribution.Uniform) =>
-            GetRandomDouble(min, (double) max, distribution);
     }
 }

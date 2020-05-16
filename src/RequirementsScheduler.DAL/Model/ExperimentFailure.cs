@@ -1,6 +1,5 @@
 ﻿using System;
 using LinqToDB.Mapping;
-using RequirementsScheduler.DAL.Repository;
 
 namespace RequirementsScheduler.DAL.Model
 {

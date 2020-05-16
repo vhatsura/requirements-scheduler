@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using LinqToDB.Common;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SqlServer;
 using Microsoft.Extensions.Options;
@@ -13,7 +14,7 @@ namespace RequirementsScheduler.DAL
 #if DEBUG
             DataConnection.TurnTraceSwitchOn();
             DataConnection.WriteTraceLine = (s, s1) => Debug.WriteLine(s, s1);
-            LinqToDB.Common.Configuration.Linq.GenerateExpressionTest = true;
+            Configuration.Linq.GenerateExpressionTest = true;
 #endif
             Settings = settings.Value;
         }

@@ -10,7 +10,9 @@ namespace RequirementsScheduler.BLL.Model
         public Downtime(double time)
         {
             if (time <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(time), $"Unable to create downtime with {time} value");
+            }
 
             Time = time;
         }
@@ -19,9 +21,12 @@ namespace RequirementsScheduler.BLL.Model
 
         public bool Equals(Downtime other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Time.Equals(other.Time);
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            return ReferenceEquals(this, other) || Time.Equals(other.Time);
         }
 
         public OnlineChainType Type => OnlineChainType.Downtime;
@@ -33,9 +38,17 @@ namespace RequirementsScheduler.BLL.Model
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is Downtime && Equals((Downtime) obj);
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is Downtime downtime && Equals(downtime);
         }
 
         public override int GetHashCode() => Time.GetHashCode();

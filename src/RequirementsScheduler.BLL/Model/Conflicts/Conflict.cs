@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using RequirementsScheduler.BLL.Service;
 
-namespace RequirementsScheduler.BLL.Model
+namespace RequirementsScheduler.BLL.Model.Conflicts
 {
     public class Conflict : BaseConflict<LaboriousDetail>, IChainNode
     {
@@ -20,21 +18,6 @@ namespace RequirementsScheduler.BLL.Model
                     break;
                 default: throw new InvalidOperationException();
             }
-        }
-    }
-
-    public class OnlineConflict : BaseConflict<Detail>, IOnlineChainNode
-    {
-        public OnlineConflict(IEnumerable<KeyValuePair<int, Detail>> details)
-        {
-            Details.AddRange(details);
-        }
-
-        OnlineChainType IOnlineChainNode.Type => OnlineChainType.Conflict;
-
-        public void GenerateP(IRandomizeService randomizeService)
-        {
-            foreach (var detail in Details.Values) detail.GenerateP(randomizeService);
         }
     }
 }

@@ -70,10 +70,12 @@ namespace RequirementsScheduler.WebApiHost
 #endif
 
             services.AddTransient<IJobFactory, WorkerJobFactory>(provider => new WorkerJobFactory(provider));
+            services.AddTransient<IRandomizeService, RandomizeService>();
             services.AddTransient<IExperimentPipeline, ExperimentPipeline>();
             services.AddTransient<IExperimentGenerator, ExperimentGenerator>();
             services.AddSingleton<IWorkerExperimentService, WorkerExperimentService>();
             services.AddSingleton<ExperimentWorker, ExperimentWorker>();
+            services.AddSingleton<IOnlineExecutor, OnlineExecutor>();
 
             services.Configure<DbSettings>(options =>
             {
@@ -106,13 +108,17 @@ namespace RequirementsScheduler.WebApiHost
         public void Configure(IApplicationBuilder app)
         {
             if (_hostingEnvironment.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
+            }
             //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
             //{
             //    HotModuleReplacement = true
             //});
             else
+            {
                 app.UseExceptionHandler("/Home/Error");
+            }
 
             app.UseStaticFiles();
 

@@ -40,7 +40,9 @@ namespace RequirementsScheduler.Core.Service
         {
             var existedUser = GetByUserName(value.Username);
             if (existedUser != null)
+            {
                 return false;
+            }
 
             Repository.Add(Mapper.Map<User>(value));
             return true;
